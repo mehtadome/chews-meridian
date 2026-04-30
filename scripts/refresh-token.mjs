@@ -26,7 +26,11 @@ function parseEnv(content) {
   for (const line of content.split("\n")) {
     if (line.startsWith("#") || !line.includes("=")) continue;
     const [key, ...rest] = line.split("=");
-    vars[key.trim()] = rest.join("=").trim();
+    let value = rest.join("=").trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    vars[key.trim()] = value;
   }
   return vars;
 }

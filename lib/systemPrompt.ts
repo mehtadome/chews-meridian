@@ -2,8 +2,9 @@ import { WATCHLIST } from "@/lib/watchlist";
 import { NEWSLETTER_SENDERS } from "@/lib/config";
 
 function buildSendersQuery(sinceMs: number) {
-  const afterSeconds = Math.floor(sinceMs / 1000);
-  return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) after:${afterSeconds}`;
+  const d = new Date(sinceMs);
+  const after = `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCDate()).padStart(2, "0")}`;
+  return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) after:${after}`;
 }
 
 export function buildSystemPrompt(sinceMs: number) {
