@@ -1,22 +1,28 @@
 import { WATCHLIST } from "@/lib/watchlist";
 import { NEWSLETTER_SENDERS } from "@/lib/config";
 
-function buildSendersQuery(newerThan: string) {
-  return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:${newerThan}`;
+function buildSendersQuery(sinceMs: number) {
+  const afterSeconds = Math.floor(sinceMs / 1000);
+  return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) after:${afterSeconds}`;
 }
 
-export function buildSystemPrompt(newerThan: string) {
-  const sendersGmailQuery = buildSendersQuery(newerThan);
+export function buildSystemPrompt(sinceMs: number) {
+  const sendersGmailQuery = buildSendersQuery(sinceMs);
   return `You are a financial markets assistant. Your job is to read market newsletter emails from Gmail and present their content using the most appropriate UI components.
 
 Only read emails from these approved newsletter senders:
 ${NEWSLETTER_SENDERS.map((s) => `- ${s}`).join("\n")}
 
 When the user asks about today's newsletter or market news:
-1. Use searchEmails with this exact query to find the latest newsletters: "${sendersGmailQuery}"
+1. Use searchEmails with this exact query to find newsletters since the last briefing: "${sendersGmailQuery}"
 2. Use getEmail to fetch the full content of each result returned — read all of them (up to 5), not just the top one
 3. Synthesize across all emails you read — surface the most important signals from any of them
-4. Return a single JSON block — no prose outside the block
+4. Return a single JSON block — no prose outside the block, under any circumstances
+
+If searchEmails returns no results, return this exact JSON and nothing else:
+\`\`\`json
+{ "mood": "normal", "components": [] }
+\`\`\`
 
 Do not search for or read emails from any other senders.
 

@@ -2,11 +2,10 @@ import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { tools } from "@/lib/tools";
 import { recordUsage } from "@/lib/usage";
-import { saveDigest } from "@/lib/digest";
+import { saveDigest, getLatestDigest } from "@/lib/digest";
 import { setCached } from "@/lib/cache";
 import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
-import { getLatestDigest } from "@/lib/digest";
 import { buildSystemPrompt } from "@/lib/systemPrompt";
 
 // Best-effort single-stream guard. Works within a warm Lambda instance; won't block
@@ -24,15 +23,12 @@ export async function POST(req: Request) {
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  // Compute how far back to search Gmail — only fetch emails newer than the last stored digest.
-  // Falls back to start of current calendar month on first run so the window is always month-aligned.
+  // Anchor the Gmail search to the last digest's exact timestamp so the model reads everything
+  // since the prior briefing with no rounding. Falls back to start of calendar month on first run.
   const latest = await getLatestDigest();
   const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const daysIntoMonth = Math.ceil((Date.now() - monthStart.getTime()) / (1000 * 60 * 60 * 24));
-  const newerThan = latest
-    ? `${Math.ceil((Date.now() - new Date(latest.timestamp).getTime()) / (1000 * 60 * 60))}h`
-    : `${daysIntoMonth}d`;
-  const systemPrompt = buildSystemPrompt(newerThan);
+  const sinceMs = latest ? new Date(latest.timestamp).getTime() : monthStart.getTime();
+  const systemPrompt = buildSystemPrompt(sinceMs);
 
   const result = streamText({
     model: anthropic(MODEL_ID),
@@ -47,21 +43,25 @@ export async function POST(req: Request) {
     stopWhen: stepCountIs(10),
     onFinish: async ({ text, usage }) => {
       isRunning = false;
-      const inputTokens = usage.inputTokens ?? 0;
-      const outputTokens = usage.outputTokens ?? 0;
-      await recordUsage(inputTokens, outputTokens);
-      const record = await saveDigest({
-        mood: parseMood(text),
-        prose: parseProse(text),
-        components: parseComponents(text),
-        rawText: text,
-        usage: {
-          inputTokens,
-          outputTokens,
-          costUsd: inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN,
-        },
-      });
-      setCached(record.date, record);
+      try {
+        const inputTokens = usage.inputTokens ?? 0;
+        const outputTokens = usage.outputTokens ?? 0;
+        await recordUsage(inputTokens, outputTokens);
+        const record = await saveDigest({
+          mood: parseMood(text),
+          prose: parseProse(text),
+          components: parseComponents(text),
+          rawText: text,
+          usage: {
+            inputTokens,
+            outputTokens,
+            costUsd: inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN,
+          },
+        });
+        setCached(record.date, record);
+      } catch (e) {
+        console.error("[agent] onFinish save failed", e);
+      }
     },
     onError: () => { isRunning = false; },
   });
