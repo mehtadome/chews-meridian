@@ -175,7 +175,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          <Link href="/about" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="About">
+          <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
             <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
           <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
