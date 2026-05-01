@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import { ThemeProvider } from "@/components/theme-provider";
 import { THEME_STORAGE_KEY } from "@/lib/theme";
 import "./globals.css";
 
@@ -37,7 +36,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {themeInitScript}
         </Script>
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
       </body>
     </html>
   );

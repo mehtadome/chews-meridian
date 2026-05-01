@@ -1,0 +1,14 @@
+/* Landing & About pages — isolated from the product design system in globals.css */
+
+/* Universal micro-transition: all interactive state changes feel smooth.
+   transform is excluded — Framer Motion owns those with its physics engine. */
+* {
+  transition-property: color, background-color, border-color, box-shadow, opacity, filter;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+/* Smooth anchor scrolling */
+html {
+  scroll-behavior: smooth;
+}

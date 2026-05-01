@@ -5,7 +5,7 @@ import { useFetchOnMount } from "@/hooks/useFetchOnMount";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { RefreshCw, Settings, X, ChartCandlestick } from "lucide-react";
+import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { ChatDrawer } from "@/components/ChatDrawer";
@@ -170,6 +170,9 @@ export default function Home() {
               </div>
             </div>
           )}
+          <Link href="/about" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="About">
+            <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
+          </Link>
           <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
             <Settings style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
