@@ -38,7 +38,6 @@ Steps to build the landing page and decouple marketing vs. product styling.
 
 - **Settings navigation clears digest** — navigating to `/settings` and back remounts the page, resetting all React state. The return `/api/digest` call then hits Redis (now fixed), so this should be resolved — verify in prod.
 
-- **Rename project to chews-meridian** — rename Vercel project in dashboard (Settings → General → Project Name), update `package.json` name field, and archive the chews-meridian repo. Wait until Vercel interviewers confirm they no longer need the current URL.
 
 - **Add retry logic for Gmail and Claude API calls** — transient timeouts are more common in production. Neither `lib/gmail.ts` nor `app/api/agent/route.ts` has any retry or backoff, so one flaky network call surfaces as a hard failure to the user.
 
