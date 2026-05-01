@@ -5,7 +5,7 @@ import { useFetchOnMount } from "@/hooks/useFetchOnMount";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { RefreshCw, Settings, X, ChartCandlestick } from "lucide-react";
+import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { ChatDrawer } from "@/components/ChatDrawer";
@@ -99,9 +99,14 @@ export default function Home() {
 
   useEffect(() => {
     if (status !== "ready") return;
+    // If the agent completed but returned no content (e.g. no new emails since last briefing),
+    // restore the existing cached digest rather than leaving the UI empty.
+    if (!agentText.trim() && messages.length > 0) {
+      void fetch("/api/digest").then((r) => r.json()).then((data) => { if (data?.rawText) setCachedContent(data.rawText); }).catch(() => {});
+    }
     void fetch("/api/usage").then((r) => r.json()).then((d) => setTotalCost(d.totalCostUsd)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
-  }, [status]);
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -170,6 +175,9 @@ export default function Home() {
               </div>
             </div>
           )}
+          <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
+            <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
+          </Link>
           <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
             <Settings style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>

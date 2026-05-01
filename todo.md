@@ -1,5 +1,25 @@
 # Todo
 
+## Landing Page & Marketing Routes
+
+Steps to build the landing page and decouple marketing vs. product styling.
+
+1. **Install Framer Motion** — `npm install framer-motion`
+2. **Restructure routes into groups** — move files into `app/(marketing)/` and `app/(product)/` so each group gets its own layout without affecting URLs
+   - `app/(marketing)/layout.tsx` — imports `marketing.css`, no ThemeProvider
+   - `app/(marketing)/page.tsx` — `/` (new landing page)
+   - `app/(marketing)/about/page.tsx` — move current `app/about/page.tsx` here
+   - `app/(product)/layout.tsx` — wraps with ThemeProvider, product styles
+   - `app/(product)/app/page.tsx` — move current `app/page.tsx` here → route becomes `/app`
+   - `app/(product)/settings/page.tsx` — move current `app/settings/page.tsx` here
+3. **Create `app/marketing.css`** — separate stylesheet for landing + about (gradients, animation classes, looser visual rules)
+4. **Update internal links**
+   - Settings back button: `/` → `/app`
+   - About back button: stays `/`
+   - Landing CTA: points to `/app`
+5. **Build landing page** — hero, project description, "Enter App" CTA; Framer Motion for scroll reveals and micro-interactions
+6. **Polish `/about`** — replace placeholder paragraphs, apply marketing styles
+
 ## Architecturally Imperfect
 
 - **Ticker standardization in prose** — tickers (e.g. AAPL, TSLA) appear as plain text in `BriefingSummary`, `RiskFlag`, `MacroSummaryCard`, and `NewsletterSummary` body fields. Structured tickers in `TickerMentionList` and `ChatDrawer` are already badged via `DigestTickerBadge`. Standardizing prose requires: (1) a detection strategy — regex is noisy (hits GDP, ETF, etc.), cross-referencing the digest's `TickerMentionList` is most accurate; (2) threading the ticker+direction map down through `DigestRenderer` → card components → `renderBold`; or introducing a React context to avoid prop drilling. Best approached as an extension to `renderBold` once the data threading story is clear.
@@ -18,7 +38,6 @@
 
 - **Settings navigation clears digest** — navigating to `/settings` and back remounts the page, resetting all React state. The return `/api/digest` call then hits Redis (now fixed), so this should be resolved — verify in prod.
 
-- **Rename project to chews-meridian** — rename Vercel project in dashboard (Settings → General → Project Name), update `package.json` name field, and archive the chews-meridian repo. Wait until Vercel interviewers confirm they no longer need the current URL.
 
 - **Add retry logic for Gmail and Claude API calls** — transient timeouts are more common in production. Neither `lib/gmail.ts` nor `app/api/agent/route.ts` has any retry or backoff, so one flaky network call surfaces as a hard failure to the user.
 

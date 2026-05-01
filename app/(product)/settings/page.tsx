@@ -134,10 +134,10 @@ export default function SettingsPage() {
         style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}
       >
         <Link
-          href="/"
+          href="/app"
           className="btn"
           style={{ padding: "0.35rem 0.45rem", display: "flex", alignItems: "center" }}
-          aria-label="Back to home"
+          aria-label="Back to app"
         >
           <ArrowLeft style={{ width: "1rem", height: "1rem" }} />
         </Link>
