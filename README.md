@@ -1,6 +1,15 @@
-# Market Analyzer
+# Market Analyzer · v1.0
 
 A Next.js application that reads market-focused newsletter emails from Gmail, interprets their content using Claude, and renders a dynamically assembled digest UI. Instead of a static layout, the page builds itself based on what's actually in the news that day — Fed commentary gets different treatment than an earnings beat or a geopolitical risk flag.
+
+## Changelog
+
+### [v1.0](https://github.com/mehtadome/market-analyzer/pull/11)
+- OAuth refresh script (`scripts/refresh-token.mjs`) — browser consent flow writes token to `.env.local` and Redis
+- Redis-backed token storage — re-authorizing on Vercel requires no redeploy
+- Settings page shows OAuth token expiry with warning colors
+- Gmail lookback anchored to exact last-digest timestamp (`after:{unixSeconds}`) instead of rounded hours
+- Empty-results contract — no new emails returns structured JSON instead of prose
 
 ---
 
@@ -22,9 +31,17 @@ ANTHROPIC_API_KEY=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REFRESH_TOKEN=
+GOOGLE_TOKEN_ISSUED_AT=   # written automatically by scripts/refresh-token.mjs
 ```
 
 Gmail OAuth setup: Google Cloud Console → enable Gmail API → create OAuth2 credentials → add `gmail.readonly` scope → store the resulting client ID, secret, and refresh token above.
+
+**Token expiry:** while the app is in Google Cloud *Testing* mode, refresh tokens expire after 7 days. To renew:
+
+1. Run `node scripts/refresh-token.mjs` — opens a browser consent flow and writes the new token directly into `.env.local`.
+2. Restart the dev server.
+
+The Settings page shows the current expiry date and warns when it's within 2 days.
 
 ---
 

@@ -6,7 +6,7 @@ config({ path: path.join(__dirname, "../.env.local") });
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { buildSystemPrompt } from "@/lib/systemPrompt";
-const systemPrompt = buildSystemPrompt("30d");
+const systemPrompt = buildSystemPrompt(Date.now() - 30 * 24 * 60 * 60 * 1000);
 import { parseMood, parseComponents } from "@/lib/parseResponse";
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures");

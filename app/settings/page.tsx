@@ -86,15 +86,41 @@ function SectionHeading({ id, label }: { id: string; label: string }) {
   );
 }
 
+const TOKEN_LIFESPAN_MS = 7 * 24 * 60 * 60 * 1000;
+const EXPIRY_WARNING_MS = 2 * 24 * 60 * 60 * 1000;
+
+function formatTokenExpiry(issuedAt: string): { label: string; urgency: "ok" | "warning" | "expired" } {
+  const issued = new Date(issuedAt).getTime();
+  const expires = new Date(issued + TOKEN_LIFESPAN_MS);
+  const now = Date.now();
+  const msLeft = expires.getTime() - now;
+  const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+  const dateStr = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric" }).format(expires);
+
+  if (msLeft <= 0) return { label: `Expired ${dateStr} — run scripts/refresh-token.mjs`, urgency: "expired" };
+  if (msLeft <= EXPIRY_WARNING_MS) return { label: `Expires ${dateStr} · ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`, urgency: "warning" };
+  return { label: `Expires ${dateStr} · ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`, urgency: "ok" };
+}
+
 export default function SettingsPage() {
   const { theme, setTheme, mounted } = useTheme();
   const [lastDigestTimestamp, setLastDigestTimestamp] = useState<string | null>(null);
+  const [tokenIssuedAt, setTokenIssuedAt] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/digest")
       .then((r) => r.json())
       .then((data) => {
         if (data?.timestamp) setLastDigestTimestamp(data.timestamp);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/token-info")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.issuedAt) setTokenIssuedAt(data.issuedAt);
       })
       .catch(() => {});
   }, []);
@@ -311,6 +337,33 @@ export default function SettingsPage() {
               })}
             </div>
           )}
+        </section>
+
+        {/* Google OAuth */}
+        <section aria-labelledby="oauth-heading">
+          <SectionHeading id="oauth-heading" label="Google OAuth" />
+          {(() => {
+            if (!tokenIssuedAt) {
+              return (
+                <p className="ds-meta" style={{ color: "var(--text-muted)" }}>
+                  Token expiry unknown — run <code>node scripts/refresh-token.mjs</code> to generate a tracked token.
+                </p>
+              );
+            }
+            const { label, urgency } = formatTokenExpiry(tokenIssuedAt);
+            const color =
+              urgency === "expired" ? "var(--digest-card-border-high)"
+              : urgency === "warning" ? "var(--digest-card-border-medium)"
+              : "var(--text-muted)";
+            return (
+              <p className="ds-meta" style={{ color }}>
+                {label}
+                {urgency !== "ok" && (
+                  <> — run <code>node scripts/refresh-token.mjs</code></>
+                )}
+              </p>
+            );
+          })()}
         </section>
       </main>
     </div>

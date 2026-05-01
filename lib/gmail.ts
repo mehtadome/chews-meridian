@@ -1,25 +1,39 @@
 import { google } from "googleapis";
 import { gmail_v1 } from "googleapis";
+import { redis } from "./redis";
 
 const BODY_CHAR_LIMIT = 8000;
+const REDIS_TOKEN_KEY = "google:refresh_token";
 
-const {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_REFRESH_TOKEN,
-} = process.env;
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN } = process.env;
 
-if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REFRESH_TOKEN) {
-  throw new Error(
-    "Missing required Gmail credentials: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN must all be set in .env.local"
-  );
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  throw new Error("Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
 }
 
-const oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
+// Cached after first resolution — cleared on process restart (dev server restart / Lambda cold start).
+let gmail: ReturnType<typeof google.gmail> | null = null;
 
-oauth2Client.setCredentials({ refresh_token: GOOGLE_REFRESH_TOKEN });
+async function getGmail() {
+  if (gmail) return gmail;
 
-const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+  let refreshToken: string | null = null;
+  try {
+    refreshToken = await redis.get(REDIS_TOKEN_KEY);
+  } catch {
+    // Redis unavailable — fall through to env var
+  }
+  refreshToken ??= GOOGLE_REFRESH_TOKEN ?? null;
+
+  if (!refreshToken) {
+    throw new Error("No Google refresh token found in Redis or GOOGLE_REFRESH_TOKEN env var");
+  }
+
+  const oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
+  gmail = google.gmail({ version: "v1", auth: oauth2Client });
+  return gmail;
+}
 
 export interface EmailSummary {
   id: string;
@@ -42,6 +56,7 @@ export async function searchEmails(
   query: string,
   maxResults: number = 1
 ): Promise<EmailSummary[]> {
+  const gmail = await getGmail();
   const listRes = await gmail.users.messages.list({
     userId: "me",
     q: query,
@@ -75,6 +90,7 @@ export async function searchEmails(
  * Fetch the full plain-text body of an email by message ID.
  */
 export async function getEmail(messageId: string): Promise<EmailContent> {
+  const gmail = await getGmail();
   const msg = await gmail.users.messages.get({
     userId: "me",
     id: messageId,
