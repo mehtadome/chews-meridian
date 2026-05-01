@@ -2,23 +2,23 @@
 
 ## Landing Page & Marketing Routes
 
-Steps to build the landing page and decouple marketing vs. product styling.
+Steps to build the landing page and decouple landing vs. product styling.
 
 1. **Install Framer Motion** — `npm install framer-motion`
-2. **Restructure routes into groups** — move files into `app/(marketing)/` and `app/(product)/` so each group gets its own layout without affecting URLs
-   - `app/(marketing)/layout.tsx` — imports `marketing.css`, no ThemeProvider
-   - `app/(marketing)/page.tsx` — `/` (new landing page)
-   - `app/(marketing)/about/page.tsx` — move current `app/about/page.tsx` here
+2. **Restructure routes into groups** — move files into `app/(landing)/` and `app/(product)/` so each group gets its own layout without affecting URLs
+   - `app/(landing)/layout.tsx` — imports `landing.css`, no ThemeProvider
+   - `app/(landing)/page.tsx` — `/` (new landing page)
+   - `app/(landing)/about/page.tsx` — move current `app/about/page.tsx` here
    - `app/(product)/layout.tsx` — wraps with ThemeProvider, product styles
    - `app/(product)/app/page.tsx` — move current `app/page.tsx` here → route becomes `/app`
    - `app/(product)/settings/page.tsx` — move current `app/settings/page.tsx` here
-3. **Create `app/marketing.css`** — separate stylesheet for landing + about (gradients, animation classes, looser visual rules)
+3. **Create `app/landing.css`** — separate stylesheet for landing + about (gradients, animation classes, looser visual rules)
 4. **Update internal links**
    - Settings back button: `/` → `/app`
    - About back button: stays `/`
    - Landing CTA: points to `/app`
 5. **Build landing page** — hero, project description, "Enter App" CTA; Framer Motion for scroll reveals and micro-interactions
-6. **Polish `/about`** — replace placeholder paragraphs, apply marketing styles
+6. **Polish `/about`** — replace placeholder paragraphs, apply landing styles
 
 ## Architecturally Imperfect
 

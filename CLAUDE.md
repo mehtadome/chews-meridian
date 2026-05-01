@@ -21,7 +21,7 @@ No test suite exists. Type-check before declaring work done.
 
 Routes are split into two Next.js route groups with separate layouts and stylesheets:
 
-- `app/(marketing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
+- `app/(landing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
 - `app/(product)/` → `/app` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
 - `app/api/` → all API routes, untouched
 
@@ -75,7 +75,7 @@ Two separate stylesheets — do not mix them:
 - **Do not use Tailwind color/spacing utilities** in product pages
 - Dark mode via ThemeProvider toggling `.dark` class on `<html>`
 
-**Marketing** (`app/landing.css`) — imported only in `app/(marketing)/layout.tsx`:
+**Landing** (`app/landing.css`) — imported only in `app/(landing)/layout.tsx`:
 - Free to use inline styles, gradients, Framer Motion, arbitrary values
 - Palette: `#0a0a0a` bg, `#ffffff` text, `#22c55e` accent green, `#888888` muted
 - Universal micro-transition rule lives here (`transform` excluded — Framer Motion owns that)
@@ -84,8 +84,8 @@ Two separate stylesheets — do not mix them:
 
 | Path | Purpose |
 |------|---------|
-| `app/(marketing)/page.tsx` | Landing page (`/`) — Chews Meridian hero, how-it-works, tech stack |
-| `app/(marketing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
+| `app/(landing)/page.tsx` | Landing page (`/`) — Chews Meridian hero, how-it-works, tech stack |
+| `app/(landing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
 | `app/(product)/app/page.tsx` | Product page (`/app`) — main digest UI |
 | `app/(product)/settings/page.tsx` | Settings page (`/settings`) |
 | `app/landing.css` | Marketing stylesheet — Framer Motion animations, dark palette |
@@ -111,8 +111,8 @@ Required in `.env.local`:
 Current branch: `about-me-page` — PR #12 open, not yet merged.
 
 **Pending work in this PR:**
-1. Write the actual content for `app/(marketing)/about/page.tsx` — the two placeholder sections ("The Project" and "About Me") need real copy. Ask the user what they want to say.
-2. Style the about page using `landing.css` / marketing conventions (dark palette, not the product shell layout).
+1. Write the actual content for `app/(landing)/about/page.tsx` — the two placeholder sections ("The Project" and "About Me") need real copy. Ask the user what they want to say.
+2. Style the about page using `landing.css` / landing conventions (dark palette, not the product shell layout).
 3. User mentioned "couple of bugs and changes" at the start of the session — the refresh bug was fixed, but ask if there are remaining changes they had in mind.
 
 **After the PR is merged:**

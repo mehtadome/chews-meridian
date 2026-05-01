@@ -7,19 +7,19 @@ import { setCached } from "@/lib/cache";
 import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
 import { buildSystemPrompt } from "@/lib/systemPrompt";
+import { redis } from "@/lib/redis";
 
-// Best-effort single-stream guard. Works within a warm Lambda instance; won't block
-// concurrent requests hitting separate Vercel invocations — a Redis SET NX mutex would fix that.
-let isRunning = false;
+const MUTEX_KEY = "briefing:running";
+const MUTEX_TTL_SECONDS = 120; // safety net if onFinish/onError never fires
 
 export async function POST(req: Request) {
-  if (isRunning) {
+  const acquired = await redis.set(MUTEX_KEY, "1", "EX", MUTEX_TTL_SECONDS, "NX");
+  if (acquired === null) {
     return new Response(JSON.stringify({ error: "Briefing already in progress" }), {
       status: 429,
       headers: { "Content-Type": "application/json" },
     });
   }
-  isRunning = true;
 
   const { messages }: { messages: UIMessage[] } = await req.json();
 
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     tools,
     stopWhen: stepCountIs(10),
     onFinish: async ({ text, usage }) => {
-      isRunning = false;
+      await redis.del(MUTEX_KEY);
       try {
         const inputTokens = usage.inputTokens ?? 0;
         const outputTokens = usage.outputTokens ?? 0;
@@ -65,7 +65,7 @@ export async function POST(req: Request) {
         console.error("[agent] onFinish save failed", e);
       }
     },
-    onError: () => { isRunning = false; },
+    onError: async () => { await redis.del(MUTEX_KEY); },
   });
 
   return result.toUIMessageStreamResponse();
