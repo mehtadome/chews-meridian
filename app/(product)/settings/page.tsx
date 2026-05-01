@@ -134,7 +134,7 @@ export default function SettingsPage() {
         style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}
       >
         <Link
-          href="/app"
+          href="/market-analyzer"
           className="btn"
           style={{ padding: "0.35rem 0.45rem", display: "flex", alignItems: "center" }}
           aria-label="Back to app"
