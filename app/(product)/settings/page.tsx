@@ -312,7 +312,7 @@ export default function SettingsPage() {
                         height: "1rem",
                         flexShrink: 0,
                         alignItems: "center",
-                        justifyContent: "center,",
+                        justifyContent: "center",
                         borderRadius: "50%",
                         border: selected
                           ? "2px solid var(--text-heading)"
