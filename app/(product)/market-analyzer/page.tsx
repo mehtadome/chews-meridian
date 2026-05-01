@@ -8,7 +8,6 @@ import { DefaultChatTransport } from "ai";
 import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
-import { ChatDrawer } from "@/components/ChatDrawer";
 import { parseMood } from "@/lib/parseResponse";
 import type { Mood } from "@/lib/parseResponse";
 import { getMessageText } from "@/lib/getMessageText";
@@ -116,9 +115,7 @@ function Toast({ message, onDismiss }: { message: string; onDismiss: () => void 
 }
 
 export default function Home() {
-  const [input, setInput] = useState("");                                    // controlled chat input value
-  const [activeTab, setActiveTab] = useState<"digest" | "tickers">("digest"); // which tab is shown in the drawer
-  const [drawerOpen, setDrawerOpen] = useState(false);                        // whether the side drawer is open
+  const [activeTab, setActiveTab] = useState<"digest" | "tickers">("digest");
   const [totalCost, setTotalCost] = useState<number | null>(null);            // cumulative API spend from /api/usage
   const [cachedContent, setCachedContent] = useState<string | null>(null);   // today's digest rawText from L2 cache
   const [cacheChecked, setCacheChecked] = useState(false);                   // whether the cache check on mount has completed
@@ -164,20 +161,6 @@ export default function Home() {
     void fetch("/api/usage").then((r) => r.json()).then((d) => setTotalCost(d.totalCostUsd)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setDrawerOpen(false); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
-
-  function handleChatSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    sendMessage({ text: input });
-    setInput("");
-  }
 
   return (
     <div
@@ -279,21 +262,6 @@ export default function Home() {
         </div>
       </main>
 
-      {briefingText.trim() && (
-        <ChatDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen((v) => !v)}
-          tickers={tickers}
-          messages={messages}
-          firstAssistantId={firstAssistant?.id}
-          showDigestLoading={showDigestLoading}
-          isLoading={isLoading}
-          sendMessage={sendMessage}
-          input={input}
-          onInputChange={setInput}
-          onSubmit={handleChatSubmit}
-        />
-      )}
     </div>
   );
 }
