@@ -99,9 +99,14 @@ export default function Home() {
 
   useEffect(() => {
     if (status !== "ready") return;
+    // If the agent completed but returned no content (e.g. no new emails since last briefing),
+    // restore the existing cached digest rather than leaving the UI empty.
+    if (!agentText.trim() && messages.length > 0) {
+      void fetch("/api/digest").then((r) => r.json()).then((data) => { if (data?.rawText) setCachedContent(data.rawText); }).catch(() => {});
+    }
     void fetch("/api/usage").then((r) => r.json()).then((d) => setTotalCost(d.totalCostUsd)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
-  }, [status]);
+  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!drawerOpen) return;
