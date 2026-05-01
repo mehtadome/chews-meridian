@@ -26,7 +26,8 @@ export async function POST(req: Request) {
   // Anchor the Gmail search to the last digest's exact timestamp so the model reads everything
   // since the prior briefing with no rounding. Falls back to start of calendar month on first run.
   const latest = await getLatestDigest();
-  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
   const sinceMs = latest ? new Date(latest.timestamp).getTime() : monthStart.getTime();
   const systemPrompt = buildSystemPrompt(sinceMs);
 
