@@ -25,6 +25,62 @@ const moodStyles: Record<Mood, string> = {
 
 const transport = new DefaultChatTransport({ api: "/api/agent" });
 
+function BriefingErrorBox({ onDismiss }: { onDismiss: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 10_000);
+    return () => clearTimeout(t);
+  }, [onDismiss]);
+
+  return (
+    <div
+      role="alert"
+      style={{
+        position: "fixed",
+        top: "1.25rem",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 100,
+        width: "min(90vw, 22rem)",
+        borderRadius: "10px",
+        border: "1px solid var(--dc-border-high)",
+        background: "var(--background)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.28)",
+        padding: "1.25rem 1.25rem 1rem",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+        <span style={{ fontWeight: 700, fontSize: "0.9375rem", color: "var(--text-heading)" }}>
+          Briefing failed
+        </span>
+        <button
+          onClick={onDismiss}
+          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", padding: 0, lineHeight: 1, marginLeft: "0.75rem", flexShrink: 0 }}
+          aria-label="Dismiss"
+        >
+          <X style={{ width: "1rem", height: "1rem" }} />
+        </button>
+      </div>
+
+      <p className="ds-meta" style={{ marginBottom: "0.5rem", color: "var(--text-muted)" }}>
+        This may be caused by:
+      </p>
+      <ul style={{ margin: "0 0 0.875rem", paddingLeft: "1.1rem", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+        {[
+          "Anthropic servers temporarily overloaded",
+          "Request timed out before a response arrived",
+          "Unexpected or malformed response from the model",
+        ].map((cause) => (
+          <li key={cause} className="ds-meta" style={{ color: "var(--text)" }}>{cause}</li>
+        ))}
+      </ul>
+
+      <p className="ds-meta" style={{ color: "var(--text-muted)", borderTop: "1px solid var(--dc-border)", paddingTop: "0.75rem" }}>
+        Wait 30 seconds, then try again.
+      </p>
+    </div>
+  );
+}
+
 function Toast({ message, onDismiss }: { message: string; onDismiss: () => void }) {
   return (
     <div
@@ -68,6 +124,7 @@ export default function Home() {
   const [cacheChecked, setCacheChecked] = useState(false);                   // whether the cache check on mount has completed
   const [tickers, setTickers] = useState<TickerSummary[]>([]);               // 7-day ticker mention data for the chart
   const [toast, setToast] = useState<string | null>(null);                   // transient error/info message shown at top
+  const [briefingError, setBriefingError] = useState(false);                 // detailed error box for agent failures
 
   function showToast(message: string) {
     setToast(message);
@@ -81,7 +138,7 @@ export default function Home() {
       if (msg.includes("429") || msg.toLowerCase().includes("already in progress")) {
         showToast("Briefing in progress. Refresh after ~30s.");
       } else {
-        showToast("Something went wrong fetching the briefing. Please try again.");
+        setBriefingError(true);
       }
     },
   });
@@ -128,6 +185,7 @@ export default function Home() {
       style={{ background: "var(--background)" }}
     >
       {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}
+      {briefingError && <BriefingErrorBox onDismiss={() => setBriefingError(false)} />}
 
       <header
         className="shell__header shrink-0"
