@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { gmail_v1 } from "googleapis";
 import { redis } from "./redis";
+import { withRetry } from "./utils";
 
 const BODY_CHAR_LIMIT = 8000;
 const REDIS_TOKEN_KEY = "google:refresh_token";
@@ -56,6 +57,7 @@ export async function searchEmails(
   query: string,
   maxResults: number = 1
 ): Promise<EmailSummary[]> {
+  return withRetry(async () => {
   const gmail = await getGmail();
   const listRes = await gmail.users.messages.list({
     userId: "me",
@@ -84,12 +86,14 @@ export async function searchEmails(
   }
 
   return results;
+  });
 }
 
 /**
  * Fetch the full plain-text body of an email by message ID.
  */
 export async function getEmail(messageId: string): Promise<EmailContent> {
+  return withRetry(async () => {
   const gmail = await getGmail();
   const msg = await gmail.users.messages.get({
     userId: "me",
@@ -106,6 +110,7 @@ export async function getEmail(messageId: string): Promise<EmailContent> {
     sender: headers["from"] ?? "",
     body: (body || msg.data.snippet || "").slice(0, BODY_CHAR_LIMIT),
   };
+  });
 }
 
 // --- helpers ---
