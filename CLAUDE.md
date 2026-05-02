@@ -21,11 +21,11 @@ No test suite exists. Type-check before declaring work done.
 
 Routes are split into two Next.js route groups with separate layouts and stylesheets:
 
-- `app/(marketing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
-- `app/(product)/` → `/app` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
+- `app/(landing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
+- `app/(product)/` → `/market-analyzer` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
 - `app/api/` → all API routes, untouched
 
-The project is named **Chews Meridian**. The product inside it is **Market Analyzer** (shown at `/app`).
+The project is named **Chews Meridian**. The product inside it is **Market Analyzer** (shown at `/market-analyzer`).
 
 ## Architecture
 
@@ -33,7 +33,7 @@ The project is named **Chews Meridian**. The product inside it is **Market Analy
 
 1. User visits `/app` and clicks "Get today's briefing" → `sendMessage({ text: "What's in today's newsletter?" })`
 2. `POST /api/agent` streams via Vercel AI SDK (`streamText` with `claude-haiku-4-5`)
-3. Agent calls `searchEmails` then `getEmail` (Gmail OAuth via `lib/gmail.ts`) — max 5 tool steps
+3. Agent calls `searchEmails` then `getEmail` (Gmail OAuth via `lib/gmail.ts`) — max 10 tool steps
 4. `onFinish` parses the completed text → saves to Redis (L2) and L1 memory cache
 5. `app/(product)/app/page.tsx` renders the raw text through `DigestRenderer` → `DigestLayout` → individual card components
 
@@ -75,7 +75,7 @@ Two separate stylesheets — do not mix them:
 - **Do not use Tailwind color/spacing utilities** in product pages
 - Dark mode via ThemeProvider toggling `.dark` class on `<html>`
 
-**Marketing** (`app/landing.css`) — imported only in `app/(marketing)/layout.tsx`:
+**Landing** (`app/landing.css`) — imported only in `app/(landing)/layout.tsx`:
 - Free to use inline styles, gradients, Framer Motion, arbitrary values
 - Palette: `#0a0a0a` bg, `#ffffff` text, `#22c55e` accent green, `#888888` muted
 - Universal micro-transition rule lives here (`transform` excluded — Framer Motion owns that)
@@ -84,9 +84,9 @@ Two separate stylesheets — do not mix them:
 
 | Path | Purpose |
 |------|---------|
-| `app/(marketing)/page.tsx` | Landing page (`/`) — Chews Meridian hero, how-it-works, tech stack |
-| `app/(marketing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
-| `app/(product)/app/page.tsx` | Product page (`/app`) — main digest UI |
+| `app/(landing)/page.tsx` | Landing page (`/`) — Chews Meridian hero, how-it-works, tech stack |
+| `app/(landing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
+| `app/(product)/market-analyzer/page.tsx` | Product page (`/market-analyzer`) — main digest UI |
 | `app/(product)/settings/page.tsx` | Settings page (`/settings`) |
 | `app/landing.css` | Marketing stylesheet — Framer Motion animations, dark palette |
 | `lib/systemPrompt.ts` | Full agent instructions + component schema sent to the model |
@@ -108,13 +108,11 @@ Required in `.env.local`:
 
 ## Resume here (next session)
 
-Current branch: `about-me-page` — PR #12 open, not yet merged.
+Current branch: `prod-reliability` — pre-v2.0 reliability fixes, PR not yet opened.
 
-**Pending work in this PR:**
-1. Write the actual content for `app/(marketing)/about/page.tsx` — the two placeholder sections ("The Project" and "About Me") need real copy. Ask the user what they want to say.
-2. Style the about page using `landing.css` / marketing conventions (dark palette, not the product shell layout).
-3. User mentioned "couple of bugs and changes" at the start of the session — the refresh bug was fixed, but ask if there are remaining changes they had in mind.
+**Remaining critique fixes before PR:**
+- #12: Add `console.error(error)` to the non-429 branch in `useChat.onError` (`page.tsx`)
+- #13: Remove 3 debug `console.log` calls from `page.tsx` (refresh click, settings click, tab click, briefing request)
+- #16: Pass `showDigestLoading` directly to `DigestPanel`; remove recomputation inside `DigestPanel`
 
-**After the PR is merged:**
-- Version bumps to v1.1 per the versioning scheme (each PR = +0.1)
-- The Vercel project is now named `chews-meridian` — old domain redirects are live
+**After all fixes:** open PR #13 — version bumps to v1.1.

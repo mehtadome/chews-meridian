@@ -15,6 +15,4 @@ export const redis = globalForRedis.redis ?? new Redis(REDIS_URL, {
   lazyConnect: false,
 });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForRedis.redis = redis;
-}
+globalForRedis.redis = redis;

@@ -28,7 +28,10 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   const incomingTickers = (incoming.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
 
   const merged = new Map<string, TickerSpec>(existingTickers.map((t) => [t.symbol, t]));
-  for (const t of incomingTickers) merged.set(t.symbol, t);
+  for (const t of incomingTickers) {
+    const prev = merged.get(t.symbol);
+    merged.set(t.symbol, { ...t, count: (prev?.count ?? 1) + (t.count ?? 1) });
+  }
 
   return incoming.map((c) =>
     c.type === "TickerMentionList"

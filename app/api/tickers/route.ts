@@ -10,6 +10,7 @@ export interface TickerSummary {
 interface TickerSpec {
   symbol: string;
   direction?: "up" | "down" | "neutral";
+  count?: number;
 }
 
 interface ComponentSpec {
@@ -37,14 +38,15 @@ export async function GET() {
       if (comp.type !== "TickerMentionList") continue;
       for (const t of comp.data.tickers ?? []) {
         const existing = map.get(t.symbol);
+        const occurrences = t.count ?? 1;
         if (existing) {
-          existing.mentions += 1;
+          existing.mentions += occurrences;
         } else {
           map.set(t.symbol, {
             symbol: t.symbol,
             direction: t.direction ?? "neutral",
             lastSeen: date,
-            mentions: 1,
+            mentions: occurrences,
           });
         }
       }

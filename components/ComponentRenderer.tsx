@@ -151,25 +151,12 @@ function DigestLayout({ components }: { components: DigestComponent[] }) {
   return <div className="space-y-6">{rows}</div>;
 }
 
-interface DigestRendererProps {
-  content: string;
-  /** When true, only the structured digest grid (no intro prose). */
-  componentsOnly?: boolean;
-}
-
-/** Parses the assistant JSON block and renders a Bloomberg-style digest grid (not chat bubbles). */
-export function DigestRenderer({ content, componentsOnly = false }: DigestRendererProps) {
+/** Parses the assistant JSON block and renders a Bloomberg-style digest grid. */
+export function DigestRenderer({ content }: { content: string }) {
   const hasJsonFence = /```json\n[\s\S]*?\n```/.test(content);
   const components = parseComponents(content);
 
   if (!hasJsonFence || components.length === 0) {
-    if (componentsOnly) {
-      return (
-        <p className="ds-prose" style={{ color: "var(--text-muted)" }}>
-          No structured digest for today yet — check the LLM summary below, or run a new briefing.
-        </p>
-      );
-    }
     return (
       <div className="card" style={{ padding: "1.5rem" }}>
         <p className="ds-prose" style={{ whiteSpace: "pre-wrap" }}>
@@ -177,10 +164,6 @@ export function DigestRenderer({ content, componentsOnly = false }: DigestRender
         </p>
       </div>
     );
-  }
-
-  if (componentsOnly) {
-    return <DigestLayout components={components} />;
   }
 
   return <DigestLayout components={components} />;

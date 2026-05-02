@@ -138,7 +138,7 @@ export default function LandingPage() {
               style={{ display: "inline-block" }}
             >
               <Link
-                href="/app"
+                href="/market-analyzer"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
