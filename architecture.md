@@ -198,5 +198,5 @@ Shared across all deployments (production + preview branches). Current key schem
 | Issue | Impact | Fix |
 |-------|--------|-----|
 | No retry logic on Gmail or Claude API calls | One flaky network call = hard failure surfaced to user | Exponential backoff in `lib/gmail.ts` and agent route |
-| `KEYS` scan in `listDigests` | Blocks Redis on every `/api/tickers` call | Replace with `SCAN` |
+| `KEYS` scan in `listDigests` | Blocks Redis on every `/api/tickers` call | Replace with `SCAN` cursor loop — deferred because `SCAN` requires a do/while cursor loop, must handle empty batches (not a termination signal), and must deduplicate keys (Redis can return the same key twice during a rehash). Harmless at current scale (~30 keys max). |
 | No `AbortController` in `useFetchOnMount` | In-flight requests complete even after navigation | Replace boolean cancel flag with `AbortController` |
