@@ -1,8 +1,20 @@
-# Market Analyzer · v1.0
+# Market Analyzer · v1.1
 
 A Next.js application that reads market-focused newsletter emails from Gmail, interprets their content using Claude, and renders a dynamically assembled digest UI. Instead of a static layout, the page builds itself based on what's actually in the news that day — Fed commentary gets different treatment than an earnings beat or a geopolitical risk flag.
 
 ## Changelog
+
+### [v1.1](https://github.com/mehtadome/market-analyzer/pull/13)
+- Redis mutex replaces per-instance `isRunning` flag — concurrent briefings blocked across all Vercel invocations
+- Gmail API calls wrapped in `withRetry` exponential backoff — flaky network calls no longer surface as hard failures
+- `BriefingErrorBox` — detailed auto-dismissing error UI replaces generic toast; raw error logged to console
+- Route renamed `/app` → `/market-analyzer`
+- Chat feature removed
+- Rotating quirky loading phrases + spinner skeleton in digest loading state
+- UTC/local mismatch fixed in Gmail `after:` date query
+- Ticker `count` field added — same-day briefing refreshes now accumulate mentions correctly
+- Redis singleton guard fixed — warm Vercel instances correctly reuse the connection
+- CSS typo fixed: `justifyContent: "center,"` in settings radio button
 
 ### [v1.0](https://github.com/mehtadome/market-analyzer/pull/11)
 - OAuth refresh script (`scripts/refresh-token.mjs`) — browser consent flow writes token to `.env.local` and Redis
