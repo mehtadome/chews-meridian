@@ -1,4 +1,4 @@
-# Chews Meridian · v1.1
+# Chew's Meridian · v1.1
 
 A Next.js application that reads market-focused newsletter emails from Gmail, interprets their content using Claude, and renders a dynamically assembled digest UI. Instead of a static layout, the page builds itself based on what's actually in the news that day — Fed commentary gets different treatment than an earnings beat or a geopolitical risk flag.
 

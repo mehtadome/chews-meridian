@@ -98,7 +98,7 @@ export default function LandingPage() {
                 color: "#22c55e",
               }}
             >
-              Chews Meridian
+              Chew's Meridian
             </span>
           </motion.div>
 

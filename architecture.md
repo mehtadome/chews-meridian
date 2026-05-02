@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Chews Meridian is a Next.js 16 application hosted on Vercel. The only product currently is **Market Analyzer** — an AI agent that reads financial newsletters from Gmail and surfaces market intelligence as a structured daily digest.
+Chew's Meridian is a Next.js 16 application hosted on Vercel. The only product currently is **Market Analyzer** — an AI agent that reads financial newsletters from Gmail and surfaces market intelligence as a structured daily digest.
 
 ### High-level data flow
 

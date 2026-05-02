@@ -25,7 +25,7 @@ Routes are split into two Next.js route groups with separate layouts and stylesh
 - `app/(product)/` → `/market-analyzer` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
 - `app/api/` → all API routes, untouched
 
-The project is named **Chews Meridian**. The product inside it is **Market Analyzer** (shown at `/market-analyzer`).
+The project is named **Chew's Meridian**. The product inside it is **Market Analyzer** (shown at `/market-analyzer`).
 
 ## Architecture
 
@@ -84,7 +84,7 @@ Two separate stylesheets — do not mix them:
 
 | Path | Purpose |
 |------|---------|
-| `app/(landing)/page.tsx` | Landing page (`/`) — Chews Meridian hero, how-it-works, tech stack |
+| `app/(landing)/page.tsx` | Landing page (`/`) — Chew's Meridian hero, how-it-works, tech stack |
 | `app/(landing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
 | `app/(product)/market-analyzer/page.tsx` | Product page (`/market-analyzer`) — main digest UI |
 | `app/(product)/settings/page.tsx` | Settings page (`/settings`) |
