@@ -135,6 +135,7 @@ export default function Home() {
       if (msg.includes("429") || msg.toLowerCase().includes("already in progress")) {
         showToast("Briefing in progress. Refresh after ~30s.");
       } else {
+        console.error("[briefing] error", error);
         setBriefingError(true);
       }
     },
