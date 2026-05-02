@@ -54,15 +54,13 @@ function DigestLoading() {
 }
 
 interface DigestPanelProps {
-  isLoading: boolean;
+  showLoading: boolean;
   briefingText: string;
   cacheChecked: boolean;
   onRequestBriefing: () => void;
 }
 
-export function DigestPanel({ isLoading, briefingText, cacheChecked, onRequestBriefing }: DigestPanelProps) {
-  const showLoading = isLoading && !briefingText.trim();
-
+export function DigestPanel({ showLoading, briefingText, cacheChecked, onRequestBriefing }: DigestPanelProps) {
   if (showLoading) return <DigestLoading />;
 
   if (briefingText.trim()) return <DigestRenderer content={briefingText} />;
@@ -85,7 +83,7 @@ export function DigestPanel({ isLoading, briefingText, cacheChecked, onRequestBr
         <button
           type="button"
           onClick={onRequestBriefing}
-          disabled={isLoading}
+          disabled={showLoading}
           style={{
             padding: "0.75rem 2rem",
             borderRadius: "6px",

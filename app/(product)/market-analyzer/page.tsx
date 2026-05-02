@@ -249,7 +249,7 @@ export default function Home() {
 
             <div id="briefing-panel-digest" role="tabpanel" aria-labelledby="briefing-tab-digest" hidden={activeTab !== "digest"}>
               <DigestPanel
-                isLoading={isLoading}
+                showLoading={showDigestLoading}
                 briefingText={briefingText}
                 cacheChecked={cacheChecked}
                 onRequestBriefing={() => { console.log("[briefing] requested — isLoading:", isLoading, "cacheChecked:", cacheChecked); if (!isLoading) sendMessage({ text: BRIEFING_PROMPT }); }}
