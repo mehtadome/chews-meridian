@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ChartCandlestick } from "lucide-react";
+import { ArrowLeft, ChartCandlestick, Check, Copy } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import type { Theme } from "@/lib/theme";
 import { REFRESH_WINDOWS, NEWSLETTER_SENDERS, CONTEXT_WINDOW_DAYS } from "@/lib/config";
 import { PT_TIMEZONE } from "@/lib/utils";
 import { WATCHLIST } from "@/lib/watchlist";
 import { useEffect, useState } from "react";
+import { SessionBadge } from "@/components/ui/SessionBadge";
 
 const OPTIONS: { id: Theme; label: string; description: string }[] = [
   {
@@ -102,10 +103,80 @@ function formatTokenExpiry(issuedAt: string): { label: string; urgency: "ok" | "
   return { label: `Expires ${dateStr} · ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`, urgency: "ok" };
 }
 
+function GuestAccessSection() {
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    if (!generatedCode) return;
+    navigator.clipboard.writeText(generatedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <section aria-labelledby="guest-heading">
+      <SectionHeading id="guest-heading" label="Guest Access" />
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <p className="ds-meta" style={{ color: "var(--text-muted)" }}>
+          Generate a one-time code valid for 1 hour or 5 briefing runs — whichever comes first.
+        </p>
+        <button
+          type="button"
+          onClick={async () => {
+            setGenerating(true);
+            setGeneratedCode(null);
+            const res = await fetch("/api/auth/generate", { method: "POST" });
+            const data = await res.json();
+            setGeneratedCode(data.code ?? null);
+            setGenerating(false);
+          }}
+          disabled={generating}
+          className="btn"
+          style={{ alignSelf: "flex-start", padding: "0.5rem 1rem", opacity: generating ? 0.6 : 1 }}
+        >
+          {generating ? "Generating…" : "Generate guest code"}
+        </button>
+        {generatedCode && (
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <code
+              style={{
+                padding: "0.5rem 0.875rem",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                background: "var(--btn-bg)",
+                fontSize: "1rem",
+                fontFamily: "ui-monospace, monospace",
+                letterSpacing: "0.08em",
+                color: "var(--text-heading)",
+              }}
+            >
+              {generatedCode}
+            </code>
+            <button
+              type="button"
+              className="btn"
+              style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }}
+              onClick={handleCopy}
+            >
+              {copied
+                ? <Check style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-heading)" }} strokeWidth={2.5} />
+                : <Copy style={{ width: "0.875rem", height: "0.875rem" }} strokeWidth={1.75} />
+              }
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function SettingsPage() {
   const { theme, setTheme, mounted } = useTheme();
   const [lastDigestTimestamp, setLastDigestTimestamp] = useState<string | null>(null);
   const [tokenIssuedAt, setTokenIssuedAt] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     fetch("/api/digest")
@@ -113,6 +184,13 @@ export default function SettingsPage() {
       .then((data) => {
         if (data?.timestamp) setLastDigestTimestamp(data.timestamp);
       })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => { if (data?.session === "owner") setIsOwner(true); })
       .catch(() => {});
   }, []);
 
@@ -141,7 +219,7 @@ export default function SettingsPage() {
         >
           <ArrowLeft style={{ width: "1rem", height: "1rem" }} />
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1 }}>
           <ChartCandlestick
             style={{ width: "1.25rem", height: "1.25rem", flexShrink: 0 }}
             strokeWidth={1.75}
@@ -158,6 +236,7 @@ export default function SettingsPage() {
             Settings
           </h1>
         </div>
+        <SessionBadge />
       </header>
 
       <main
@@ -338,6 +417,9 @@ export default function SettingsPage() {
             </div>
           )}
         </section>
+
+        {/* Guest Access — owner only */}
+        {isOwner && <GuestAccessSection />}
 
         {/* Google OAuth */}
         <section aria-labelledby="oauth-heading">

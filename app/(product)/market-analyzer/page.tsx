@@ -8,6 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
+import { SessionBadge } from "@/components/ui/SessionBadge";
 import { parseMood } from "@/lib/parseResponse";
 import type { Mood } from "@/lib/parseResponse";
 import { getMessageText } from "@/lib/getMessageText";
@@ -217,6 +218,7 @@ export default function Home() {
               </div>
             </div>
           )}
+          <SessionBadge />
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
             <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>

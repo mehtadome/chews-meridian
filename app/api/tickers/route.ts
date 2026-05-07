@@ -1,4 +1,5 @@
 import { listDigests, getDigest } from "@/lib/digest";
+import { withAuth } from "@/lib/auth";
 
 export interface TickerSummary {
   symbol: string;
@@ -21,7 +22,9 @@ interface ComponentSpec {
 // Calls listDigests() to get all digest dates, filters out older than 7 days,
 // then iterates over each digest, extracting TickerMentionList components and
 // aggregating symbol mentions across all digests.
-export async function GET() {
+export async function GET(req: Request) {
+  const { error } = await withAuth(req);
+  if (error) return error;
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
