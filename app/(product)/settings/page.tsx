@@ -102,10 +102,69 @@ function formatTokenExpiry(issuedAt: string): { label: string; urgency: "ok" | "
   return { label: `Expires ${dateStr} · ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`, urgency: "ok" };
 }
 
+function GuestAccessSection() {
+  const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+
+  return (
+    <section aria-labelledby="guest-heading">
+      <SectionHeading id="guest-heading" label="Guest Access" />
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        <p className="ds-meta" style={{ color: "var(--text-muted)" }}>
+          Generate a one-time code valid for 1 hour or 5 briefing runs — whichever comes first.
+        </p>
+        <button
+          type="button"
+          onClick={async () => {
+            setGenerating(true);
+            setGeneratedCode(null);
+            const res = await fetch("/api/auth/generate", { method: "POST" });
+            const data = await res.json();
+            setGeneratedCode(data.code ?? null);
+            setGenerating(false);
+          }}
+          disabled={generating}
+          className="btn"
+          style={{ alignSelf: "flex-start", padding: "0.5rem 1rem", opacity: generating ? 0.6 : 1 }}
+        >
+          {generating ? "Generating…" : "Generate guest code"}
+        </button>
+        {generatedCode && (
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <code
+              style={{
+                padding: "0.5rem 0.875rem",
+                borderRadius: "6px",
+                border: "1px solid var(--border)",
+                background: "var(--btn-bg)",
+                fontSize: "1rem",
+                fontFamily: "ui-monospace, monospace",
+                letterSpacing: "0.08em",
+                color: "var(--text-heading)",
+              }}
+            >
+              {generatedCode}
+            </code>
+            <button
+              type="button"
+              className="btn"
+              style={{ padding: "0.4rem 0.75rem", fontSize: "0.8125rem" }}
+              onClick={() => navigator.clipboard.writeText(`guest:${generatedCode}`)}
+            >
+              Copy
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function SettingsPage() {
   const { theme, setTheme, mounted } = useTheme();
   const [lastDigestTimestamp, setLastDigestTimestamp] = useState<string | null>(null);
   const [tokenIssuedAt, setTokenIssuedAt] = useState<string | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     fetch("/api/digest")
@@ -113,6 +172,13 @@ export default function SettingsPage() {
       .then((data) => {
         if (data?.timestamp) setLastDigestTimestamp(data.timestamp);
       })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => r.json())
+      .then((data) => { if (data?.session === "owner") setIsOwner(true); })
       .catch(() => {});
   }, []);
 
@@ -338,6 +404,9 @@ export default function SettingsPage() {
             </div>
           )}
         </section>
+
+        {/* Guest Access — owner only */}
+        {isOwner && <GuestAccessSection />}
 
         {/* Google OAuth */}
         <section aria-labelledby="oauth-heading">
