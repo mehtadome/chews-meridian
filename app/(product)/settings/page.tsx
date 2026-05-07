@@ -165,6 +165,7 @@ export default function SettingsPage() {
   const [lastDigestTimestamp, setLastDigestTimestamp] = useState<string | null>(null);
   const [tokenIssuedAt, setTokenIssuedAt] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [sessionRole, setSessionRole] = useState<"owner" | "guest" | null>(null);
 
   useEffect(() => {
     fetch("/api/digest")
@@ -178,7 +179,10 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((data) => { if (data?.session === "owner") setIsOwner(true); })
+      .then((data) => {
+        if (data?.session === "owner") setIsOwner(true);
+        if (data?.session === "owner" || data?.session === "guest") setSessionRole(data.session);
+      })
       .catch(() => {});
   }, []);
 
@@ -207,7 +211,7 @@ export default function SettingsPage() {
         >
           <ArrowLeft style={{ width: "1rem", height: "1rem" }} />
         </Link>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flex: 1 }}>
           <ChartCandlestick
             style={{ width: "1.25rem", height: "1.25rem", flexShrink: 0 }}
             strokeWidth={1.75}
@@ -224,6 +228,24 @@ export default function SettingsPage() {
             Settings
           </h1>
         </div>
+        {sessionRole && (
+          <span
+            className="ds-meta"
+            style={{
+              padding: "0.2rem 0.6rem",
+              borderRadius: "999px",
+              border: "1px solid var(--dc-border)",
+              color: "var(--text-muted)",
+              fontWeight: 600,
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              fontSize: "0.6875rem",
+              marginLeft: "auto",
+            }}
+          >
+            {sessionRole === "owner" ? "Owner" : "Guest"}
+          </span>
+        )}
       </header>
 
       <main
