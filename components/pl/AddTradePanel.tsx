@@ -11,9 +11,16 @@ type PanelMode =
   | { kind: "edit"; trade: Trade }
   | { kind: "close"; trade: Trade };
 
+function todayIn2026(): string {
+  const d = new Date();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `2026-${mm}-${dd}`;
+}
+
 function defaultForm(trade?: Trade): Partial<TradeCreate> {
   if (!trade) {
-    return { assetType: "stock", direction: "long", multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null };
+    return { assetType: "stock", direction: "long", multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null, entryDate: todayIn2026() };
   }
   return { ...trade };
 }
@@ -101,7 +108,19 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
                 onChange={patch}
                 showExitFields={mode.kind === "close" || mode.kind === "edit"}
               />
-              {error && <p style={{ color: "var(--pl-red)", fontSize: "0.875rem" }}>{error}</p>}
+              {error && (
+                <p style={{
+                  fontSize: "0.8125rem",
+                  color: "var(--pl-red)",
+                  background: "var(--pl-red-muted)",
+                  border: "1px solid rgba(239,68,68,0.2)",
+                  borderRadius: "var(--pl-radius-sm)",
+                  padding: "0.5rem 0.75rem",
+                  margin: 0,
+                }}>
+                  {error}
+                </p>
+              )}
             </div>
 
             <div className="pl-panel__footer">

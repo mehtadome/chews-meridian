@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { TradeCreate } from "@/lib/trade-types";
 
 type FormState = Partial<TradeCreate>;
@@ -10,8 +11,14 @@ interface TradeFormFieldsProps {
   showExitFields: boolean;
 }
 
+const YEARS = ["2024", "2025", "2026"];
+
 export function TradeFormFields({ values, onChange, showExitFields }: TradeFormFieldsProps) {
   const assetType = values.assetType ?? "stock";
+  const [showExit, setShowExit] = useState(showExitFields);
+  const [entryYear, setEntryYear] = useState(() =>
+    values.entryDate ? values.entryDate.slice(0, 4) : "2026"
+  );
 
   function field(label: string, children: React.ReactNode) {
     return (
@@ -21,6 +28,23 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
       </div>
     );
   }
+
+  function handleEntryDateChange(fullDate: string) {
+    if (!fullDate) { onChange({ entryDate: undefined }); return; }
+    const newYear = fullDate.slice(0, 4);
+    if (newYear !== entryYear) setEntryYear(newYear);
+    onChange({ entryDate: fullDate });
+  }
+
+  function handleEntryYearChange(year: string) {
+    setEntryYear(year);
+    if (values.entryDate) {
+      const [, m, d] = values.entryDate.split("-");
+      onChange({ entryDate: `${year}-${m}-${d}` });
+    }
+  }
+
+  const showExitSection = showExit || showExitFields;
 
   return (
     <>
@@ -68,10 +92,11 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
             className="pl-input"
             type="number"
             min="0"
-            step="any"
+            step="5"
             placeholder="5"
             value={values.quantity ?? ""}
             onChange={(e) => onChange({ quantity: parseFloat(e.target.value) || undefined })}
+            onFocus={(e) => { if (!values.quantity) e.target.value = "5"; }}
           />
         )}
       </div>
@@ -89,12 +114,23 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
           />
         )}
         {field("Entry Date",
-          <input
-            className="pl-input"
-            type="date"
-            value={values.entryDate ?? ""}
-            onChange={(e) => onChange({ entryDate: e.target.value })}
-          />
+          <div style={{ display: "flex", gap: "0.4rem" }}>
+            <input
+              className="pl-input"
+              type="date"
+              value={values.entryDate ?? ""}
+              onChange={(e) => handleEntryDateChange(e.target.value)}
+              style={{ flex: 1, minWidth: 0 }}
+            />
+            <select
+              className="pl-select"
+              value={entryYear}
+              onChange={(e) => handleEntryYearChange(e.target.value)}
+              style={{ width: "5.25rem", flexShrink: 0 }}
+            >
+              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
         )}
       </div>
 
@@ -110,7 +146,18 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
         />
       )}
 
-      {showExitFields && (
+      {!showExitFields && (
+        <button
+          type="button"
+          className="pl-btn"
+          style={{ fontSize: "0.8125rem", alignSelf: "flex-start" }}
+          onClick={() => setShowExit((v) => !v)}
+        >
+          {showExit ? "− Remove exit price" : "+ Include exit price"}
+        </button>
+      )}
+
+      {showExitSection && (
         <div className="pl-field-row">
           {field("Exit Price",
             <input
