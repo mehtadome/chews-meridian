@@ -1,4 +1,4 @@
-# Chew's Meridian · v1.1
+# Chew's Meridian · v1.2
 
 A Next.js application that reads market-focused newsletter emails from Gmail, interprets their content using Claude, and renders a dynamically assembled digest UI. Instead of a static layout, the page builds itself based on what's actually in the news that day — Fed commentary gets different treatment than an earnings beat or a geopolitical risk flag.
 
@@ -133,6 +133,13 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 ---
 
 ## Changelog
+
+### [v1.2](https://github.com/mehtadome/chews-meridian/pull/14)
+- Two-tier authentication — owner token (permanent cookie) and guest codes (1hr or 5 briefing runs, whichever expires first)
+- `/login` page — dark-palette form accepting owner token or guest code
+- Owner-only guest code generation in settings with copy-to-clipboard and checkmark feedback
+- `SessionBadge` component — Owner/Guest pill shown in main page and settings headers
+- All API routes gated — unauthenticated requests return 401
 
 ### [v1.1](https://github.com/mehtadome/chews-meridian/pull/13)
 - Redis mutex replaces per-instance `isRunning` flag — concurrent briefings blocked across all Vercel invocations
