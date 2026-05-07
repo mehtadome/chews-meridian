@@ -25,6 +25,10 @@
 - `nanoid(10)` for IDs — already a transitive dep, no install needed
 - Multiplier: 1 for stocks, 100 for options, user-entered for futures
 
+## Phase 3 — Market Analyzer Integration (future)
+
+- **Cross-product context for held positions** — the Market Analyzer already reads newsletters and flags earnings, risk events, and macro signals. Feed the current open positions from PL Tracker into the Market Analyzer agent prompt so Haiku can flag upcoming earnings, sector risks, and relevant news for stocks currently held. The ticker watchlist in `lib/watchlist.ts` is the natural bridge — dynamically inject open position symbols so they're always prioritized in the digest.
+
 ## Phase 2 — Schwab Integration (future)
 - Schwab Developer API (new post-2024 API, NOT the old TD Ameritrade one — old middleware is dead)
 - User is already approved with Client ID + Client Secret at developer.schwab.com

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type { Trade } from "@/lib/trade-types";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
@@ -26,6 +26,14 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   const [prices, setPrices] = useState<Record<string, number>>(initialPrices);
   const [tab, setTab] = useState<Tab>("open");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
+  const [summary, setSummary] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/pl/agent")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.summary) setSummary(data.summary); })
+      .catch(() => {});
+  }, []);
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/trades");
@@ -59,7 +67,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </header>
 
       <main className="pl-shell__main">
-        <SummaryBar trades={trades} prices={prices} />
+        <SummaryBar trades={trades} prices={prices} summary={summary} />
 
         <div className="pl-tabs">
           <button
