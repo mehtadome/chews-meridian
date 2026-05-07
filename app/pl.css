@@ -1,0 +1,352 @@
+/* PL Tracker — self-contained design system. Always dark. Never import globals.css here. */
+
+:root {
+  --pl-bg:            #0d0d0d;
+  --pl-surface:       #161616;
+  --pl-surface-raised:#1e1e1e;
+  --pl-border:        #2a2a2a;
+  --pl-border-subtle: #222222;
+
+  --pl-text:          #e8e8e8;
+  --pl-text-muted:    #888888;
+  --pl-text-dim:      #555555;
+
+  --pl-green:         #22c55e;
+  --pl-green-muted:   rgba(34, 197, 94, 0.12);
+  --pl-red:           #ef4444;
+  --pl-red-muted:     rgba(239, 68, 68, 0.12);
+
+  --pl-accent:        #ffffff;
+  --pl-radius-sm:     4px;
+  --pl-radius:        8px;
+}
+
+/* ─── Reset ─────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ─── Shell ──────────────────────────────────────────────────────────── */
+
+.pl-shell {
+  min-height: 100vh;
+  background: var(--pl-bg);
+  color: var(--pl-text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pl-shell__header {
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+  border-bottom: 1px solid var(--pl-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pl-shell__main {
+  padding: 1.5rem clamp(1rem, 4vw, 2rem);
+}
+
+/* ─── Typography ─────────────────────────────────────────────────────── */
+
+.pl-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--pl-accent);
+  letter-spacing: -0.02em;
+}
+
+.pl-meta {
+  font-size: 0.75rem;
+  color: var(--pl-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ─── Tabs ───────────────────────────────────────────────────────────── */
+
+.pl-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.pl-tab {
+  padding: 0.35rem 0.875rem;
+  border-radius: 999px;
+  border: 1px solid var(--pl-border);
+  background: transparent;
+  color: var(--pl-text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.pl-tab:hover {
+  background: var(--pl-surface);
+  color: var(--pl-text);
+}
+
+.pl-tab--active {
+  background: var(--pl-accent);
+  color: var(--pl-bg);
+  border-color: var(--pl-accent);
+  font-weight: 600;
+}
+
+.pl-tab--active:hover {
+  opacity: 0.9;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────── */
+
+.pl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.875rem;
+  border-radius: var(--pl-radius-sm);
+  border: 1px solid var(--pl-border);
+  background: var(--pl-surface-raised);
+  color: var(--pl-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.pl-btn:hover:not(:disabled) {
+  background: #272727;
+  border-color: #3a3a3a;
+}
+
+.pl-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pl-btn--primary {
+  background: var(--pl-accent);
+  color: var(--pl-bg);
+  border-color: var(--pl-accent);
+  font-weight: 600;
+}
+
+.pl-btn--primary:hover:not(:disabled) {
+  opacity: 0.88;
+  background: var(--pl-accent);
+}
+
+/* ─── Table ──────────────────────────────────────────────────────────── */
+
+.pl-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--pl-border);
+  border-radius: var(--pl-radius);
+}
+
+.pl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pl-table th {
+  padding: 0.6rem 1rem;
+  text-align: left;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pl-text-dim);
+  border-bottom: 1px solid var(--pl-border);
+  background: var(--pl-surface);
+  white-space: nowrap;
+}
+
+.pl-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--pl-border-subtle);
+  color: var(--pl-text);
+  white-space: nowrap;
+}
+
+.pl-row:last-child td {
+  border-bottom: none;
+}
+
+.pl-row:hover td {
+  background: var(--pl-surface);
+  cursor: pointer;
+}
+
+.pl-row--profit td:first-child {
+  border-left: 2px solid var(--pl-green);
+}
+
+.pl-row--loss td:first-child {
+  border-left: 2px solid var(--pl-red);
+}
+
+/* ─── Summary Bar ────────────────────────────────────────────────────── */
+
+.pl-summary {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  background: var(--pl-surface);
+  border: 1px solid var(--pl-border);
+  border-radius: var(--pl-radius);
+  margin-bottom: 1.25rem;
+}
+
+.pl-summary__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.pl-summary__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pl-text-dim);
+}
+
+.pl-summary__value {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--pl-text);
+  letter-spacing: -0.01em;
+}
+
+/* ─── P&L Badge ──────────────────────────────────────────────────────── */
+
+.pl-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--pl-radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.pl-badge--profit {
+  color: var(--pl-green);
+  background: var(--pl-green-muted);
+}
+
+.pl-badge--loss {
+  color: var(--pl-red);
+  background: var(--pl-red-muted);
+}
+
+.pl-badge--neutral {
+  color: var(--pl-text-muted);
+  background: var(--pl-surface-raised);
+}
+
+/* ─── Panel (slide-in) ───────────────────────────────────────────────── */
+
+.pl-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 40;
+}
+
+.pl-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(480px, 100vw);
+  background: var(--pl-surface);
+  border-left: 1px solid var(--pl-border);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.pl-panel__header {
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--pl-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pl-panel__body {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pl-panel__footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--pl-border);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+/* ─── Form fields ────────────────────────────────────────────────────── */
+
+.pl-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.pl-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--pl-text-muted);
+}
+
+.pl-input,
+.pl-select,
+.pl-textarea {
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--pl-radius-sm);
+  border: 1px solid var(--pl-border);
+  background: var(--pl-bg);
+  color: var(--pl-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  transition: border-color 0.15s;
+}
+
+.pl-input:focus,
+.pl-select:focus,
+.pl-textarea:focus {
+  outline: none;
+  border-color: #555;
+}
+
+.pl-textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+.pl-select option {
+  background: var(--pl-surface);
+}
+
+.pl-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
