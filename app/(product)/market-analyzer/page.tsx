@@ -122,7 +122,7 @@ export default function Home() {
   const [tickers, setTickers] = useState<TickerSummary[]>([]);               // 7-day ticker mention data for the chart
   const [toast, setToast] = useState<string | null>(null);                   // transient error/info message shown at top
   const [briefingError, setBriefingError] = useState(false);                 // detailed error box for agent failures
-  const [isOwner, setIsOwner] = useState(false);
+  const [sessionRole, setSessionRole] = useState<"owner" | "guest" | null>(null);
 
   function showToast(message: string) {
     setToast(message);
@@ -149,7 +149,7 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  useFetchOnMount<{ session: string }>("/api/auth/session", (data) => { if (data?.session === "owner") setIsOwner(true); });
+  useFetchOnMount<{ session: string }>("/api/auth/session", (data) => { if (data?.session === "owner" || data?.session === "guest") setSessionRole(data.session); });
   useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
   useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
   useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
@@ -219,7 +219,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          {isOwner && (
+          {sessionRole && (
             <span
               className="ds-meta"
               style={{
@@ -233,7 +233,7 @@ export default function Home() {
                 fontSize: "0.6875rem",
               }}
             >
-              Owner
+              {sessionRole === "owner" ? "Owner" : "Guest"}
             </span>
           )}
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
