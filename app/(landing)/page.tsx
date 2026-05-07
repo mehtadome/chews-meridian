@@ -15,37 +15,30 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-const STEPS = [
-  {
-    number: "01",
-    title: "Connect Gmail",
-    description: "OAuth-authenticated access to your newsletter inbox. No credentials stored.",
-  },
-  {
-    number: "02",
-    title: "AI reads and analyzes",
-    description: "Claude scans your newsletters and extracts earnings, risks, and opportunities.",
-  },
-  {
-    number: "03",
-    title: "Daily briefing",
-    description:
-      "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals.",
-  },
-];
-
-const TECH = ["Next.js 15", "Claude AI", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
+const TECH = ["Next.js 15", "Claude AI", "Composer", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
 
 const PRODUCTS = [
   {
     href: "/market-analyzer",
     label: "Market Analyzer",
     desc: "Reads your newsletters. Surfaces what moves markets.",
+    steps: [
+      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox. No credentials stored." },
+      { number: "02", title: "AI reads and analyzes", description: "Claude scans your newsletters and identifies risks and opportunities." },
+      { number: "03", title: "Daily briefing", description: "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals." },
+    ],
   },
   {
     href: "/pl-tracker",
     label: "PL Tracker",
+    howItWorksTitle: "Profit & Loss Tracker",
+    techStack: ["Next.js 15", "Claude AI", "Composer", "Yahoo Finance", "Redis", "Vercel", "TypeScript"],
     desc: "Log trades. Track P&L. Know where you stand.",
+    steps: [
+      { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity." },
+      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position." },
+      { number: "03", title: "AI performance summary", description: "Synthesizes your monthly realized gains and open P&L into a concise briefing every time you open the tracker." },
+    ],
   },
 ] as const;
 
@@ -139,7 +132,7 @@ export default function LandingPage() {
             </p>
           </motion.div>
 
-          {/* Products: two columns + vertical rule (horizontal rule when stacked) */}
+          {/* Products: two columns + rule (aligned with landing-dual-products below); extra info stays undivided */}
           {PRODUCTS.map((product, i) => (
             <Fragment key={product.href}>
               <motion.div variants={fadeUp} className="hero-product-panel">
@@ -193,137 +186,96 @@ export default function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ── How it works ───────────────────────────────────────── */}
-      <section
-        style={{
-          padding: "6rem clamp(1.5rem, 6vw, 6rem)",
-          maxWidth: "72rem",
-          margin: "0 auto",
-        }}
-      >
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "#22c55e",
-            marginBottom: "3rem",
-            textAlign: "center",
-          }}
-        >
-          How it works
-        </motion.p>
-
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {STEPS.map((step) => (
-            <motion.div
-              key={step.number}
-              variants={fadeUp}
-              style={{
-                padding: "1.75rem",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
-              }}
-            >
-              <div
+      {/* Product extra information: two columns aligned with hero; no divider */}
+      <section className="landing-dual-products" aria-label="Products detail">
+        <div className="landing-dual-products__grid">
+          {PRODUCTS.map((product) => (
+            <div key={product.href} className="landing-dual-products__column">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
                 style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
                   color: "#22c55e",
-                  marginBottom: "0.875rem",
-                }}
-              >
-                {step.number}
-              </div>
-              <div
-                style={{
-                  fontSize: "1.0625rem",
-                  fontWeight: 700,
-                  color: "#ffffff",
                   marginBottom: "0.5rem",
-                  letterSpacing: "-0.01em",
                 }}
               >
-                {step.title}
-              </div>
-              <div style={{ fontSize: "0.9375rem", color: "#888888", lineHeight: 1.55 }}>
-                {step.description}
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
+                {"howItWorksTitle" in product ? product.howItWorksTitle : product.label}
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.05 }}
+                style={{
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#444",
+                  marginBottom: "3rem",
+                }}
+              >
+                How it works
+              </motion.p>
+              <motion.div
+                variants={stagger}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="landing-how-steps"
+                style={{ marginBottom: "3.5rem" }}
+              >
+                {product.steps.map((step) => (
+                  <motion.div key={step.number} variants={fadeUp} className="landing-how-step-card">
+                    <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", color: "#22c55e", marginBottom: "0.875rem" }}>
+                      {step.number}
+                    </div>
+                    <div style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
+                      {step.title}
+                    </div>
+                    <div style={{ fontSize: "0.9375rem", color: "#888888", lineHeight: 1.55 }}>{step.description}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
 
-      {/* ── Tech stack ─────────────────────────────────────────── */}
-      <section
-        style={{
-          padding: "0 clamp(1.5rem, 6vw, 6rem) 8rem",
-          maxWidth: "72rem",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "1.25rem",
-        }}
-      >
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{
-            fontSize: "0.8125rem",
-            color: "#444444",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            fontWeight: 600,
-          }}
-        >
-          Built with
-        </motion.p>
-
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}
-        >
-          {TECH.map((name) => (
-            <motion.span
-              key={name}
-              variants={fadeUp}
-              style={{
-                padding: "0.375rem 0.875rem",
-                borderRadius: "999px",
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.04)",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                color: "#cccccc",
-              }}
-            >
-              {name}
-            </motion.span>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "#444444",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  marginBottom: "1.25rem",
+                }}
+              >
+                Built with
+              </motion.p>
+              <motion.div
+                className="landing-tech-chips"
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                {("techStack" in product ? product.techStack : TECH).map((name) => (
+                  <span key={`${product.href}-${name}`} className="landing-tech-chip">
+                    {name}
+                  </span>
+                ))}
+              </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
     </main>
