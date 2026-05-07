@@ -122,6 +122,7 @@ export default function Home() {
   const [tickers, setTickers] = useState<TickerSummary[]>([]);               // 7-day ticker mention data for the chart
   const [toast, setToast] = useState<string | null>(null);                   // transient error/info message shown at top
   const [briefingError, setBriefingError] = useState(false);                 // detailed error box for agent failures
+  const [isOwner, setIsOwner] = useState(false);
 
   function showToast(message: string) {
     setToast(message);
@@ -148,6 +149,7 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
+  useFetchOnMount<{ session: string }>("/api/auth/session", (data) => { if (data?.session === "owner") setIsOwner(true); });
   useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
   useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
   useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
@@ -216,6 +218,23 @@ export default function Home() {
                 ${totalCost.toFixed(4)}
               </div>
             </div>
+          )}
+          {isOwner && (
+            <span
+              className="ds-meta"
+              style={{
+                padding: "0.2rem 0.6rem",
+                borderRadius: "999px",
+                border: "1px solid var(--dc-border)",
+                color: "var(--text-muted)",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                textTransform: "uppercase",
+                fontSize: "0.6875rem",
+              }}
+            >
+              Owner
+            </span>
           )}
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
             <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
