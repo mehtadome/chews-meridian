@@ -36,11 +36,27 @@
 ## PL Tracker
 
 ### Phase 1 — Manual UI (current)
-- Build trade entry UI — symbol, asset type (stock/option/future), direction (long/short), entry price, entry date, quantity, exit price, exit date (null if open), notes
-- Open and closed positions views
-- Per-trade P&L, days held, days to profitability, max profit reached (manually entered for now)
-- Summary totals — overall P&L, win rate, avg days to profit
-- Framer Motion animations, separate visual language from Market Analyzer
+
+**Build order:**
+1. `lib/trade-types.ts` — Trade interface, AssetType, Direction, Zod schemas
+2. `lib/trades.ts` — Redis CRUD (mirrors `lib/digest.ts` pattern, uses `mget` for batch fetch)
+3. `app/api/trades/route.ts` + `app/api/trades/[id]/route.ts` — GET/POST/PATCH/DELETE
+4. `app/pl.css` — design tokens (`--pl-*`), semantic classes (`.pl-shell`, `.pl-table`, `.pl-row--profit/loss`)
+5. `app/(pl)/layout.tsx` — auth gate + `pl.css` import, no ThemeProvider (always dark)
+6. `components/pl/PnlBadge.tsx` — formatted +$/-$ with green/red
+7. `components/pl/TradeRow.tsx` + `components/pl/TradeTable.tsx` — open/closed column variants
+8. `components/pl/SummaryBar.tsx` — total P&L, win rate, avg days held, avg days to profit
+9. `components/pl/TradeFormFields.tsx` + `components/pl/AddTradePanel.tsx` — slide-in Framer Motion panel, conditional fields by asset type
+10. `app/(pl)/pl-tracker/page.tsx` — main page, tabs (open/closed/summary), panel mode state
+
+**Key decisions:**
+- Route group `(pl)` — isolated from `(product)`, never inherits ThemeProvider
+- `pl.css` tokens are self-contained; do not rely on `globals.css` semantic classes
+- Panel state as discriminated union: `{ kind: 'closed' | 'add' } | { kind: 'edit' | 'close', trade: Trade }`
+- P&L computed in components from raw fields, not stored: `(exitPrice - entryPrice) × qty × multiplier × (long ? 1 : -1)`
+- Redis index: `trades:index` List with `LPUSH` (newest-first) + `LREM` on delete
+- `nanoid(10)` for IDs — already a transitive dep, no install needed
+- Multiplier: 1 for stocks, 100 for options, user-entered for futures
 
 ### Phase 2 — Schwab Integration (future)
 - Schwab Developer API (new post-2024 API, NOT the old TD Ameritrade one — old middleware is dead)
