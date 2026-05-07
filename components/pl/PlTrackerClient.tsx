@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
 import type { Trade } from "@/lib/trade-types";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
@@ -55,7 +56,12 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   return (
     <>
       <header className="pl-shell__header">
-        <span className="pl-title">PL Tracker</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Link href="/" style={{ color: "var(--pl-text-dim)", lineHeight: 0 }} aria-label="Home">
+            ←
+          </Link>
+          <span className="pl-title">PL Tracker</span>
+        </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <SessionBadge />
           {isOwner && (
