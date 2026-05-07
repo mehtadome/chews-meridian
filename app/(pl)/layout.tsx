@@ -6,7 +6,7 @@ import "@/app/pl.css";
 export default async function PlLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const session = await getSession(cookieStore.get("cm_session")?.value);
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?from=/pl-tracker");
 
   return <div className="pl-shell">{children}</div>;
 }
