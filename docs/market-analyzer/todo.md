@@ -14,6 +14,8 @@
 
 - **Favorite digest cards** — allow users to star individual cards (e.g. a `RiskFlag` or `EarningsHighlight`) and persist favorites across refreshes. Likely stored in Redis keyed by user session or a stable card ID derived from content hash. Favorited cards could be pinned to the top of the digest or surfaced in a separate view.
 
+- **Unit tests** — `test.md` has manual scenarios but no automated coverage. A lot has changed since tests were first considered. Worth another pass: at minimum, `lib/parseResponse.ts` (JSON extraction + Zod validation), `lib/digest.ts` (ticker merge logic), and `lib/auth.ts` (session validation paths) are good candidates for unit tests with no external deps.
+
 ## Polish
 
 - **Ticker standardization in prose** — tickers (e.g. AAPL, TSLA) appear as plain text in `BriefingSummary`, `RiskFlag`, `MacroSummaryCard`, and `NewsletterSummary` body fields. Structured tickers in `TickerMentionList` are already badged via `DigestTickerBadge`. Standardizing prose requires: (1) a detection strategy — regex is noisy (hits GDP, ETF, etc.), cross-referencing the digest's `TickerMentionList` is most accurate; (2) threading the ticker+direction map down through `DigestRenderer` → card components → `renderBold` or introducing a React context to avoid prop drilling.

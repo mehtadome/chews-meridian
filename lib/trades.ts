@@ -39,10 +39,3 @@ export async function updateTrade(id: string, patch: Partial<Omit<Trade, "id">>)
   await redis.set(tradeKey(id), JSON.stringify(updated));
   return updated;
 }
-
-export async function deleteTrade(id: string): Promise<boolean> {
-  const deleted = await redis.del(tradeKey(id));
-  if (deleted === 0) return false;
-  await redis.lrem("trades:index", 0, id);
-  return true;
-}
