@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ChartCandlestick } from "lucide-react";
+import { ArrowLeft, ChartCandlestick, Check, Copy } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import type { Theme } from "@/lib/theme";
 import { REFRESH_WINDOWS, NEWSLETTER_SENDERS, CONTEXT_WINDOW_DAYS } from "@/lib/config";
@@ -106,6 +106,14 @@ function formatTokenExpiry(issuedAt: string): { label: string; urgency: "ok" | "
 function GuestAccessSection() {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    if (!generatedCode) return;
+    navigator.clipboard.writeText(generatedCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
     <section aria-labelledby="guest-heading">
@@ -149,10 +157,13 @@ function GuestAccessSection() {
             <button
               type="button"
               className="btn"
-              style={{ padding: "0.4rem 0.75rem", fontSize: "0.8125rem" }}
-              onClick={() => navigator.clipboard.writeText(`guest:${generatedCode}`)}
+              style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }}
+              onClick={handleCopy}
             >
-              Copy
+              {copied
+                ? <Check style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-heading)" }} strokeWidth={2.5} />
+                : <Copy style={{ width: "0.875rem", height: "0.875rem" }} strokeWidth={1.75} />
+              }
             </button>
           </div>
         )}
