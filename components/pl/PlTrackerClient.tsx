@@ -2,10 +2,12 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
+import { Settings } from "lucide-react";
 import type { Trade } from "@/lib/trade-types";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
 import { AddTradePanel } from "./AddTradePanel";
+import { PlSettingsPanel } from "./PlSettingsPanel";
 import { SessionBadge } from "@/components/ui/SessionBadge";
 
 type Tab = "open" | "closed";
@@ -27,6 +29,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   const [prices, setPrices] = useState<Record<string, number>>(initialPrices);
   const [tab, setTab] = useState<Tab>("open");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
 
   useEffect(() => {
@@ -65,9 +68,19 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <SessionBadge />
           {isOwner && (
-            <button className="pl-btn pl-btn--primary" onClick={() => setPanel({ kind: "add" })}>
-              + Add Trade
-            </button>
+            <>
+              <button
+                className="pl-btn"
+                onClick={() => setSettingsOpen(true)}
+                style={{ padding: "0.3rem 0.5rem", lineHeight: 0 }}
+                aria-label="Settings"
+              >
+                <Settings size={15} />
+              </button>
+              <button className="pl-btn pl-btn--primary" onClick={() => setPanel({ kind: "add" })}>
+                + Add Trade
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -100,11 +113,17 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </main>
 
       {isOwner && (
-        <AddTradePanel
-          mode={panel}
-          onClose={() => setPanel({ kind: "closed" })}
-          onSaved={refresh}
-        />
+        <>
+          <AddTradePanel
+            mode={panel}
+            onClose={() => setPanel({ kind: "closed" })}
+            onSaved={refresh}
+          />
+          <PlSettingsPanel
+            isOpen={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+          />
+        </>
       )}
     </>
   );
