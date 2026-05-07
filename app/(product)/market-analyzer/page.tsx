@@ -8,6 +8,7 @@ import { DefaultChatTransport } from "ai";
 import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
+import { SessionBadge } from "@/components/ui/SessionBadge";
 import { parseMood } from "@/lib/parseResponse";
 import type { Mood } from "@/lib/parseResponse";
 import { getMessageText } from "@/lib/getMessageText";
@@ -122,7 +123,6 @@ export default function Home() {
   const [tickers, setTickers] = useState<TickerSummary[]>([]);               // 7-day ticker mention data for the chart
   const [toast, setToast] = useState<string | null>(null);                   // transient error/info message shown at top
   const [briefingError, setBriefingError] = useState(false);                 // detailed error box for agent failures
-  const [sessionRole, setSessionRole] = useState<"owner" | "guest" | null>(null);
 
   function showToast(message: string) {
     setToast(message);
@@ -149,7 +149,6 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  useFetchOnMount<{ session: string }>("/api/auth/session", (data) => { if (data?.session === "owner" || data?.session === "guest") setSessionRole(data.session); });
   useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
   useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
   useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
@@ -219,23 +218,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          {sessionRole && (
-            <span
-              className="ds-meta"
-              style={{
-                padding: "0.2rem 0.6rem",
-                borderRadius: "999px",
-                border: "1px solid var(--dc-border)",
-                color: "var(--text-muted)",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                fontSize: "0.6875rem",
-              }}
-            >
-              {sessionRole === "owner" ? "Owner" : "Guest"}
-            </span>
-          )}
+          <SessionBadge />
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
             <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>

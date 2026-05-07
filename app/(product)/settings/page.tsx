@@ -8,6 +8,7 @@ import { REFRESH_WINDOWS, NEWSLETTER_SENDERS, CONTEXT_WINDOW_DAYS } from "@/lib/
 import { PT_TIMEZONE } from "@/lib/utils";
 import { WATCHLIST } from "@/lib/watchlist";
 import { useEffect, useState } from "react";
+import { SessionBadge } from "@/components/ui/SessionBadge";
 
 const OPTIONS: { id: Theme; label: string; description: string }[] = [
   {
@@ -165,7 +166,6 @@ export default function SettingsPage() {
   const [lastDigestTimestamp, setLastDigestTimestamp] = useState<string | null>(null);
   const [tokenIssuedAt, setTokenIssuedAt] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [sessionRole, setSessionRole] = useState<"owner" | "guest" | null>(null);
 
   useEffect(() => {
     fetch("/api/digest")
@@ -179,10 +179,7 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((data) => {
-        if (data?.session === "owner") setIsOwner(true);
-        if (data?.session === "owner" || data?.session === "guest") setSessionRole(data.session);
-      })
+      .then((data) => { if (data?.session === "owner") setIsOwner(true); })
       .catch(() => {});
   }, []);
 
@@ -228,24 +225,7 @@ export default function SettingsPage() {
             Settings
           </h1>
         </div>
-        {sessionRole && (
-          <span
-            className="ds-meta"
-            style={{
-              padding: "0.2rem 0.6rem",
-              borderRadius: "999px",
-              border: "1px solid var(--dc-border)",
-              color: "var(--text-muted)",
-              fontWeight: 600,
-              letterSpacing: "0.06em",
-              textTransform: "uppercase",
-              fontSize: "0.6875rem",
-              marginLeft: "auto",
-            }}
-          >
-            {sessionRole === "owner" ? "Owner" : "Guest"}
-          </span>
-        )}
+        <SessionBadge />
       </header>
 
       <main
