@@ -12,3 +12,54 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Landing hero: two products side by side with a vertical rule between (stacked on narrow viewports) */
+.hero-stagger-root {
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 88rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  justify-items: center;
+}
+
+.hero-eyebrow {
+  width: 100%;
+}
+
+.hero-product-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.hero-product-divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+@media (min-width: 768px) {
+  .hero-stagger-root {
+    grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+    column-gap: clamp(2rem, 5.5vw, 4rem);
+    row-gap: 2rem;
+    align-items: stretch;
+    justify-items: stretch;
+  }
+
+  .hero-stagger-root .hero-eyebrow {
+    grid-column: 1 / -1;
+  }
+
+  .hero-product-divider {
+    width: 1px;
+    height: auto;
+    align-self: stretch;
+    justify-self: center;
+  }
+}
