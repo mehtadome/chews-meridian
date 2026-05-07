@@ -35,3 +35,19 @@
 
 ## PL Tracker
 
+### Phase 1 — Manual UI (current)
+- Build trade entry UI — symbol, asset type (stock/option/future), direction (long/short), entry price, entry date, quantity, exit price, exit date (null if open), notes
+- Open and closed positions views
+- Per-trade P&L, days held, days to profitability, max profit reached (manually entered for now)
+- Summary totals — overall P&L, win rate, avg days to profit
+- Framer Motion animations, separate visual language from Market Analyzer
+
+### Phase 2 — Schwab Integration (future)
+- Schwab Developer API (new post-2024 API, NOT the old TD Ameritrade one — old middleware is dead)
+- User is already approved with Client ID + Client Secret at developer.schwab.com
+- OAuth2 flow — same refresh token pattern as Gmail in this project
+- Auto-import trades from order history
+- Real-time mark price on open positions
+- Price history for auto-calculating days-to-profitability
+- Credentials: add `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN` to `.env.local` and Vercel when ready
+

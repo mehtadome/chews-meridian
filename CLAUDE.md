@@ -105,14 +105,17 @@ Two separate stylesheets — do not mix them:
 Required in `.env.local`:
 - `ANTHROPIC_API_KEY`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` (Gmail OAuth)
+- `OWNER_TOKEN` (auth — 32-byte hex, generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+- `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN` (PL Tracker — not yet wired in)
 
 ## Resume here (next session)
 
-Current branch: `prod-reliability` — pre-v2.0 reliability fixes, PR not yet opened.
+Current branch: `pl-tracker` — building PL Tracker as a new product.
 
-**Remaining critique fixes before PR:**
-- #12: Add `console.error(error)` to the non-429 branch in `useChat.onError` (`page.tsx`)
-- #13: Remove 3 debug `console.log` calls from `page.tsx` (refresh click, settings click, tab click, briefing request)
-- #16: Pass `showDigestLoading` directly to `DigestPanel`; remove recomputation inside `DigestPanel`
+**Plan:**
+- Phase 1: Manual trade entry UI — Framer Motion, separate visual language from Market Analyzer
+- Phase 2: Schwab API integration (user already approved at developer.schwab.com, has Client ID + Secret)
+- The old TD Ameritrade API / Python middleware is dead — Schwab migrated to a new API in 2024
+- Build UI and Redis data layer first, wire Schwab OAuth in a dedicated later session
 
-**After all fixes:** open PR #13 — version bumps to v1.1.
+**Trade data model:** symbol, asset type (stock/option/future), direction (long/short), entry price + date, exit price + date (null if open), quantity, notes. Manual fields: mark price, days to profitability, max profit reached.
