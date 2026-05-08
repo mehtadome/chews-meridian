@@ -5,7 +5,7 @@ import { useFetchOnMount } from "@/hooks/useFetchOnMount";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
+import { RefreshCw, Settings, X, ChartCandlestick, ArrowLeft } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { SessionBadge } from "@/components/ui/SessionBadge";
@@ -201,7 +201,7 @@ export default function Home() {
           {briefingText.trim() && (
             <button
               type="button"
-              onClick={() => { console.log("[refresh] clicked — briefingText:", briefingText.length, "agentText:", agentText.length, "cachedContent:", cachedContent?.length ?? null); setCachedContent(null); setMessages([]); }}
+              onClick={() => { setCachedContent(null); setMessages([]); }}
               disabled={isLoading}
               title="Refresh briefing"
               className="btn"
@@ -220,9 +220,9 @@ export default function Home() {
           )}
           <SessionBadge />
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
-            <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
+            <ArrowLeft style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
-          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
+          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings">
             <Settings style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
         </div>
