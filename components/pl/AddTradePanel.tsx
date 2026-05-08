@@ -38,12 +38,14 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   const [form, setForm] = useState<Partial<TradeCreate>>(() => defaultForm(trade));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   const tradeId = trade?.id ?? null;
   useEffect(() => {
     if (mode.kind === "closed") return;
     setForm(defaultForm(trade));
     setError(null);
+    setResetKey((k) => k + 1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode.kind, tradeId]);
 
@@ -112,6 +114,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
 
             <div className="pl-panel__body">
               <TradeFormFields
+                key={resetKey}
                 values={form}
                 onChange={patch}
                 showExitFields={mode.kind === "close" || mode.kind === "edit"}
