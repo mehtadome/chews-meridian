@@ -27,7 +27,7 @@ interface PlTrackerClientProps {
 export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTrackerClientProps) {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [prices, setPrices] = useState<Record<string, number>>(initialPrices);
-  const [tab, setTab] = useState<Tab>("open");
+  const [tab, setTab] = useState<Tab>("closed");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
   const [settingsOpen, setSettingsOpen] = useState(false);
 
