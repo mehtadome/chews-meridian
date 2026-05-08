@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Settings } from "lucide-react";
 import type { Trade } from "@/lib/trade-types";
@@ -30,19 +30,6 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   const [tab, setTab] = useState<Tab>("open");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
-  const [plCost, setPlCost] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch("/api/pl/agent")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.summary) setSummary(data.summary); })
-      .catch(() => {});
-    fetch("/api/usage?product=pl")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.total != null) setPlCost(data.total); })
-      .catch(() => {});
-  }, []);
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/trades");
@@ -71,11 +58,6 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           <span className="pl-title">PL Tracker</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          {plCost != null && (
-            <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)", fontVariantNumeric: "tabular-nums" }}>
-              ${plCost.toFixed(4)}
-            </span>
-          )}
           <SessionBadge />
           {isOwner && (
             <>
@@ -96,7 +78,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </header>
 
       <main className="pl-shell__main">
-        <SummaryBar trades={trades} prices={prices} summary={summary} />
+        <SummaryBar trades={trades} prices={prices} />
 
         <div className="pl-tabs">
           <button

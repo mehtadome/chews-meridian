@@ -2,15 +2,12 @@
 
 ---
 
-## Phase 1 — Summary Cache + API Cost Display (current)
+## Phase 1 — Dynamic Charting (todo)
 
-**Build order:**
-1. `lib/trades.ts` — add `bumpTradesVersion()` (`redis.incr("trades:v")`), call in `saveTrade` and `updateTrade`
-2. `lib/cost.ts` (new) — Haiku pricing constants, `addCost(product, inputTokens, outputTokens)` via `redis.incrbyfloat`, `getCost(product)`
-3. `app/api/pl/agent/route.ts` — check `pl:summary:cache` against `trades:v` + current month before calling model; call `addCost("pl", ...)` after generation; write cache on miss
-4. `app/api/cost/route.ts` (new) — `GET ?product=pl|ma` reads `cost:{product}` from Redis, returns `{ total: number }`
-5. `components/pl/PlTrackerClient.tsx` — fetch `/api/cost?product=pl` on mount, render cost label left of `<SessionBadge />`
-6. Market Analyzer — call `addCost("ma", ...)` in `onFinish` of `/api/agent/route.ts`; fetch and display cost in Market Analyzer header
+- Use Vercel AI SDK + Claude to generate dynamic charts from trade history
+- Charts should be generated on-demand, not cached — user triggers analysis
+- Candidate chart types: cumulative P&L over time, win rate by asset type, monthly gains bar chart, position sizing over time
+- Wire into PL Tracker UI where the Haiku summary paragraph used to live (above the stats bar)
 
 ## Route Group Consolidation (future, when Market Analyzer adopts dark style)
 
