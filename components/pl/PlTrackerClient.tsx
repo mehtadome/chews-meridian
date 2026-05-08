@@ -31,11 +31,16 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [plCost, setPlCost] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/pl/agent")
       .then((r) => r.ok ? r.json() : null)
       .then((data) => { if (data?.summary) setSummary(data.summary); })
+      .catch(() => {});
+    fetch("/api/usage?product=pl")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data?.total != null) setPlCost(data.total); })
       .catch(() => {});
   }, []);
 
@@ -66,6 +71,11 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           <span className="pl-title">PL Tracker</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          {plCost != null && (
+            <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)", fontVariantNumeric: "tabular-nums" }}>
+              ${plCost.toFixed(4)}
+            </span>
+          )}
           <SessionBadge />
           {isOwner && (
             <>

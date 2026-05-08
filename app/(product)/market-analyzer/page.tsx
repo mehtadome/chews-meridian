@@ -149,7 +149,7 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
+  useFetchOnMount<{ total: number }>("/api/usage?product=ma", (data) => setTotalCost(data.total));
   useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
   useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
 
@@ -160,7 +160,7 @@ export default function Home() {
     if (!agentText.trim() && messages.length > 0) {
       void fetch("/api/digest").then((r) => r.json()).then((data) => { if (data?.rawText) setCachedContent(data.rawText); }).catch(() => {});
     }
-    void fetch("/api/usage").then((r) => r.json()).then((d) => setTotalCost(d.totalCostUsd)).catch(console.error);
+    void fetch("/api/usage?product=ma").then((r) => r.json()).then((d) => setTotalCost(d.total)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 

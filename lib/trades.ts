@@ -25,10 +25,15 @@ export async function listTrades(): Promise<Trade[]> {
     .map((r) => JSON.parse(r) as Trade);
 }
 
+async function bumpTradesVersion() {
+  await redis.incr("trades:v");
+}
+
 export async function saveTrade(data: TradeCreate): Promise<Trade> {
   const trade: Trade = { id: nanoid(10), ...data };
   await redis.set(tradeKey(trade.id), JSON.stringify(trade));
   await redis.lpush("trades:index", trade.id);
+  await bumpTradesVersion();
   return trade;
 }
 
@@ -37,5 +42,6 @@ export async function updateTrade(id: string, patch: Partial<Omit<Trade, "id">>)
   if (!existing) return null;
   const updated: Trade = { ...existing, ...patch };
   await redis.set(tradeKey(id), JSON.stringify(updated));
+  await bumpTradesVersion();
   return updated;
 }
