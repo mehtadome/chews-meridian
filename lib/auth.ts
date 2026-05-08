@@ -12,17 +12,12 @@ export async function getSession(cookieValue: string | undefined): Promise<Sessi
 
   if (cookieValue === process.env.OWNER_TOKEN) return "owner";
 
-  if (cookieValue.startsWith("guest:")) {
-    const code = cookieValue.slice(6);
-    const raw = await redis.get(`guest:${code}`);
-    if (!raw) return null;
-    const data: GuestCode = JSON.parse(raw);
-    if (new Date(data.expiresAt) < new Date()) return null;
-    if (data.usesLeft <= 0) return null;
-    return "guest";
-  }
-
-  return null;
+  const raw = await redis.get(`guest:${cookieValue}`);
+  if (!raw) return null;
+  const data: GuestCode = JSON.parse(raw);
+  if (new Date(data.expiresAt) < new Date()) return null;
+  if (data.usesLeft <= 0) return null;
+  return "guest";
 }
 
 // Parses cm_session from a Request's Cookie header and returns the session type.
