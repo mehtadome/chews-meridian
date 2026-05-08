@@ -319,6 +319,7 @@
 .pl-input,
 .pl-select,
 .pl-textarea {
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border-radius: var(--pl-radius-sm);
   border: 1px solid var(--pl-border);
