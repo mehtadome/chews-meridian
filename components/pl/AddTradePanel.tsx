@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Trade, TradeCreate } from "@/lib/trade-types";
 import { TradeFormFields } from "./TradeFormFields";
@@ -38,6 +38,14 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   const [form, setForm] = useState<Partial<TradeCreate>>(() => defaultForm(trade));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const tradeId = trade?.id ?? null;
+  useEffect(() => {
+    if (mode.kind === "closed") return;
+    setForm(defaultForm(trade));
+    setError(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode.kind, tradeId]);
 
   function patch(update: Partial<TradeCreate>) {
     setForm((prev) => ({ ...prev, ...update }));
