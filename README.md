@@ -1,6 +1,6 @@
-# Chew's Meridian · v1.2
+# Chew's Meridian · v1.3
 
-A Next.js application that reads market-focused newsletter emails from Gmail, interprets their content using Claude, and renders a dynamically assembled digest UI. Instead of a static layout, the page builds itself based on what's actually in the news that day — Fed commentary gets different treatment than an earnings beat or a geopolitical risk flag.
+A Next.js application with two products: **Market Analyzer** reads market-focused newsletter emails via Gmail, interprets them with Claude, and renders a dynamically assembled digest. **PL Tracker** is a trade journal that fetches live prices, computes realized and unrealized P&L, and generates an AI performance summary on every open.
 
 ---
 
@@ -23,6 +23,9 @@ GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REFRESH_TOKEN=
 GOOGLE_TOKEN_ISSUED_AT=   # written automatically by scripts/refresh-token.mjs
+OWNER_TOKEN=              # 32-byte hex — node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+KV_REST_API_URL=
+KV_REST_API_TOKEN=
 ```
 
 Gmail OAuth setup: Google Cloud Console → enable Gmail API → create OAuth2 credentials → add `gmail.readonly` scope → store the resulting client ID, secret, and refresh token above.
@@ -38,10 +41,12 @@ The Settings page shows the current expiry date and warns when it's within 2 day
 
 ## Architecture
 
+### Market Analyzer
+
 ```
 Gmail API
     ↓
-GET /api/agent  (Next.js route)
+POST /api/agent  (Next.js route)
     ↓
 Vercel AI SDK — streamText + tool loop
     ↓
@@ -49,26 +54,16 @@ searchEmails → getEmail × N (reads all results, up to 5)
     ↓
 Claude synthesizes across all emails → emits JSON block
     ↓
-onFinish: saves to digests/YYYY-MM-DD.json + L1 memory cache
+onFinish: saves to Redis (L2) + L1 memory cache
     ↓
 React frontend (useChat) → DigestRenderer → component grid
 ```
 
-### Two-layer cache
+**Two-layer cache:** a module-level `Map` in `lib/cache.ts` (L1) sits in front of Redis (L2). On page load, `GET /api/digest` checks L1 then L2 before touching Gmail or the model. A hit at either layer returns the stored `rawText` directly — a typical day costs exactly one Gmail fetch and one inference call regardless of page loads.
 
-A module-level `Map` in `lib/cache.ts` (L1) sits in front of the filesystem (L2). On page load, `GET /api/digest` checks L1 then L2 before touching Gmail or the model. A hit at either layer returns the stored `rawText` directly — a typical day costs exactly one Gmail fetch and one inference call regardless of page loads.
+Multiple briefings on the same day accumulate ticker mentions — `saveDigest` merges incoming `TickerMentionList` entries rather than overwriting, so the 7-day ticker chart reflects all signals from the day.
 
-The cache is intentionally bypassed during two PT windows when newsletters are observed to arrive:
-- **2:00am – 7:00am PT** — pre-market / overnight editions
-- **1:00pm – 4:00pm PT** — midday / afternoon editions
-
-During these windows L1 is skipped so the next briefing pulls fresh from Gmail. L2 is still served if a prior briefing exists that day, so new tabs always have something to show.
-
-Multiple briefings on the same day **accumulate** ticker mentions — `saveDigest` merges incoming `TickerMentionList` entries with any existing ones rather than overwriting, so the 7-day ticker chart reflects all signals from the day.
-
-### Generative UI
-
-The model always responds with a single ` ```json ` block — no prose outside it:
+**Generative UI:** the model always responds with a single ` ```json ` block:
 
 ```json
 {
@@ -80,7 +75,25 @@ The model always responds with a single ` ```json ` block — no prose outside i
 }
 ```
 
-`parseComponents` validates this with Zod schemas (one per component type) and sorts by risk priority before rendering. `ComponentRenderer` maps each `type` to its React component via a switch. Adding a new component type requires: create the component in `components/ui/`, register it in the switch, describe it in `lib/systemPrompt.ts`.
+`parseComponents` validates with Zod and sorts by risk priority. Adding a new component type: create it in `components/ui/`, register in `ComponentRenderer.tsx`, describe it in `lib/systemPrompt.ts`.
+
+### PL Tracker
+
+```
+User adds/edits trade → Redis (permanent, no TTL)
+    ↓
+GET /api/trades/prices  (Yahoo Finance v7 batch, revalidate: 300s)
+    ↓
+P&L = (exitPrice ?? markPrice ?? livePrice − entryPrice) × qty × multiplier × direction
+    ↓
+GET /api/pl/agent  (Haiku summary of monthly realized + open positions)
+    ↓
+SummaryBar renders monthly P&L, per-position live P&L, AI briefing
+```
+
+**Data model:** `Trade` — id, symbol, assetType (stock/option/future), direction (long/short), entryPrice, entryDate, exitPrice (null = open), exitDate (null = open), quantity, multiplier, notes, markPrice. Trades are permanent records — no DELETE endpoint.
+
+**Auth:** `OWNER_TOKEN` gives full access. Guest codes (8 chars, 1hr TTL, 5 uses) give read-only access and are generated from the PL Tracker settings panel. Both products share the same `/login` page and `cm_session` cookie.
 
 ---
 
@@ -92,12 +105,14 @@ The model always responds with a single ` ```json ` block — no prose outside i
 | AI SDK | Vercel AI SDK (`ai`, `@ai-sdk/anthropic`) |
 | Model | `claude-haiku-4-5-20251001` |
 | Email | Gmail OAuth2 via `googleapis` |
-| Styling | CSS custom properties design system (no Tailwind utilities) |
+| Prices | Yahoo Finance v7 batch endpoint |
+| Storage | Upstash Redis (digests, trades, auth) |
+| Styling | CSS custom properties design system (no Tailwind utilities in product pages) |
 | Validation | Zod |
 
 ---
 
-## Component Library
+## Market Analyzer Component Library
 
 The model selects from this set based on newsletter content:
 
@@ -117,7 +132,7 @@ Components are ordered risk-first by the app regardless of model output order: `
 
 ## Watchlist
 
-Edit `lib/watchlist.ts` to change the tickers the agent prioritizes. The watchlist is injected into the system prompt at startup — the model flags relevant tickers and gives them priority placement.
+Edit `lib/watchlist.ts` to change the tickers the Market Analyzer agent prioritizes. The watchlist is injected into the system prompt at startup.
 
 To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array at the top of `lib/systemPrompt.ts`. Only emails from those addresses are ever fetched.
 
@@ -125,14 +140,24 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 
 ## What's Next
 
-- **Historical digest recall** — surface past `digests/YYYY-MM-DD.json` files in a timeline view and feed them into model context for cross-time reasoning ("inflation narrative has shifted hawkish over the last 3 newsletters")
+- **Schwab API integration** — wire `SCHWAB_CLIENT_ID` / `SCHWAB_CLIENT_SECRET` / `SCHWAB_REFRESH_TOKEN` to auto-import trades from the brokerage instead of manual entry
+- **Historical digest recall** — surface past digests in a timeline view and feed them into model context for cross-time reasoning
 - **Richer ticker charts** — direction timeline per ticker, watchlist hit rate, signal strength ranking, sentiment heatmap across the 7-day window
 - **Push trigger** — Gmail Pub/Sub webhook instead of manual refresh so the digest updates automatically when a newsletter arrives
-- **Portfolio context** — connect a brokerage API so the model contextualizes news against actual holdings
 
 ---
 
 ## Changelog
+
+### [v1.3](https://github.com/mehtadome/chews-meridian/pull/15)
+- **PL Tracker** — second product at `/pl-tracker` for trade journaling and portfolio performance
+- Redis-backed trade CRUD — permanent log of stock/option/future trades with no DELETE by design
+- Live P&L — Yahoo Finance v7 batch endpoint prices open positions; computed with quantity × multiplier × direction multiplier
+- Haiku trading summary — AI-generated briefing of monthly realized gains and open position performance on every open
+- Add/Edit/Close Trade panel — Framer Motion slide-in with MM/DD date inputs, per-field year toggle, and exit price reveal
+- Auth extended to PL Tracker — shared `/login` page and `cm_session` cookie cover both products; guest codes give read-only access
+- Owner-only settings panel in PL Tracker — guest code generation without leaving the tracker
+- Landing page updated — hero and how-it-works sections now cover both products
 
 ### [v1.2](https://github.com/mehtadome/chews-meridian/pull/14)
 - Two-tier authentication — owner token (permanent cookie) and guest codes (1hr or 5 briefing runs, whichever expires first)

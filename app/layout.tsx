@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Market Analyzer",
+  title: "Chew's Meridian",
   description: "Reads your newsletters and surfaces what matters",
 };
 
