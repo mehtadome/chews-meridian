@@ -88,10 +88,19 @@ function formatTokenExpiry(issuedAt: string): { label: string; urgency: "ok" | "
   return { label: `Expires ${dateStr} · ${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`, urgency: "ok" };
 }
 
+const EXPIRY_OPTIONS = [1, 6, 12, 24, 48] as const;
+type ExpiryHours = typeof EXPIRY_OPTIONS[number];
+
+function expiryLabel(h: ExpiryHours): string {
+  return h === 1 ? "1 hour" : `${h} hours`;
+}
+
 function GuestAccessSection() {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hours, setHours] = useState<ExpiryHours>(1);
+  const [generatedHours, setGeneratedHours] = useState<ExpiryHours>(1);
 
   function handleCopy() {
     if (!generatedCode) return;
@@ -105,16 +114,34 @@ function GuestAccessSection() {
       <SectionHeading id="guest-heading" label="Guest Access" />
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         <p className="ds-meta" style={{ color: "var(--text-muted)" }}>
-          Generate a one-time code valid for 1 hour or 5 briefing runs — whichever comes first.
+          Generate a one-time code valid for up to 5 briefing runs.
         </p>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ fontSize: "0.9375rem", color: "var(--text-muted)" }}>Expires in</span>
+          <select
+            className="btn"
+            style={{ padding: "0.35rem 0.6rem", fontSize: "0.875rem" }}
+            value={hours}
+            onChange={(e) => setHours(Number(e.target.value) as ExpiryHours)}
+          >
+            {EXPIRY_OPTIONS.map((h) => (
+              <option key={h} value={h}>{expiryLabel(h)}</option>
+            ))}
+          </select>
+        </div>
         <button
           type="button"
           onClick={async () => {
             setGenerating(true);
             setGeneratedCode(null);
-            const res = await fetch("/api/auth/generate", { method: "POST" });
+            const res = await fetch("/api/auth/generate", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ hours }),
+            });
             const data = await res.json();
             setGeneratedCode(data.code ?? null);
+            setGeneratedHours(data.hours ?? hours);
             setGenerating(false);
           }}
           disabled={generating}
@@ -124,32 +151,37 @@ function GuestAccessSection() {
           {generating ? "Generating…" : "Generate guest code"}
         </button>
         {generatedCode && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <code
-              style={{
-                padding: "0.5rem 0.875rem",
-                borderRadius: "6px",
-                border: "1px solid var(--border)",
-                background: "var(--btn-bg)",
-                fontSize: "1rem",
-                fontFamily: "ui-monospace, monospace",
-                letterSpacing: "0.08em",
-                color: "var(--text-heading)",
-              }}
-            >
-              {generatedCode}
-            </code>
-            <button
-              type="button"
-              className="btn"
-              style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }}
-              onClick={handleCopy}
-            >
-              {copied
-                ? <Check style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-heading)" }} strokeWidth={2.5} />
-                : <Copy style={{ width: "0.875rem", height: "0.875rem" }} strokeWidth={1.75} />
-              }
-            </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <code
+                style={{
+                  padding: "0.5rem 0.875rem",
+                  borderRadius: "6px",
+                  border: "1px solid var(--border)",
+                  background: "var(--btn-bg)",
+                  fontSize: "1rem",
+                  fontFamily: "ui-monospace, monospace",
+                  letterSpacing: "0.08em",
+                  color: "var(--text-heading)",
+                }}
+              >
+                {generatedCode}
+              </code>
+              <button
+                type="button"
+                className="btn"
+                style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }}
+                onClick={handleCopy}
+              >
+                {copied
+                  ? <Check style={{ width: "0.875rem", height: "0.875rem", color: "var(--text-heading)" }} strokeWidth={2.5} />
+                  : <Copy style={{ width: "0.875rem", height: "0.875rem" }} strokeWidth={1.75} />
+                }
+              </button>
+            </div>
+            <span className="ds-meta" style={{ color: "var(--text-muted)" }}>
+              Expires in {expiryLabel(generatedHours)} · 5 uses
+            </span>
           </div>
         )}
       </div>

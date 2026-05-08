@@ -1,8 +1,7 @@
 import { withAuth } from "@/lib/auth";
 import { redis } from "@/lib/redis";
 
-const ONE_HOUR_S = 60 * 60;
-const ONE_HOUR_MS = ONE_HOUR_S * 1000;
+const VALID_HOURS = [1, 6, 12, 24, 48] as const;
 const MAX_USES = 5;
 
 function randomCode(): string {
@@ -15,13 +14,17 @@ export async function POST(req: Request) {
   if (error) return error;
   if (session !== "owner") return new Response("Forbidden", { status: 403 });
 
+  const body = await req.json().catch(() => ({}));
+  const hours: number = VALID_HOURS.includes(body.hours) ? body.hours : 1;
+  const ttlSeconds = hours * 60 * 60;
+
   const code = randomCode();
   const payload = JSON.stringify({
-    expiresAt: new Date(Date.now() + ONE_HOUR_MS).toISOString(),
+    expiresAt: new Date(Date.now() + ttlSeconds * 1000).toISOString(),
     usesLeft: MAX_USES,
   });
 
-  await redis.set(`guest:${code}`, payload, "EX", ONE_HOUR_S);
+  await redis.set(`guest:${code}`, payload, "EX", ttlSeconds);
 
-  return Response.json({ code });
+  return Response.json({ code, hours });
 }
