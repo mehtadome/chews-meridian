@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getSession } from "@/lib/auth";
+import "@/app/market-analyzer.css";
 
 export default async function ProductLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();

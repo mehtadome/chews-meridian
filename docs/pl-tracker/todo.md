@@ -2,6 +2,10 @@
 
 ---
 
+## Auth Bug — Guest Code Rejection (deferred)
+
+Guest codes never validate because `getSession` only accepts values prefixed with `"guest:"`, but the settings panel shows the bare code (e.g. `ABC12345`) and the auth route stores it bare in the cookie. Fix: in `getSession`, after the owner check fails, try `redis.get("guest:" + cookieValue)` as a fallback before returning null.
+
 ## Phase 1 — Dynamic Charting (todo)
 
 - Use Vercel AI SDK + Claude to generate dynamic charts from trade history
