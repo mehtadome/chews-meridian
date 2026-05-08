@@ -33,6 +33,12 @@ interface DateFieldProps {
   onYearChange: (year: string) => void;
 }
 
+function formatMD(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+}
+
 function DateField({ md, year, onMDChange, onYearChange }: DateFieldProps) {
   return (
     <div style={{ display: "flex", gap: "0.4rem" }}>
@@ -41,7 +47,10 @@ function DateField({ md, year, onMDChange, onYearChange }: DateFieldProps) {
         type="text"
         placeholder="MM/DD"
         value={md}
-        onChange={(e) => onMDChange(e.target.value, fromMD(e.target.value, year))}
+        onChange={(e) => {
+          const formatted = formatMD(e.target.value);
+          onMDChange(formatted, fromMD(formatted, year));
+        }}
         style={{ flex: 1, minWidth: 0 }}
       />
       <select
