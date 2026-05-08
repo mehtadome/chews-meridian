@@ -205,30 +205,31 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
                 }}
               />
             )}
-            {field("Exit Date",
-              <input
-                className="pl-input"
-                type="text"
-                placeholder="MM/DD"
-                value={exitMD}
-                onChange={(e) => {
-                  const formatted = formatMD(e.target.value);
-                  setExitMD(formatted);
-                  const parsed = fromMD(formatted, exitYear);
-                  if (parsed) onChange({ exitDate: parsed });
-                  else if (!formatted) onChange({ exitDate: null });
-                }}
-              />
-            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {field("Exit Date",
+                <input
+                  className="pl-input"
+                  type="text"
+                  placeholder="MM/DD"
+                  value={exitMD}
+                  onChange={(e) => {
+                    const formatted = formatMD(e.target.value);
+                    setExitMD(formatted);
+                    const parsed = fromMD(formatted, exitYear);
+                    if (parsed) onChange({ exitDate: parsed });
+                    else if (!formatted) onChange({ exitDate: null });
+                  }}
+                />
+              )}
+              <button
+                type="button"
+                className="pl-btn"
+                onClick={() => { setShowExitYear((v) => !v); setShowEntryYear(false); }}
+              >
+                {exitYear} ▾
+              </button>
+            </div>
           </div>
-
-          <button
-            type="button"
-            className="pl-btn"
-            onClick={() => { setShowExitYear((v) => !v); setShowEntryYear(false); }}
-          >
-            {exitYear} ▾
-          </button>
 
           {showExitYear && (
             <select
