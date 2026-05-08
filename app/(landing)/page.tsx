@@ -194,6 +194,7 @@ export default function LandingPage() {
                     letterSpacing: "-0.03em",
                     lineHeight: 1.05,
                     marginBottom: "1.625rem",
+                    color: "#ffffff",
                   }}
                 >
                   {product.label}
