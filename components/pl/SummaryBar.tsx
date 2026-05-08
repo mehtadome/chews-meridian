@@ -20,7 +20,9 @@ const Dim = ({ children }: { children: React.ReactNode }) => (
 
 export function SummaryBar({ trades, prices, summary }: SummaryBarProps) {
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const monthStart = `${y}-${m}-01`;
 
   const monthlyGains = trades
     .filter((t) => t.exitDate && t.exitDate >= monthStart)

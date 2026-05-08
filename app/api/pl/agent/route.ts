@@ -18,7 +18,7 @@ export async function GET(req: Request) {
 
   const trades = await listTrades();
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
 
   const closedThisMonth = trades.filter((t) => t.exitDate && t.exitDate >= monthStart);
   const open = trades.filter((t) => !t.exitDate);
