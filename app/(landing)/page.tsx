@@ -32,7 +32,7 @@ const PRODUCTS = [
     href: "/pl-tracker",
     label: "PL Tracker",
     howItWorksTitle: "Profit & Loss Tracker",
-    techStack: ["Next.js 15", "Claude", "Composer", "Yahoo Finance", "Redis", "Vercel", "TypeScript"],
+    techStack: ["Next.js 15", "Claude", "Composer", "Redis", "Vercel", "TypeScript"],
     desc: "Log trades. Track P&L. Know where you stand.",
     steps: [
       { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity." },
