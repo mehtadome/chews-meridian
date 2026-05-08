@@ -8,9 +8,10 @@
   transition-timing-function: ease-out;
 }
 
-/* Smooth anchor scrolling */
+/* Smooth anchor scrolling + reserve scrollbar gutter to prevent layout shift when scrollbar appears */
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 /* Landing hero: two products + vertical rule (horizontal rule when stacked; extra info grid has no bar) */
