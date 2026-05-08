@@ -2,28 +2,15 @@
 
 ---
 
-## Phase 1 — Manual UI (current)
+## Phase 1 — Summary Cache + API Cost Display (current)
 
 **Build order:**
-1. `lib/trade-types.ts` — Trade interface, AssetType, Direction, Zod schemas ✓
-2. `lib/trades.ts` — Redis CRUD (mirrors `lib/digest.ts` pattern, uses `mget` for batch fetch) ✓
-3. `app/api/trades/route.ts` + `app/api/trades/[id]/route.ts` — GET/POST/PATCH/DELETE
-4. `app/pl.css` — design tokens (`--pl-*`), semantic classes (`.pl-shell`, `.pl-table`, `.pl-row--profit/loss`)
-5. `app/(pl)/layout.tsx` — auth gate + `pl.css` import, no ThemeProvider (always dark)
-6. `components/pl/PnlBadge.tsx` — formatted +$/-$ with green/red
-7. `components/pl/TradeRow.tsx` + `components/pl/TradeTable.tsx` — open/closed column variants
-8. `components/pl/SummaryBar.tsx` — total P&L, win rate, avg days held, avg days to profit
-9. `components/pl/TradeFormFields.tsx` + `components/pl/AddTradePanel.tsx` — slide-in Framer Motion panel, conditional fields by asset type
-10. `app/(pl)/pl-tracker/page.tsx` — main page, tabs (open/closed/summary), panel mode state
-
-**Key decisions:**
-- Route group `(pl)` — isolated from `(product)`, never inherits ThemeProvider
-- `pl.css` tokens are self-contained; do not rely on `globals.css` semantic classes
-- Panel state as discriminated union: `{ kind: 'closed' | 'add' } | { kind: 'edit' | 'close', trade: Trade }`
-- P&L computed in components from raw fields, not stored: `(exitPrice - entryPrice) × qty × multiplier × (long ? 1 : -1)`
-- Redis index: `trades:index` List with `LPUSH` (newest-first) + `LREM` on delete
-- `nanoid(10)` for IDs — already a transitive dep, no install needed
-- Multiplier: 1 for stocks, 100 for options, user-entered for futures
+1. `lib/trades.ts` — add `bumpTradesVersion()` (`redis.incr("trades:v")`), call in `saveTrade` and `updateTrade`
+2. `lib/cost.ts` (new) — Haiku pricing constants, `addCost(product, inputTokens, outputTokens)` via `redis.incrbyfloat`, `getCost(product)`
+3. `app/api/pl/agent/route.ts` — check `pl:summary:cache` against `trades:v` + current month before calling model; call `addCost("pl", ...)` after generation; write cache on miss
+4. `app/api/cost/route.ts` (new) — `GET ?product=pl|ma` reads `cost:{product}` from Redis, returns `{ total: number }`
+5. `components/pl/PlTrackerClient.tsx` — fetch `/api/cost?product=pl` on mount, render cost label left of `<SessionBadge />`
+6. Market Analyzer — call `addCost("ma", ...)` in `onFinish` of `/api/agent/route.ts`; fetch and display cost in Market Analyzer header
 
 ## Phase 3 — Market Analyzer Integration (future)
 
