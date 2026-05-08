@@ -1,14 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChartCandlestick } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const params = useSearchParams();
+  const from = params.get("from") ?? "/market-analyzer";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +26,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res.ok) {
-      router.push("/market-analyzer");
+      router.push(from);
     } else {
       setError(true);
     }
@@ -102,5 +104,14 @@ export default function LoginPage() {
         </form>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

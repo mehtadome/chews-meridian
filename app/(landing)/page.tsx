@@ -1,7 +1,8 @@
 "use client";
 
+import { Fragment, useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { ChartCandlestick } from "lucide-react";
 
 const fadeUp = {
@@ -14,26 +15,83 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-const STEPS = [
-  {
-    number: "01",
-    title: "Connect Gmail",
-    description: "OAuth-authenticated access to your newsletter inbox. No credentials stored.",
-  },
-  {
-    number: "02",
-    title: "AI reads and analyzes",
-    description: "Claude scans your newsletters and extracts earnings, risks, and opportunities.",
-  },
-  {
-    number: "03",
-    title: "Daily briefing",
-    description:
-      "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals.",
-  },
-];
+const TECH = ["Next.js 15", "Claude", "Composer", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
 
-const TECH = ["Next.js 15", "Claude AI", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
+const PRODUCTS = [
+  {
+    href: "/market-analyzer",
+    label: "Market Analyzer",
+    desc: "Reads your newsletters. Surfaces what moves markets.",
+    steps: [
+      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox. No credentials stored." },
+      { number: "02", title: "AI reads and analyzes", description: "Claude scans your newsletters and identifies risks and opportunities." },
+      { number: "03", title: "Daily briefing", description: "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals." },
+    ],
+  },
+  {
+    href: "/pl-tracker",
+    label: "PL Tracker",
+    howItWorksTitle: "Profit & Loss Tracker",
+    techStack: ["Next.js 15", "Claude", "Composer", "Yahoo Finance", "Redis", "Vercel", "TypeScript"],
+    desc: "Log trades. Track P&L. Know where you stand.",
+    steps: [
+      { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity." },
+      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position." },
+      { number: "03", title: "AI performance summary", description: "Synthesizes your monthly realized gains and open P&L into a concise briefing every time you open the tracker." },
+    ],
+  },
+] as const;
+
+function StepCards({ steps }: { steps: readonly { number: string; title: string; description: string }[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.1 });
+  return (
+    <div ref={ref} className="landing-how-steps" style={{ marginBottom: "3.5rem" }}>
+      {steps.map((step, i) => (
+        <motion.div
+          key={step.number}
+          className="landing-how-step-card"
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.55, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+        >
+          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", color: "#22c55e", marginBottom: "0.875rem" }}>
+            {step.number}
+          </div>
+          <div style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
+            {step.title}
+          </div>
+          <div style={{ fontSize: "0.9375rem", color: "#888888", lineHeight: 1.55 }}>{step.description}</div>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function BuiltWithChips({ names, idPrefix }: { names: readonly string[]; idPrefix: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.12 });
+
+  return (
+    <div ref={ref} className="landing-tech-chips">
+      {names.map((name, i) => (
+        <motion.span
+          key={`${idPrefix}-${name}`}
+          className="landing-tech-chip"
+          initial={{ opacity: 0, x: -14 }}
+          animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -14 }}
+          transition={{
+            duration: 0.4,
+            delay: i * 0.09,
+            ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
+          }}
+        >
+          {name}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
 
 export default function LandingPage() {
   return (
@@ -49,7 +107,7 @@ export default function LandingPage() {
           justifyContent: "center",
           textAlign: "center",
           minHeight: "100vh",
-          padding: "2rem clamp(1.5rem, 6vw, 6rem)",
+          padding: "2rem clamp(1.5rem, 6vw, 7.5rem)",
         }}
       >
         {/* Green radial glow */}
@@ -60,8 +118,8 @@ export default function LandingPage() {
             top: "35%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "700px",
-            height: "700px",
+            width: "min(920px, 90vw)",
+            height: "min(920px, 90vw)",
             background: "radial-gradient(circle, rgba(34,197,94,0.13) 0%, transparent 65%)",
             pointerEvents: "none",
           }}
@@ -71,226 +129,177 @@ export default function LandingPage() {
           variants={stagger}
           initial="hidden"
           animate="visible"
-          style={{ position: "relative", maxWidth: "52rem" }}
+          className="hero-stagger-root"
         >
           {/* Eyebrow */}
           <motion.div
             variants={fadeUp}
+            className="hero-eyebrow"
             style={{
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
-              justifyContent: "center",
-              gap: "0.5rem",
-              marginBottom: "1.75rem",
+              gap: "0.625rem",
             }}
           >
-            <ChartCandlestick
-              style={{ width: "1.125rem", height: "1.125rem", color: "#22c55e" }}
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <span
+            <div
               style={{
-                fontSize: "0.8125rem",
-                fontWeight: 600,
-                letterSpacing: "0.12em",
-                textTransform: "uppercase",
-                color: "#22c55e",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.625rem",
               }}
             >
-              Chew's Meridian
-            </span>
-          </motion.div>
-
-          {/* Headline */}
-          <motion.h1
-            variants={fadeUp}
-            style={{
-              fontSize: "clamp(2.75rem, 7vw, 5.5rem)",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.05,
-              marginBottom: "1.5rem",
-            }}
-          >
-            Market Analyzer
-          </motion.h1>
-
-          {/* Tagline */}
-          <motion.p
-            variants={fadeUp}
-            style={{
-              fontSize: "clamp(1rem, 2vw, 1.25rem)",
-              color: "#888888",
-              lineHeight: 1.6,
-              maxWidth: "34rem",
-              margin: "0 auto 2.5rem",
-            }}
-          >
-            Reads your newsletters. Surfaces what moves markets.
-          </motion.p>
-
-          {/* CTA */}
-          <motion.div variants={fadeUp}>
-            <motion.div
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              style={{ display: "inline-block" }}
-            >
-              <Link
-                href="/market-analyzer"
+              <ChartCandlestick
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "0.875rem 2rem",
-                  borderRadius: "8px",
-                  background: "#22c55e",
-                  color: "#0a0a0a",
-                  fontWeight: 700,
-                  fontSize: "1rem",
-                  textDecoration: "none",
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                Enter App →
-              </Link>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* ── How it works ───────────────────────────────────────── */}
-      <section
-        style={{
-          padding: "6rem clamp(1.5rem, 6vw, 6rem)",
-          maxWidth: "72rem",
-          margin: "0 auto",
-        }}
-      >
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-            color: "#22c55e",
-            marginBottom: "3rem",
-            textAlign: "center",
-          }}
-        >
-          How it works
-        </motion.p>
-
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {STEPS.map((step) => (
-            <motion.div
-              key={step.number}
-              variants={fadeUp}
-              style={{
-                padding: "1.75rem",
-                borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                background: "rgba(255,255,255,0.03)",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.1em",
+                  width: "clamp(1.375rem, 2.4vw, 1.625rem)",
+                  height: "clamp(1.375rem, 2.4vw, 1.625rem)",
                   color: "#22c55e",
-                  marginBottom: "0.875rem",
                 }}
-              >
-                {step.number}
-              </div>
-              <div
+                strokeWidth={2}
+                aria-hidden
+              />
+              <span
                 style={{
-                  fontSize: "1.0625rem",
-                  fontWeight: 700,
-                  color: "#ffffff",
-                  marginBottom: "0.5rem",
-                  letterSpacing: "-0.01em",
+                  fontSize: "clamp(0.9375rem, 1.5vw, 1.125rem)",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#22c55e",
                 }}
               >
-                {step.title}
-              </div>
-              <div style={{ fontSize: "0.9375rem", color: "#888888", lineHeight: 1.55 }}>
-                {step.description}
-              </div>
-            </motion.div>
+                {"Chew's Meridian"}
+              </span>
+            </div>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "clamp(1.0625rem, 2.15vw, 1.3125rem)",
+                color: "#888888",
+                lineHeight: 1.62,
+              }}
+            >
+              Built on Claude and Composer
+            </p>
+          </motion.div>
+
+          {/* Products: two columns + rule (aligned with landing-dual-products below); extra info stays undivided */}
+          {PRODUCTS.map((product, i) => (
+            <Fragment key={product.href}>
+              <motion.div variants={fadeUp} className="hero-product-panel">
+                <h1
+                  style={{
+                    fontSize: "clamp(2.35rem, 5.5vw, 4.25rem)",
+                    fontWeight: 800,
+                    letterSpacing: "-0.03em",
+                    lineHeight: 1.05,
+                    marginBottom: "1.625rem",
+                    color: "#ffffff",
+                  }}
+                >
+                  {product.label}
+                </h1>
+                <p
+                  style={{
+                    fontSize: "clamp(1.0625rem, 2.15vw, 1.3125rem)",
+                    color: "#888888",
+                    lineHeight: 1.62,
+                    maxWidth: "100%",
+                    width: "100%",
+                    margin: "0 0 2.25rem",
+                  }}
+                >
+                  {product.desc}
+                </p>
+                <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} style={{ display: "inline-block" }}>
+                  <Link
+                    href={product.href}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "1rem 2.5rem",
+                      borderRadius: "10px",
+                      background: "#22c55e",
+                      color: "#0a0a0a",
+                      fontWeight: 700,
+                      fontSize: "1.0625rem",
+                      textDecoration: "none",
+                      letterSpacing: "-0.01em",
+                    }}
+                  >
+                    Enter App →
+                  </Link>
+                </motion.div>
+              </motion.div>
+              {i === 0 ? <div className="hero-product-divider" aria-hidden /> : null}
+            </Fragment>
           ))}
         </motion.div>
       </section>
 
-      {/* ── Tech stack ─────────────────────────────────────────── */}
-      <section
-        style={{
-          padding: "0 clamp(1.5rem, 6vw, 6rem) 8rem",
-          maxWidth: "72rem",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "1.25rem",
-        }}
-      >
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          style={{
-            fontSize: "0.8125rem",
-            color: "#444444",
-            letterSpacing: "0.1em",
-            textTransform: "uppercase",
-            fontWeight: 600,
-          }}
-        >
-          Built with
-        </motion.p>
+      {/* Product extra information: two columns aligned with hero; no divider */}
+      <section className="landing-dual-products" aria-label="Products detail">
+        <div className="landing-dual-products__grid">
+          {PRODUCTS.map((product) => (
+            <div key={product.href} className="landing-dual-products__column">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#22c55e",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {"howItWorksTitle" in product ? product.howItWorksTitle : product.label}
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.05 }}
+                style={{
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: "#444",
+                  marginBottom: "3rem",
+                }}
+              >
+                How it works
+              </motion.p>
+              <StepCards steps={product.steps} />
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", justifyContent: "center" }}
-        >
-          {TECH.map((name) => (
-            <motion.span
-              key={name}
-              variants={fadeUp}
-              style={{
-                padding: "0.375rem 0.875rem",
-                borderRadius: "999px",
-                border: "1px solid rgba(255,255,255,0.1)",
-                background: "rgba(255,255,255,0.04)",
-                fontSize: "0.875rem",
-                fontWeight: 500,
-                color: "#cccccc",
-              }}
-            >
-              {name}
-            </motion.span>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "#444444",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  fontWeight: 600,
+                  marginBottom: "1.25rem",
+                }}
+              >
+                Built with
+              </motion.p>
+              <BuiltWithChips
+                idPrefix={product.href}
+                names={"techStack" in product ? product.techStack : TECH}
+              />
+            </div>
           ))}
-        </motion.div>
+        </div>
       </section>
 
     </main>

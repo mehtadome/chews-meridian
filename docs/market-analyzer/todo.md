@@ -1,4 +1,6 @@
-# Todo
+# Market Analyzer — Todos
+
+---
 
 ## Features
 
@@ -11,6 +13,8 @@
 - **Copy card to clipboard** — add a copy button to each digest card that writes a clean plain-text or markdown summary to the clipboard, making it easy to share a specific signal (e.g. a `RiskFlag` or `EarningsHighlight`) directly.
 
 - **Favorite digest cards** — allow users to star individual cards (e.g. a `RiskFlag` or `EarningsHighlight`) and persist favorites across refreshes. Likely stored in Redis keyed by user session or a stable card ID derived from content hash. Favorited cards could be pinned to the top of the digest or surfaced in a separate view.
+
+- **Unit tests** — `test.md` has manual scenarios but no automated coverage. A lot has changed since tests were first considered. Worth another pass: at minimum, `lib/parseResponse.ts` (JSON extraction + Zod validation), `lib/digest.ts` (ticker merge logic), and `lib/auth.ts` (session validation paths) are good candidates for unit tests with no external deps.
 
 ## Polish
 

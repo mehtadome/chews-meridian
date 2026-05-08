@@ -84,35 +84,98 @@ Two separate stylesheets — do not mix them:
 
 | Path | Purpose |
 |------|---------|
-| `app/(landing)/page.tsx` | Landing page (`/`) — Chew's Meridian hero, how-it-works, tech stack |
-| `app/(landing)/about/page.tsx` | About page (`/about`) — project + bio (content is placeholder, needs writing) |
-| `app/(product)/market-analyzer/page.tsx` | Product page (`/market-analyzer`) — main digest UI |
-| `app/(product)/settings/page.tsx` | Settings page (`/settings`) |
-| `app/landing.css` | Marketing stylesheet — Framer Motion animations, dark palette |
-| `lib/systemPrompt.ts` | Full agent instructions + component schema sent to the model |
-| `lib/watchlist.ts` | Tickers the agent prioritizes |
+| `app/(landing)/page.tsx` | Landing page (`/`) — Chew's Meridian hero, how-it-works, tech stack for both products |
+| `app/(landing)/about/page.tsx` | About page (`/about`) — placeholder, needs writing |
+| `app/(product)/market-analyzer/page.tsx` | Market Analyzer digest UI |
+| `app/(product)/settings/page.tsx` | Settings page |
+| `app/(pl)/pl-tracker/page.tsx` | PL Tracker server page — fetches trades + prices |
+| `app/landing.css` | Marketing stylesheet — Framer Motion, dark palette |
+| `app/pl.css` | PL Tracker design system — standalone dark theme |
+| `app/login/page.tsx` | Shared login page — reads `?from=` param to redirect after auth |
+| `app/api/auth/route.ts` | POST — validates credential, sets `cm_session` cookie |
+| `app/api/auth/generate/route.ts` | POST owner-only — creates guest code in Redis |
+| `lib/auth.ts` | `getSession`, `withAuth` — owner token + guest code validation |
+| `lib/trade-types.ts` | Trade interface, Zod schemas (TradeCreateSchema, TradeUpdateSchema) |
+| `lib/trades.ts` | Redis CRUD: getTrade, listTrades, saveTrade (nanoid), updateTrade |
+| `lib/market-data.ts` | `fetchCurrentPrices` via Yahoo Finance v7 batch endpoint |
+| `lib/systemPrompt.ts` | Market Analyzer agent instructions + component schema |
+| `lib/watchlist.ts` | Tickers the Market Analyzer agent prioritizes |
 | `lib/digest.ts` | Read/write digest records in Redis (L2 cache) |
 | `lib/cache.ts` | Module-level L1 cache (memory, process lifetime) |
 | `lib/gmail.ts` | Gmail OAuth + `searchEmails`/`getEmail` |
-| `lib/usage.ts` | Append-only token/cost log in `usage.json` |
-| `components/ComponentRenderer.tsx` | Parses JSON block → renders component grid |
-| `app/api/agent/route.ts` | Streaming LLM endpoint |
-| `app/api/digest/route.ts` | Cache-first digest retrieval |
-| `app/api/tickers/route.ts` | 7-day ticker aggregation |
+| `components/ComponentRenderer.tsx` | Parses JSON block → renders Market Analyzer component grid |
+| `app/api/agent/route.ts` | Market Analyzer streaming LLM endpoint |
+| `app/api/pl/agent/route.ts` | PL Tracker Haiku summary endpoint |
+| `app/api/trades/route.ts` | GET list / POST create trade |
+| `app/api/trades/[id]/route.ts` | GET single / PATCH update trade (no DELETE) |
+| `app/api/trades/prices/route.ts` | GET live prices from Yahoo Finance |
 
 ## Environment variables
 
 Required in `.env.local`:
 - `ANTHROPIC_API_KEY`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` (Gmail OAuth)
+- `OWNER_TOKEN` (auth — 32-byte hex, generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+- `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN` (PL Tracker — not yet wired in)
+
+## PL Tracker — architecture
+
+PL Tracker is a second product at `/pl-tracker`, isolated from Market Analyzer. It has its own route group, stylesheet, and auth scope.
+
+### Route group: `app/(pl)/`
+- Layout: `app/(pl)/layout.tsx` — auth gate (redirects to `/login?from=/pl-tracker`), imports `app/pl.css`, wraps in `<div className="pl-shell">`. No ThemeProvider.
+- Page: `app/(pl)/pl-tracker/page.tsx` — server component, fetches trades + live prices + passes `isOwner` to `PlTrackerClient`.
+
+### Stylesheet: `app/pl.css`
+Self-contained dark design system. **Never import globals.css here.** Key tokens: `--pl-bg:#0d0d0d`, `--pl-green:#22c55e`, `--pl-red:#ef4444`. Key classes: `.pl-shell`, `.pl-shell__header`, `.pl-table`, `.pl-row--profit/loss`, `.pl-badge--profit/loss`, `.pl-panel`, `.pl-btn--primary`, `.pl-field`, `.pl-field-row`, `.pl-input`, `.pl-select`.
+
+### Data model (`lib/trade-types.ts`)
+`Trade`: id, symbol, assetType (stock/option/future), direction (long/short), entryPrice, entryDate (YYYY-MM-DD), exitPrice (null if open), exitDate (null if open), quantity, multiplier, notes, markPrice. A null `exitDate` means the trade is open/unrealized.
+
+### Redis (`lib/trades.ts`)
+Keys: `trade:<id>` (JSON), index: `trades:index` (LPUSH list of ids). No TTL on trades — permanent record. `saveTrade` uses `nanoid(10)`. `updateTrade` does GET→merge→SET.
+
+### P&L formula
+`(exitPrice ?? currentPrice ?? markPrice - entryPrice) × quantity × multiplier × (long ? 1 : -1)`
+
+### monthStart comparisons
+Always use date-only strings: `` `${year}-${mm}-01` `` — never `.toISOString()` which produces a datetime string that sorts incorrectly against plain date strings.
+
+### Components (`components/pl/`)
+| File | Purpose |
+|------|---------|
+| `PlTrackerClient.tsx` | "use client" shell — tabs, panel state, Haiku summary fetch on mount, refresh after save |
+| `SummaryBar.tsx` | Monthly realized gains + per-open-position live P&L + Haiku summary text |
+| `TradeTable.tsx` | Unified table for open and closed tabs |
+| `TradeRow.tsx` | Symbol, P&L, Qty, Entry price, Exit price, Direction, Date range + days, Type. Action column owner-only. |
+| `PnlBadge.tsx` | `Intl.NumberFormat` with `signDisplay:"always"`, variants: profit/loss/neutral |
+| `AddTradePanel.tsx` | Framer Motion slide-in panel (spring). PanelMode discriminated union: closed/add/edit/close. Resets form via `resetKey` passed as `key` to TradeFormFields on each open. |
+| `TradeFormFields.tsx` | Form fields. Date inputs use MM/DD text + year toggle button (2024/2025/2026). Auto-formats digits → MM/DD. Year button and "+ Include exit price" toggle are inline in the same flex row. |
+| `PlSettingsPanel.tsx` | Owner-only settings slide-in. Calls `POST /api/auth/generate` to create guest codes (8-char, 1hr TTL, 5 uses). Shows code with copy button. |
+
+### API routes
+- `GET/POST /api/trades` — list all / create new (TradeCreateSchema)
+- `GET/PATCH /api/trades/[id]` — single trade / update (TradeUpdateSchema). No DELETE — trades are permanent.
+- `GET /api/trades/prices?symbols=X,Y` — Yahoo Finance v7 batch, `revalidate: 300`
+- `GET /api/pl/agent` — Haiku summary: monthly realized gains + open position P&L with live prices
+- `POST /api/auth/generate` — owner-only, creates guest code in Redis
+
+### Auth (`lib/auth.ts`)
+- `OWNER_TOKEN` env var = full access
+- Guest codes stored as `guest:<code>` JSON `{ expiresAt, usesLeft }` in Redis with 1hr TTL
+- `cm_session` cookie holds either the owner token or `guest:<code>`
+- Both product layouts redirect to `/login?from=<destination>` when unauthenticated
+- Login page reads `?from` param and redirects there after success
+
+### Guest codes
+Guests get read-only access to the owner's trades. No multi-user support planned. Guest code generation is in the PL Tracker settings panel (cog icon, owner-only).
 
 ## Resume here (next session)
 
-Current branch: `prod-reliability` — pre-v2.0 reliability fixes, PR not yet opened.
+**Branch:** `pl-tracker` — PR open against `main`.
 
-**Remaining critique fixes before PR:**
-- #12: Add `console.error(error)` to the non-429 branch in `useChat.onError` (`page.tsx`)
-- #13: Remove 3 debug `console.log` calls from `page.tsx` (refresh click, settings click, tab click, briefing request)
-- #16: Pass `showDigestLoading` directly to `DigestPanel`; remove recomputation inside `DigestPanel`
+**Uncommitted change:** `components/pl/TradeFormFields.tsx` — year button and "+ Include exit price" button are now inline in the same flex row. Not yet committed (user asked to hold off on commits).
 
-**After all fixes:** open PR #13 — version bumps to v1.1.
+**Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session after Phase 1 PR merges.
+
+**Known data issue:** An AMZN trade may be stored in Redis with `exitDate: null` (open) when it should be closed. User needs to use "Close Trade" on the row to set the exit date. Not a code bug.
