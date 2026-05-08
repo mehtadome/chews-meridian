@@ -149,7 +149,6 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
           <button
             type="button"
             className="pl-btn"
-            style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem" }}
             onClick={() => { setShowEntryYear((v) => !v); setShowExitYear(false); }}
           >
             {entryYear} ▾
@@ -223,16 +222,13 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
             )}
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button
-              type="button"
-              className="pl-btn"
-              style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem" }}
-              onClick={() => { setShowExitYear((v) => !v); setShowEntryYear(false); }}
-            >
-              {exitYear} ▾
-            </button>
-          </div>
+          <button
+            type="button"
+            className="pl-btn"
+            onClick={() => { setShowExitYear((v) => !v); setShowEntryYear(false); }}
+          >
+            {exitYear} ▾
+          </button>
 
           {showExitYear && (
             <select
