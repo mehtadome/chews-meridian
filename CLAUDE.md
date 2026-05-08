@@ -172,10 +172,18 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 
 ## Resume here (next session)
 
-**Branch:** `pl-tracker` — PR open against `main`.
+**Branch:** `pl-summary-cache` — PR #16 open against `main`. User is testing tomorrow before merging.
 
-**Uncommitted change:** `components/pl/TradeFormFields.tsx` — year button and "+ Include exit price" button are now inline in the same flex row. Not yet committed (user asked to hold off on commits).
+**What's in the PR:**
+- PL Tracker Haiku summary now caches in Redis (`pl:summary:cache`) keyed by `trades:v` + current month — skips model call on cache hit
+- `trades:v` increments in Redis on every `saveTrade`/`updateTrade`
+- `lib/usage.ts` extended with optional `product` param on `recordUsage` and new `getProductCost(product)`
+- `/api/usage?product=pl|ma` returns per-product cost `{ total }`
+- PL Tracker header shows running cost left of Owner/Guest badge
+- Market Analyzer cost display switched from global counter to `?product=ma`
 
-**Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session after Phase 1 PR merges.
+**After PR merges:** update CLAUDE.md key files table and bump version to v1.4 in README/changelog.
+
+**Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session.
 
 **Known data issue:** An AMZN trade may be stored in Redis with `exitDate: null` (open) when it should be closed. User needs to use "Close Trade" on the row to set the exit date. Not a code bug.
