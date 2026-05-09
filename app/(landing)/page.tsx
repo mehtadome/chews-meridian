@@ -196,6 +196,7 @@ export default function LandingPage() {
                     lineHeight: 1.05,
                     marginBottom: "1.625rem",
                     color: "#ffffff",
+                    minHeight: "2lh",
                   }}
                 >
                   {product.label}
