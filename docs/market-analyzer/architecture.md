@@ -42,6 +42,8 @@ return raw
 
 The Upstash Redis client exposes this via `redis.eval(script, keys, args)`. Use it anywhere a GET+SET pair must be guaranteed to complete together.
 
+Atomicity here is not something you opt into — it is guaranteed by Redis's execution model. Redis is single-threaded, and while a Lua script is running, all other clients are blocked from issuing any commands. The entire script completes before Redis processes anything else. It is atomic because Redis won't let anything else in, not because the script was written carefully.
+
 ---
 
 ## AI Architecture
