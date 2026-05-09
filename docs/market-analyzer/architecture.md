@@ -24,6 +24,24 @@ User (browser)
 | L2 cache | Redis (Upstash) | Shared across all invocations | 30 days per digest key |
 | Mutex | Redis `SET NX EX` | Shared across all invocations | 120s safety TTL |
 
+### Atomic Redis operations (Lua scripts)
+
+Redis is single-threaded, but a read-modify-write sequence split across multiple commands (GET → mutate → SET) is not atomic — another request can interleave between any two steps. For operations where partial execution would be a bug (e.g. decrementing a use counter only if it's > 0), the solution is a **Lua script**.
+
+A Lua script is a small snippet sent to Redis via `EVAL`. Redis executes the entire script in one uninterruptible step — no other command can run between lines. This makes it the standard pattern for conditional read-modify-write on a single key:
+
+```lua
+local raw = redis.call('GET', KEYS[1])
+if not raw then return nil end
+local data = cjson.decode(raw)
+if data.usesLeft <= 0 then return redis.error_reply('exhausted') end
+data.usesLeft = data.usesLeft - 1
+redis.call('SET', KEYS[1], cjson.encode(data), 'EX', ARGV[1])
+return raw
+```
+
+The Upstash Redis client exposes this via `redis.eval(script, keys, args)`. Use it anywhere a GET+SET pair must be guaranteed to complete together.
+
 ---
 
 ## AI Architecture
