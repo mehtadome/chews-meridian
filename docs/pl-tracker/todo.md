@@ -2,6 +2,14 @@
 
 ---
 
+## Next Up — Position Grouping (post PR #16)
+
+- **Group same-symbol positions** — when multiple trades share the same symbol (e.g. two AAPL longs), show a single collapsed row with accumulated qty, average entry price, and combined P&L
+- **Expand to individual positions** — clicking the grouped row expands it inline to show each constituent trade as a sub-row, with its own entry price, qty, and P&L
+- Collapsed row should show: symbol, total qty, avg entry, combined unrealized/realized P&L, and a chevron toggle
+- Sub-rows indented under the parent; same columns as the existing `TradeRow`
+- Grouping applies per tab (open positions group separately from closed)
+
 ## Phase 1 — Dynamic Charting (todo)
 
 - Use Vercel AI SDK + Claude to generate dynamic charts from trade history
