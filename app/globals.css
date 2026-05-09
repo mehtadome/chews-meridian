@@ -10,6 +10,7 @@
   html {
     @apply font-sans;
     font-size: 112.89%;
+    scrollbar-gutter: stable;
   }
   body {
     background: #0a0a0a;
