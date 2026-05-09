@@ -1,4 +1,4 @@
-# Chew's Meridian · v1.3
+# Chew's Meridian · v1.4
 
 A Next.js application with two products: **Market Analyzer** reads market-focused newsletter emails via Gmail, interprets them with Claude, and renders a dynamically assembled digest. **PL Tracker** is a trade journal that fetches live prices, computes realized and unrealized P&L, and generates an AI performance summary on every open.
 
@@ -140,6 +140,14 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 
 ---
 
+## Critique fixes
+
+| # | Severity | Issue | Status |
+|---|----------|-------|--------|
+| 1 | CRITICAL | Open redirect via `?from=` param — `app/login/page.tsx` | ~~Done~~ |
+
+---
+
 ## What's Next
 
 - **Schwab API integration** — wire `SCHWAB_CLIENT_ID` / `SCHWAB_CLIENT_SECRET` / `SCHWAB_REFRESH_TOKEN` to auto-import trades from the brokerage instead of manual entry
@@ -150,6 +158,14 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 ---
 
 ## Changelog
+
+### v1.4
+- **PL summary caching** — Haiku summary cached in Redis keyed by `trades:v` + month; any trade write auto-invalidates, skipping the model on repeated opens
+- **Per-product API cost tracking** — `recordUsage` accepts optional `product` param; `GET /api/usage?product=ma|pl` returns per-product spend; both product headers show running cost
+- **Post-login redirect** — edge middleware captures the entry URL as `?from=` so logging in from `/pl-tracker` lands on PL Tracker, not Market Analyzer
+- **Landing page step popovers** — clicking the step number (01/02/03) in the how-it-works section opens a detail popover with expanded copy
+- **Landing page hero alignment** — product title uses `min-height: 2lh` and subtitle uses `flex: 1` so both product panels keep their "Enter App" buttons at a consistent baseline
+- **Font consistency** — Geist wired correctly in `globals.css` and `market-analyzer.css`; eliminated circular CSS variable reference that caused serif fallback after client-side navigation
 
 ### [v1.3](https://github.com/mehtadome/chews-meridian/pull/15)
 - **PL Tracker** — second product at `/pl-tracker` for trade journaling and portfolio performance
