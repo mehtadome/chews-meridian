@@ -190,7 +190,7 @@ export default function LandingPage() {
               <motion.div variants={fadeUp} className="hero-product-panel">
                 <h1
                   style={{
-                    fontSize: "clamp(2.35rem, 5.5vw, 4.25rem)",
+                    fontSize: "clamp(2.35rem, 5.5vw, 3.5rem)",
                     fontWeight: 800,
                     letterSpacing: "-0.03em",
                     lineHeight: 1.05,
