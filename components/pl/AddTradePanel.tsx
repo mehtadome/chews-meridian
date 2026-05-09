@@ -19,7 +19,7 @@ function todayIn2026(): string {
 
 function defaultForm(trade?: Trade): Partial<TradeCreate> {
   if (!trade) {
-    return { assetType: "stock", direction: "long", quantity: 1, multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null, entryDate: todayIn2026() };
+    return { assetType: "stock", direction: "long", quantity: 5, multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null, entryDate: todayIn2026() };
   }
   return { ...trade };
 }
