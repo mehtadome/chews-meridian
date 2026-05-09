@@ -23,7 +23,7 @@ const PRODUCTS = [
     label: "Market Analyzer",
     desc: "Reads your newsletters. Surfaces what moves markets.",
     steps: [
-      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox. No credentials stored." },
+      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox." },
       { number: "02", title: "AI reads and analyzes", description: "Claude scans your newsletters and identifies risks and opportunities." },
       { number: "03", title: "Daily briefing", description: "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals." },
     ],
