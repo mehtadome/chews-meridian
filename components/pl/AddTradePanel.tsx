@@ -54,8 +54,14 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   }
 
   async function handleSubmit() {
-    setSaving(true);
     setError(null);
+
+    if (form.exitPrice != null && !form.exitDate) {
+      setError("Exit date is required when exit price is set.");
+      return;
+    }
+
+    setSaving(true);
 
     try {
       const isEdit = mode.kind === "edit" || mode.kind === "close";

@@ -351,3 +351,77 @@
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
+
+/* Hide native spinners on all number inputs */
+.pl-shell input[type="number"]::-webkit-inner-spin-button,
+.pl-shell input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.pl-shell input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Stepper widget — same visual height as .pl-input */
+.pl-stepper {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 9rem;
+  border-radius: var(--pl-radius-sm);
+  border: 1px solid var(--pl-border);
+  background: var(--pl-bg);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.pl-stepper:focus-within {
+  border-color: #555;
+}
+
+.pl-stepper__btn {
+  flex-shrink: 0;
+  width: 2rem;
+  background: transparent;
+  border: none;
+  color: var(--pl-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
+}
+
+.pl-stepper__btn:hover {
+  color: var(--pl-text);
+  background: var(--pl-surface);
+}
+
+.pl-stepper__btn:active {
+  background: var(--pl-border);
+}
+
+.pl-stepper__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: none;
+  color: var(--pl-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.pl-stepper__input:focus {
+  outline: none;
+}
+
+.pl-stepper__input::-webkit-inner-spin-button,
+.pl-stepper__input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

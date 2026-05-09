@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       try {
         const inputTokens = usage.inputTokens ?? 0;
         const outputTokens = usage.outputTokens ?? 0;
-        await recordUsage(inputTokens, outputTokens);
+        await recordUsage(inputTokens, outputTokens, "ma");
         const components = parseComponents(text);
         if (components.length === 0) return;
         const record = await saveDigest({

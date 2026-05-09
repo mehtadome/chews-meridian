@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useFetchOnMount } from "@/hooks/useFetchOnMount";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { RefreshCw, Settings, X, ChartCandlestick, Info } from "lucide-react";
+import { RefreshCw, Settings, X, ChartCandlestick, ArrowLeft } from "lucide-react";
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { SessionBadge } from "@/components/ui/SessionBadge";
@@ -149,7 +149,7 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
+  useFetchOnMount<{ total: number }>("/api/usage?product=ma", (data) => setTotalCost(data.total));
   useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
   useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
 
@@ -160,7 +160,7 @@ export default function Home() {
     if (!agentText.trim() && messages.length > 0) {
       void fetch("/api/digest").then((r) => r.json()).then((data) => { if (data?.rawText) setCachedContent(data.rawText); }).catch(() => {});
     }
-    void fetch("/api/usage").then((r) => r.json()).then((d) => setTotalCost(d.totalCostUsd)).catch(console.error);
+    void fetch("/api/usage?product=ma").then((r) => r.json()).then((d) => setTotalCost(d.total)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
   }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -192,7 +192,7 @@ export default function Home() {
             <ChartCandlestick style={{ width: "2rem", height: "2rem", flexShrink: 0 }} strokeWidth={1.75} aria-hidden />
             Market Analyzer
           </h1>
-          <p style={{ marginTop: "0.35rem", fontSize: "1rem", color: "var(--text-muted)" }}>
+          <p style={{ marginTop: "0.35rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
             Reads your newsletters, surfaces what matters
           </p>
         </div>
@@ -201,7 +201,7 @@ export default function Home() {
           {briefingText.trim() && (
             <button
               type="button"
-              onClick={() => { console.log("[refresh] clicked — briefingText:", briefingText.length, "agentText:", agentText.length, "cachedContent:", cachedContent?.length ?? null); setCachedContent(null); setMessages([]); }}
+              onClick={() => { setCachedContent(null); setMessages([]); }}
               disabled={isLoading}
               title="Refresh briefing"
               className="btn"
@@ -220,9 +220,9 @@ export default function Home() {
           )}
           <SessionBadge />
           <Link href="/" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Home">
-            <Info style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
+            <ArrowLeft style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
-          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
+          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings">
             <Settings style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
         </div>

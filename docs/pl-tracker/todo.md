@@ -2,28 +2,20 @@
 
 ---
 
-## Phase 1 — Manual UI (current)
+## Next Up — Position Grouping (post PR #16)
 
-**Build order:**
-1. `lib/trade-types.ts` — Trade interface, AssetType, Direction, Zod schemas ✓
-2. `lib/trades.ts` — Redis CRUD (mirrors `lib/digest.ts` pattern, uses `mget` for batch fetch) ✓
-3. `app/api/trades/route.ts` + `app/api/trades/[id]/route.ts` — GET/POST/PATCH/DELETE
-4. `app/pl.css` — design tokens (`--pl-*`), semantic classes (`.pl-shell`, `.pl-table`, `.pl-row--profit/loss`)
-5. `app/(pl)/layout.tsx` — auth gate + `pl.css` import, no ThemeProvider (always dark)
-6. `components/pl/PnlBadge.tsx` — formatted +$/-$ with green/red
-7. `components/pl/TradeRow.tsx` + `components/pl/TradeTable.tsx` — open/closed column variants
-8. `components/pl/SummaryBar.tsx` — total P&L, win rate, avg days held, avg days to profit
-9. `components/pl/TradeFormFields.tsx` + `components/pl/AddTradePanel.tsx` — slide-in Framer Motion panel, conditional fields by asset type
-10. `app/(pl)/pl-tracker/page.tsx` — main page, tabs (open/closed/summary), panel mode state
+- **Group same-symbol positions** — when multiple trades share the same symbol (e.g. two AAPL longs), show a single collapsed row with accumulated qty, average entry price, and combined P&L
+- **Expand to individual positions** — clicking the grouped row expands it inline to show each constituent trade as a sub-row, with its own entry price, qty, and P&L
+- Collapsed row should show: symbol, total qty, avg entry, combined unrealized/realized P&L, and a chevron toggle
+- Sub-rows indented under the parent; same columns as the existing `TradeRow`
+- Grouping applies per tab (open positions group separately from closed)
 
-**Key decisions:**
-- Route group `(pl)` — isolated from `(product)`, never inherits ThemeProvider
-- `pl.css` tokens are self-contained; do not rely on `globals.css` semantic classes
-- Panel state as discriminated union: `{ kind: 'closed' | 'add' } | { kind: 'edit' | 'close', trade: Trade }`
-- P&L computed in components from raw fields, not stored: `(exitPrice - entryPrice) × qty × multiplier × (long ? 1 : -1)`
-- Redis index: `trades:index` List with `LPUSH` (newest-first) + `LREM` on delete
-- `nanoid(10)` for IDs — already a transitive dep, no install needed
-- Multiplier: 1 for stocks, 100 for options, user-entered for futures
+## Phase 1 — Dynamic Charting (todo)
+
+- Use Vercel AI SDK + Claude to generate dynamic charts from trade history
+- Charts should be generated on-demand, not cached — user triggers analysis
+- Candidate chart types: cumulative P&L over time, win rate by asset type, monthly gains bar chart, position sizing over time
+- Wire into PL Tracker UI where the Haiku summary paragraph used to live (above the stats bar)
 
 ## Phase 3 — Market Analyzer Integration (future)
 
@@ -37,6 +29,10 @@
 - Real-time mark price on open positions
 - Price history for auto-calculating days-to-profitability
 - Credentials: add `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN` to `.env.local` and Vercel when ready
+
+## Styling
+
+- **Header wrap + zoom warning** — at high zoom levels (125%+), the product name and subtitle in both MA and PL Tracker headers wrap to a second line. Goal: `white-space: nowrap` to prevent wrapping, and a blurred overlay warning ("Hey pls zoom out") that appears past ~200% zoom. Previous attempts with `scrollWidth`/`ResizeObserver` and `devicePixelRatio` didn't fire reliably — needs a fresh approach.
 
 ## At Scale
 

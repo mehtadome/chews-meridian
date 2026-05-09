@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Settings } from "lucide-react";
+import { Settings, ChartCandlestick } from "lucide-react";
 import type { Trade } from "@/lib/trade-types";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
@@ -27,17 +27,9 @@ interface PlTrackerClientProps {
 export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTrackerClientProps) {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [prices, setPrices] = useState<Record<string, number>>(initialPrices);
-  const [tab, setTab] = useState<Tab>("open");
+  const [tab, setTab] = useState<Tab>("closed");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [summary, setSummary] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/pl/agent")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => { if (data?.summary) setSummary(data.summary); })
-      .catch(() => {});
-  }, []);
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/trades");
@@ -63,7 +55,15 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           <Link href="/" style={{ color: "var(--pl-text-dim)", lineHeight: 0 }} aria-label="Home">
             ←
           </Link>
-          <span className="pl-title">PL Tracker</span>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <ChartCandlestick size={32} strokeWidth={1.75} aria-hidden />
+              <span className="pl-title" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15 }}>PL Tracker</span>
+            </div>
+            <p style={{ marginTop: "0.35rem", fontSize: "0.875rem", color: "var(--pl-text-dim)" }}>
+              Detailed statistics about profits and losses this month
+            </p>
+          </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <SessionBadge />
@@ -86,7 +86,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </header>
 
       <main className="pl-shell__main">
-        <SummaryBar trades={trades} prices={prices} summary={summary} />
+        <SummaryBar trades={trades} prices={prices} />
 
         <div className="pl-tabs">
           <button

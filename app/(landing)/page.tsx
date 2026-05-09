@@ -4,6 +4,7 @@ import { Fragment, useRef } from "react";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { ChartCandlestick } from "lucide-react";
+import { StepPopover } from "@/components/landing/StepPopover";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -23,26 +24,26 @@ const PRODUCTS = [
     label: "Market Analyzer",
     desc: "Reads your newsletters. Surfaces what moves markets.",
     steps: [
-      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox. No credentials stored." },
-      { number: "02", title: "AI reads and analyzes", description: "Claude scans your newsletters and identifies risks and opportunities." },
-      { number: "03", title: "Daily briefing", description: "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals." },
+      { number: "01", title: "Connect Gmail", description: "OAuth-authenticated access to your newsletter inbox.", detail: "Uses Google OAuth2 with a read-only Gmail scope. No credentials are stored — only a refresh token you generate yourself via a one-time consent flow." },
+      { number: "02", title: "AI reads and analyzes", description: "Claude scans your newsletters and identifies risks and opportunities.", detail: "Claude Haiku scans the last 30 days of emails from your configured senders, extracting ticker mentions, sector signals, earnings dates, and macro risks into a structured JSON response." },
+      { number: "03", title: "Daily briefing", description: "Structured market intelligence delivered as a scannable digest — tickers, sectors, and macro signals.", detail: "Briefings are cached in Redis and refreshed within configurable windows throughout the day. You can trigger a manual refresh at any time, and the digest persists until the next calendar day." },
     ],
   },
   {
     href: "/pl-tracker",
     label: "PL Tracker",
     howItWorksTitle: "Profit & Loss Tracker",
-    techStack: ["Next.js 15", "Claude", "Composer", "Yahoo Finance", "Redis", "Vercel", "TypeScript"],
+    techStack: ["Next.js 15", "Claude", "Composer", "Redis", "Vercel", "TypeScript"],
     desc: "Log trades. Track P&L. Know where you stand.",
     steps: [
-      { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity." },
-      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position." },
-      { number: "03", title: "AI performance summary", description: "Synthesizes your monthly realized gains and open P&L into a concise briefing every time you open the tracker." },
+      { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity.", detail: "Supports stocks, options, and futures. Options include a configurable multiplier (default 100). Trades are permanent — no deletes, only closes." },
+      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position.", detail: "Prices are pulled from Yahoo Finance's v7 batch endpoint and cached for 5 minutes. Open P&L updates automatically each time you load the tracker." },
+      { number: "03", title: "AI performance summary", description: "Synthesizes your monthly realized gains and open P&L into a concise briefing every time you open the tracker.", detail: "Dynamic charting powered by the Vercel AI SDK is planned — on-demand charts for cumulative P&L, win rate by asset type, and monthly gains." },
     ],
   },
 ] as const;
 
-function StepCards({ steps }: { steps: readonly { number: string; title: string; description: string }[] }) {
+function StepCards({ steps }: { steps: readonly { number: string; title: string; description: string; detail: string }[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.1 });
   return (
@@ -55,8 +56,8 @@ function StepCards({ steps }: { steps: readonly { number: string; title: string;
           animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
           transition={{ duration: 0.55, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         >
-          <div style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.1em", color: "#22c55e", marginBottom: "0.875rem" }}>
-            {step.number}
+          <div style={{ marginBottom: "0.875rem" }}>
+            <StepPopover number={step.number} detail={step.detail} />
           </div>
           <div style={{ fontSize: "1.0625rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.5rem", letterSpacing: "-0.01em" }}>
             {step.title}
@@ -189,12 +190,13 @@ export default function LandingPage() {
               <motion.div variants={fadeUp} className="hero-product-panel">
                 <h1
                   style={{
-                    fontSize: "clamp(2.35rem, 5.5vw, 4.25rem)",
+                    fontSize: "clamp(2.35rem, 5.5vw, 3.5rem)",
                     fontWeight: 800,
                     letterSpacing: "-0.03em",
                     lineHeight: 1.05,
                     marginBottom: "1.625rem",
                     color: "#ffffff",
+                    minHeight: "2lh",
                   }}
                 >
                   {product.label}
@@ -207,6 +209,7 @@ export default function LandingPage() {
                     maxWidth: "100%",
                     width: "100%",
                     margin: "0 0 2.25rem",
+                    flex: 1,
                   }}
                 >
                   {product.desc}

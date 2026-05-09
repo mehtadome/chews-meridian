@@ -6,14 +6,18 @@ const SCALE = 1_000_000_000;
 
 // Atomically increments usage counters — safe under concurrent requests.
 // INCR/INCRBY on Redis is atomic, eliminating the read-modify-write race in the old file-based approach.
-export async function recordUsage(inputTokens: number, outputTokens: number): Promise<void> {
+// Pass product to also accumulate a per-product cost key (usage:ma:costUsd / usage:pl:costUsd).
+export async function recordUsage(inputTokens: number, outputTokens: number, product?: "ma" | "pl"): Promise<void> {
   const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
-  await Promise.all([
+  const costScaled = Math.round(cost * SCALE);
+  const ops: Promise<unknown>[] = [
     redis.incrby("usage:inputTokens", inputTokens),
     redis.incrby("usage:outputTokens", outputTokens),
-    redis.incrby("usage:costUsd", Math.round(cost * SCALE)),
+    redis.incrby("usage:costUsd", costScaled),
     redis.incr("usage:sessionCount"),
-  ]);
+  ];
+  if (product) ops.push(redis.incrby(`usage:${product}:costUsd`, costScaled));
+  await Promise.all(ops);
 }
 
 export async function getUsage(): Promise<{
@@ -34,4 +38,9 @@ export async function getUsage(): Promise<{
     totalCostUsd: parseInt(cost ?? "0", 10) / SCALE,
     sessionCount: parseInt(sessions ?? "0", 10),
   };
+}
+
+export async function getProductCost(product: "ma" | "pl"): Promise<number> {
+  const val = await redis.get(`usage:${product}:costUsd`);
+  return val ? parseInt(val as string, 10) / SCALE : 0;
 }

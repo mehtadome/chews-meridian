@@ -28,6 +28,8 @@ KV_REST_API_URL=
 KV_REST_API_TOKEN=
 ```
 
+**Vercel note:** `REDIS_URL` is only configured for Production in the Vercel dashboard. Preview and Development environments need it added manually via Project Settings → Environment Variables (use the same Upstash URL as Production so the API spend counter stays consistent across environments).
+
 Gmail OAuth setup: Google Cloud Console → enable Gmail API → create OAuth2 credentials → add `gmail.readonly` scope → store the resulting client ID, secret, and refresh token above.
 
 **Token expiry:** while the app is in Google Cloud *Testing* mode, refresh tokens expire after 7 days. To renew:

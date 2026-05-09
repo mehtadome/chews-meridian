@@ -8,18 +8,32 @@ interface PlSettingsPanelProps {
   onClose: () => void;
 }
 
+const EXPIRY_OPTIONS = [1, 6, 12, 24, 48] as const;
+type ExpiryHours = typeof EXPIRY_OPTIONS[number];
+
+function expiryLabel(h: ExpiryHours): string {
+  return h === 1 ? "1 hour" : `${h} hours`;
+}
+
 export function PlSettingsPanel({ isOpen, onClose }: PlSettingsPanelProps) {
   const [code, setCode] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hours, setHours] = useState<ExpiryHours>(1);
+  const [generatedHours, setGeneratedHours] = useState<ExpiryHours>(1);
 
   async function generate() {
     setGenerating(true);
     try {
-      const res = await fetch("/api/auth/generate", { method: "POST" });
+      const res = await fetch("/api/auth/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hours }),
+      });
       if (res.ok) {
         const data = await res.json();
         setCode(data.code);
+        setGeneratedHours(data.hours ?? hours);
         setCopied(false);
       }
     } finally {
@@ -61,8 +75,21 @@ export function PlSettingsPanel({ isOpen, onClose }: PlSettingsPanelProps) {
             <div className="pl-panel__body">
               <div>
                 <p style={{ fontSize: "0.8125rem", color: "var(--pl-text-muted)", marginBottom: "0.875rem", lineHeight: 1.55 }}>
-                  Guest codes give read-only access to your trades. Each code expires in 1 hour and allows 5 logins.
+                  Guest codes give read-only access to your trades. Each code allows 5 logins.
                 </p>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "0.875rem" }}>
+                  <span style={{ fontSize: "0.8125rem", color: "var(--pl-text-muted)" }}>Expires in</span>
+                  <select
+                    className="pl-select"
+                    style={{ width: "auto" }}
+                    value={hours}
+                    onChange={(e) => setHours(Number(e.target.value) as ExpiryHours)}
+                  >
+                    {EXPIRY_OPTIONS.map((h) => (
+                      <option key={h} value={h}>{expiryLabel(h)}</option>
+                    ))}
+                  </select>
+                </div>
                 <button className="pl-btn pl-btn--primary" onClick={generate} disabled={generating}>
                   {generating ? "Generating…" : "Generate Guest Code"}
                 </button>
@@ -87,7 +114,7 @@ export function PlSettingsPanel({ isOpen, onClose }: PlSettingsPanelProps) {
                     </button>
                   </div>
                   <p style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)", marginTop: "0.5rem" }}>
-                    Expires in 1 hour · 5 uses
+                    Expires in {expiryLabel(generatedHours)} · 5 uses
                   </p>
                 </div>
               )}

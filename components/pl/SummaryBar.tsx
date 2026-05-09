@@ -11,14 +11,13 @@ function computePnl(trade: Trade, currentPrice?: number): number | null {
 interface SummaryBarProps {
   trades: Trade[];
   prices: Record<string, number>;
-  summary: string | null;
 }
 
 const Dim = ({ children }: { children: React.ReactNode }) => (
   <span style={{ color: "var(--pl-text-dim)" }}>{children}</span>
 );
 
-export function SummaryBar({ trades, prices, summary }: SummaryBarProps) {
+export function SummaryBar({ trades, prices }: SummaryBarProps) {
   const now = new Date();
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, "0");
@@ -34,17 +33,7 @@ export function SummaryBar({ trades, prices, summary }: SummaryBarProps) {
   const open = trades.filter((t) => !t.exitDate);
 
   return (
-    <div style={{ marginBottom: "1.25rem" }}>
-      {summary ? (
-        <p style={{ color: "var(--pl-text-muted)", fontSize: "0.9375rem", lineHeight: 1.6, marginBottom: "1rem" }}>
-          {summary}
-        </p>
-      ) : (
-        <p style={{ color: "var(--pl-text-dim)", fontSize: "0.9375rem", marginBottom: "1rem" }}>
-          Generating summary…
-        </p>
-      )}
-    <div className="pl-summary">
+    <div className="pl-summary" style={{ marginBottom: "1.25rem" }}>
       <div className="pl-summary__stat">
         <span className="pl-summary__label">This Month</span>
         <span className="pl-summary__value">
@@ -74,7 +63,6 @@ export function SummaryBar({ trades, prices, summary }: SummaryBarProps) {
           );
         })
       )}
-    </div>
     </div>
   );
 }

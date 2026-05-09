@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { TradeCreate } from "@/lib/trade-types";
+import { NumberStepper } from "./NumberStepper";
 
 type FormState = Partial<TradeCreate>;
 
@@ -18,6 +19,11 @@ function toMD(dateStr: string | undefined | null): string {
   const [, m, d] = dateStr.split("-");
   if (!m || !d) return "";
   return `${parseInt(m)}/${parseInt(d)}`;
+}
+
+function todayMD(): string {
+  const now = new Date();
+  return `${now.getMonth() + 1}/${now.getDate()}`;
 }
 
 function fromMD(md: string, year: string): string | undefined {
@@ -93,15 +99,12 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
           </select>
         )}
         {field("Quantity",
-          <input
-            className="pl-input"
-            type="number"
-            min="0"
-            step="5"
+          <NumberStepper
+            value={values.quantity}
+            onChange={(v) => onChange({ quantity: v })}
+            step={5}
+            min={0}
             placeholder="5"
-            value={values.quantity ?? ""}
-            onChange={(e) => onChange({ quantity: parseFloat(e.target.value) || undefined })}
-            onFocus={(e) => { if (!values.quantity) e.target.value = "5"; }}
           />
         )}
       </div>
@@ -124,7 +127,16 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
               type="button"
               className="pl-btn"
               style={{ fontSize: "0.8125rem" }}
-              onClick={() => setShowExit((v) => !v)}
+              onClick={() => {
+                const next = !showExit;
+                setShowExit(next);
+                if (next && !exitMD) {
+                  const md = todayMD();
+                  setExitMD(md);
+                  const parsed = fromMD(md, exitYear);
+                  if (parsed) onChange({ exitDate: parsed });
+                }
+              }}
             >
               {showExit ? "− Remove exit price" : "+ Include exit price"}
             </button>
@@ -176,15 +188,13 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
         </select>
       )}
 
-      {assetType === "future" && field("Multiplier",
-        <input
-          className="pl-input"
-          type="number"
-          min="1"
-          step="any"
-          placeholder="e.g. 50 for /ES"
-          value={values.multiplier ?? ""}
-          onChange={(e) => onChange({ multiplier: parseFloat(e.target.value) || undefined })}
+      {assetType === "option" && field("Multiplier",
+        <NumberStepper
+          value={values.multiplier}
+          onChange={(v) => onChange({ multiplier: v })}
+          step={1}
+          min={1}
+          placeholder="100"
         />
       )}
 
@@ -253,13 +263,13 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
         </>
       )}
 
-      {field("Mark Price (optional)",
+      {field("Current Mark Price (optional)",
         <input
           className="pl-input"
           type="number"
           min="0"
           step="any"
-          placeholder="Current market price"
+          placeholder="0.00"
           value={values.markPrice ?? ""}
           onChange={(e) => {
             const v = parseFloat(e.target.value);
