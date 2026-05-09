@@ -4,9 +4,10 @@ interface NumberStepperProps {
   step?: number;
   min?: number;
   placeholder?: string;
+  error?: boolean;
 }
 
-export function NumberStepper({ value, onChange, step = 1, min = 0, placeholder }: NumberStepperProps) {
+export function NumberStepper({ value, onChange, step = 1, min = 0, placeholder, error }: NumberStepperProps) {
   function decrement() {
     const next = (value ?? 0) - step;
     if (next < min) return;
@@ -18,7 +19,7 @@ export function NumberStepper({ value, onChange, step = 1, min = 0, placeholder 
   }
 
   return (
-    <div className="pl-stepper">
+    <div className="pl-stepper" style={error ? { borderColor: "var(--pl-red)" } : undefined}>
       <button type="button" className="pl-stepper__btn" onClick={decrement}>−</button>
       <input
         className="pl-stepper__input"

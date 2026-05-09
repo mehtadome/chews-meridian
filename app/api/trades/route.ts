@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const result = TradeCreateSchema.safeParse(body);
   if (!result.success) {
-    return Response.json({ error: result.error.flatten() }, { status: 400 });
+    return Response.json({ error: result.error.issues.map(i => i.message).join(", ") }, { status: 400 });
   }
 
   const trade = await saveTrade(result.data);

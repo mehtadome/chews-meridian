@@ -15,8 +15,7 @@ type Tab = "open" | "closed";
 type PanelMode =
   | { kind: "closed" }
   | { kind: "add" }
-  | { kind: "edit"; trade: Trade }
-  | { kind: "close"; trade: Trade };
+  | { kind: "edit"; trade: Trade };
 
 interface PlTrackerClientProps {
   initialTrades: Trade[];
@@ -108,7 +107,6 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           tab={tab}
           isOwner={isOwner}
           onEdit={(trade) => setPanel({ kind: "edit", trade })}
-          onClose={(trade) => setPanel({ kind: "close", trade })}
         />
       </main>
 

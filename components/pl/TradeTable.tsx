@@ -7,11 +7,10 @@ interface TradeTableProps {
   trades: Trade[];
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
-  onClose?: (trade: Trade) => void;
   isOwner: boolean;
 }
 
-export function TradeTable({ trades, tab, onEdit, onClose, isOwner }: TradeTableProps) {
+export function TradeTable({ trades, tab, onEdit, isOwner }: TradeTableProps) {
   if (trades.length === 0) {
     return (
       <p style={{ color: "var(--pl-text-muted)", fontSize: "0.9375rem", padding: "2rem 0" }}>
@@ -43,7 +42,6 @@ export function TradeTable({ trades, tab, onEdit, onClose, isOwner }: TradeTable
               trade={trade}
               tab={tab}
               onEdit={onEdit}
-              onClose={onClose}
               isOwner={isOwner}
             />
           ))}

@@ -11,7 +11,8 @@ function computePnl(trade: Trade): number | null {
 }
 
 function fmt(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
 function daysBetween(a: string, b: Date | string) {
@@ -24,11 +25,10 @@ interface TradeRowProps {
   trade: Trade;
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
-  onClose?: (trade: Trade) => void;
   isOwner: boolean;
 }
 
-export function TradeRow({ trade, tab, onEdit, onClose, isOwner }: TradeRowProps) {
+export function TradeRow({ trade, tab, onEdit, isOwner }: TradeRowProps) {
   const pnl = computePnl(trade);
   const isProfit = pnl !== null && pnl > 0;
   const isLoss = pnl !== null && pnl < 0;
@@ -50,12 +50,7 @@ export function TradeRow({ trade, tab, onEdit, onClose, isOwner }: TradeRowProps
       <td className="pl-meta" style={{ textTransform: "capitalize" }}>{trade.assetType}</td>
       {isOwner && (
         <td>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            {tab === "open" && onClose && (
-              <button className="pl-btn" style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }} onClick={() => onClose(trade)}>Close</button>
-            )}
-            <button className="pl-btn" style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }} onClick={() => onEdit(trade)}>Edit</button>
-          </div>
+          <button className="pl-btn" style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }} onClick={() => onEdit(trade)}>Edit</button>
         </td>
       )}
     </tr>
