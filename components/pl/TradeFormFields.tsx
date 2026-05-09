@@ -119,7 +119,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
               step="any"
               placeholder="0.00"
               value={values.entryPrice ?? ""}
-              onChange={(e) => onChange({ entryPrice: parseFloat(e.target.value) || undefined })}
+              onChange={(e) => { const v = parseFloat(e.target.value); onChange({ entryPrice: isNaN(v) ? undefined : v }); }}
             />
           )}
           {!showExitFields && (

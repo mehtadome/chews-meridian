@@ -11,7 +11,8 @@ function computePnl(trade: Trade): number | null {
 }
 
 function fmt(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
 }
 
 function daysBetween(a: string, b: Date | string) {
