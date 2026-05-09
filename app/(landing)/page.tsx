@@ -208,6 +208,7 @@ export default function LandingPage() {
                     maxWidth: "100%",
                     width: "100%",
                     margin: "0 0 2.25rem",
+                    flex: 1,
                   }}
                 >
                   {product.desc}
