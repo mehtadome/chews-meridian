@@ -11,9 +11,12 @@ interface TradeFormFieldsProps {
   values: FormState;
   onChange: (patch: Partial<FormState>) => void;
   showExitFields: boolean;
+  errorFields?: string[];
 }
 
-export function TradeFormFields({ values, onChange, showExitFields }: TradeFormFieldsProps) {
+export function TradeFormFields({ values, onChange, showExitFields, errorFields = [] }: TradeFormFieldsProps) {
+  const err = (field: string): React.CSSProperties =>
+    errorFields.includes(field) ? { borderColor: "var(--pl-red)" } : {};
   const assetType = values.assetType ?? "stock";
   const [showExit, setShowExit] = useState(showExitFields);
 
@@ -36,6 +39,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
             className="pl-input"
             placeholder="AAPL"
             value={values.symbol ?? ""}
+            style={err("symbol")}
             onChange={(e) => onChange({ symbol: e.target.value.toUpperCase() })}
           />
         )}
@@ -73,6 +77,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
             step={5}
             min={0}
             placeholder="5"
+            error={errorFields.includes("quantity")}
           />
         )}
       </div>
@@ -87,6 +92,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
               step="any"
               placeholder="0.00"
               value={values.entryPrice ?? ""}
+              style={err("entryPrice")}
               onChange={(e) => { const v = parseFloat(e.target.value); onChange({ entryPrice: isNaN(v) ? undefined : v }); }}
             />
           )}
@@ -105,6 +111,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
           <DatePicker
             value={values.entryDate}
             onChange={(iso) => onChange({ entryDate: iso })}
+            error={errorFields.includes("entryDate")}
           />
         )}
       </div>
@@ -139,6 +146,7 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
             <DatePicker
               value={values.exitDate}
               onChange={(iso) => onChange({ exitDate: iso })}
+              error={errorFields.includes("exitDate")}
             />
           )}
         </div>

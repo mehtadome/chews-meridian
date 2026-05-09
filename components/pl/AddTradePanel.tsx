@@ -36,6 +36,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
 
   const [form, setForm] = useState<Partial<TradeCreate>>(() => defaultForm(trade));
   const [saving, setSaving] = useState(false);
+  const [errorFields, setErrorFields] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
 
@@ -44,22 +45,34 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
     if (mode.kind === "closed") return;
     setForm(defaultForm(trade));
     setError(null);
+    setErrorFields([]);
     setResetKey((k) => k + 1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode.kind, tradeId]);
 
   function patch(update: Partial<TradeCreate>) {
+    setErrorFields((prev) => prev.filter((f) => !(f in update)));
     setForm((prev) => ({ ...prev, ...update }));
+  }
+
+  function validate(): string[] {
+    const missing: string[] = [];
+    if (!form.symbol?.trim()) missing.push("symbol");
+    if (form.entryPrice == null) missing.push("entryPrice");
+    if (!form.entryDate) missing.push("entryDate");
+    if (form.quantity == null) missing.push("quantity");
+    if (form.exitPrice != null && !form.exitDate) missing.push("exitDate");
+    return missing;
   }
 
   async function handleSubmit() {
     setError(null);
-
-    if (form.exitPrice != null && !form.exitDate) {
-      setError("Exit date is required when exit price is set.");
+    const missing = validate();
+    if (missing.length > 0) {
+      setErrorFields(missing);
       return;
     }
-
+    setErrorFields([]);
     setSaving(true);
 
     try {
@@ -75,7 +88,8 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(typeof body?.error === "string" ? body.error : "Failed to save trade.");
+        console.error("[AddTradePanel] save failed", body);
+        setError("Something went wrong. Please check your entries.");
         return;
       }
 
@@ -121,6 +135,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
                 values={form}
                 onChange={patch}
                 showExitFields={mode.kind === "edit"}
+                errorFields={errorFields}
               />
               {error && (
                 <p style={{

@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 interface DatePickerProps {
   value: string | undefined | null; // ISO "YYYY-MM-DD"
   onChange: (iso: string) => void;
+  error?: boolean;
 }
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
@@ -32,7 +33,7 @@ function formatDisplay(iso: string | undefined | null): string {
   });
 }
 
-export function DatePicker({ value, onChange }: DatePickerProps) {
+export function DatePicker({ value, onChange, error }: DatePickerProps) {
   const today = new Date();
   const todayIso = toIso(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
@@ -78,6 +79,7 @@ export function DatePicker({ value, onChange }: DatePickerProps) {
       <button
         type="button"
         className="pl-datepicker__trigger"
+        style={error ? { borderColor: "var(--pl-red)" } : undefined}
         onClick={() => setIsOpen(v => !v)}
       >
         {formatDisplay(value)}
