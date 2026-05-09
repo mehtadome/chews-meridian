@@ -22,6 +22,10 @@
 - Price history for auto-calculating days-to-profitability
 - Credentials: add `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN` to `.env.local` and Vercel when ready
 
+## Styling
+
+- **Header wrap + zoom warning** — at high zoom levels (125%+), the product name and subtitle in both MA and PL Tracker headers wrap to a second line. Goal: `white-space: nowrap` to prevent wrapping, and a blurred overlay warning ("Hey pls zoom out") that appears past ~200% zoom. Previous attempts with `scrollWidth`/`ResizeObserver` and `devicePixelRatio` didn't fire reliably — needs a fresh approach.
+
 ## At Scale
 
 - **Move trades storage to a relational DB** — trades are stored as Redis JSON + a List index (`trades:index`). Works for a personal tool but has structural limits: no native querying by symbol/date/asset type, and a crash between `SET` and `LPUSH` can leave orphaned keys. At scale, migrate to Postgres for proper indexed queries and atomic writes.
