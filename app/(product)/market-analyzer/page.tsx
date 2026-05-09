@@ -192,7 +192,7 @@ export default function Home() {
             <ChartCandlestick style={{ width: "2rem", height: "2rem", flexShrink: 0 }} strokeWidth={1.75} aria-hidden />
             Market Analyzer
           </h1>
-          <p style={{ marginTop: "0.35rem", fontSize: "1rem", color: "var(--text-muted)" }}>
+          <p style={{ marginTop: "0.35rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
             Reads your newsletters, surfaces what matters
           </p>
         </div>

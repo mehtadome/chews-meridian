@@ -60,7 +60,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
               <ChartCandlestick size={32} strokeWidth={1.75} aria-hidden />
               <span className="pl-title" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)", fontWeight: 700, letterSpacing: "-0.03em", lineHeight: 1.15 }}>PL Tracker</span>
             </div>
-            <p style={{ marginTop: "0.35rem", fontSize: "1rem", color: "var(--pl-text-dim)" }}>
+            <p style={{ marginTop: "0.35rem", fontSize: "0.875rem", color: "var(--pl-text-dim)" }}>
               Detailed statistics about profits and losses this month
             </p>
           </div>
