@@ -76,7 +76,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        setError(body?.error ?? "Failed to save trade.");
+        setError(typeof body?.error === "string" ? body.error : "Failed to save trade.");
         return;
       }
 
