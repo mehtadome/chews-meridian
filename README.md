@@ -140,14 +140,6 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 
 ---
 
-## Critique fixes
-
-| # | Severity | Issue | Status |
-|---|----------|-------|--------|
-| 1 | CRITICAL | Open redirect via `?from=` param — `app/login/page.tsx` | ~~Done~~ |
-
----
-
 ## What's Next
 
 - **Schwab API integration** — wire `SCHWAB_CLIENT_ID` / `SCHWAB_CLIENT_SECRET` / `SCHWAB_REFRESH_TOKEN` to auto-import trades from the brokerage instead of manual entry
