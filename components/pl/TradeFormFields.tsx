@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { TradeCreate } from "@/lib/trade-types";
 import { NumberStepper } from "./NumberStepper";
+import { DatePicker } from "./DatePicker";
 
 type FormState = Partial<TradeCreate>;
 
@@ -12,42 +13,9 @@ interface TradeFormFieldsProps {
   showExitFields: boolean;
 }
 
-const YEARS = ["2024", "2025", "2026"];
-
-function toMD(dateStr: string | undefined | null): string {
-  if (!dateStr) return "";
-  const [, m, d] = dateStr.split("-");
-  if (!m || !d) return "";
-  return `${parseInt(m)}/${parseInt(d)}`;
-}
-
-function todayMD(): string {
-  const now = new Date();
-  return `${now.getMonth() + 1}/${now.getDate()}`;
-}
-
-function fromMD(md: string, year: string): string | undefined {
-  const match = md.match(/^(\d{1,2})\/(\d{1,2})$/);
-  if (!match) return undefined;
-  return `${year}-${match[1].padStart(2, "0")}-${match[2].padStart(2, "0")}`;
-}
-
-function formatMD(raw: string): string {
-  const digits = raw.replace(/\D/g, "").slice(0, 4);
-  if (digits.length <= 2) return digits;
-  return `${digits.slice(0, 2)}/${digits.slice(2)}`;
-}
-
 export function TradeFormFields({ values, onChange, showExitFields }: TradeFormFieldsProps) {
   const assetType = values.assetType ?? "stock";
   const [showExit, setShowExit] = useState(showExitFields);
-  const [showEntryYear, setShowEntryYear] = useState(false);
-  const [showExitYear, setShowExitYear] = useState(false);
-
-  const [entryMD, setEntryMD] = useState(() => toMD(values.entryDate));
-  const [entryYear, setEntryYear] = useState(() => values.entryDate?.slice(0, 4) ?? "2026");
-  const [exitMD, setExitMD] = useState(() => toMD(values.exitDate));
-  const [exitYear, setExitYear] = useState(() => values.exitDate?.slice(0, 4) ?? "2026");
 
   function field(label: string, children: React.ReactNode) {
     return (
@@ -127,66 +95,19 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
               type="button"
               className="pl-btn"
               style={{ fontSize: "0.8125rem" }}
-              onClick={() => {
-                const next = !showExit;
-                setShowExit(next);
-                if (next && !exitMD) {
-                  const md = todayMD();
-                  setExitMD(md);
-                  const parsed = fromMD(md, exitYear);
-                  if (parsed) onChange({ exitDate: parsed });
-                }
-              }}
+              onClick={() => setShowExit(v => !v)}
             >
               {showExit ? "− Remove exit price" : "+ Include exit price"}
             </button>
           )}
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          {field("Entry Date",
-            <input
-              className="pl-input"
-              type="text"
-              placeholder="MM/DD"
-              value={entryMD}
-              onChange={(e) => {
-                const formatted = formatMD(e.target.value);
-                setEntryMD(formatted);
-                const parsed = fromMD(formatted, entryYear);
-                if (parsed) onChange({ entryDate: parsed });
-                else if (!formatted) onChange({ entryDate: undefined });
-              }}
-            />
-          )}
-          <button
-            type="button"
-            className="pl-btn"
-            onClick={() => { setShowEntryYear((v) => !v); setShowExitYear(false); }}
-          >
-            {entryYear} ▾
-          </button>
-        </div>
+        {field("Entry Date",
+          <DatePicker
+            value={values.entryDate}
+            onChange={(iso) => onChange({ entryDate: iso })}
+          />
+        )}
       </div>
-
-      {showEntryYear && (
-        <select
-          className="pl-select"
-          value={entryYear}
-          autoFocus
-          onChange={(e) => {
-            const y = e.target.value;
-            setEntryYear(y);
-            setShowEntryYear(false);
-            if (values.entryDate) {
-              const [, m, d] = values.entryDate.split("-");
-              onChange({ entryDate: `${y}-${m}-${d}` });
-            }
-          }}
-          style={{ fontSize: "0.875rem" }}
-        >
-          {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
-      )}
 
       {assetType === "option" && field("Multiplier",
         <NumberStepper
@@ -199,68 +120,28 @@ export function TradeFormFields({ values, onChange, showExitFields }: TradeFormF
       )}
 
       {showExitSection && (
-        <>
-          <div className="pl-field-row">
-            {field("Exit Price",
-              <input
-                className="pl-input"
-                type="number"
-                min="0"
-                step="any"
-                placeholder="0.00"
-                value={values.exitPrice ?? ""}
-                onChange={(e) => {
-                  const v = parseFloat(e.target.value);
-                  onChange({ exitPrice: isNaN(v) ? null : v });
-                }}
-              />
-            )}
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              {field("Exit Date",
-                <input
-                  className="pl-input"
-                  type="text"
-                  placeholder="MM/DD"
-                  value={exitMD}
-                  onChange={(e) => {
-                    const formatted = formatMD(e.target.value);
-                    setExitMD(formatted);
-                    const parsed = fromMD(formatted, exitYear);
-                    if (parsed) onChange({ exitDate: parsed });
-                    else if (!formatted) onChange({ exitDate: null });
-                  }}
-                />
-              )}
-              <button
-                type="button"
-                className="pl-btn"
-                onClick={() => { setShowExitYear((v) => !v); setShowEntryYear(false); }}
-              >
-                {exitYear} ▾
-              </button>
-            </div>
-          </div>
-
-          {showExitYear && (
-            <select
-              className="pl-select"
-              value={exitYear}
-              autoFocus
+        <div className="pl-field-row">
+          {field("Exit Price",
+            <input
+              className="pl-input"
+              type="number"
+              min="0"
+              step="any"
+              placeholder="0.00"
+              value={values.exitPrice ?? ""}
               onChange={(e) => {
-                const y = e.target.value;
-                setExitYear(y);
-                setShowExitYear(false);
-                if (values.exitDate) {
-                  const [, m, d] = values.exitDate.split("-");
-                  onChange({ exitDate: `${y}-${m}-${d}` });
-                }
+                const v = parseFloat(e.target.value);
+                onChange({ exitPrice: isNaN(v) ? null : v });
               }}
-              style={{ fontSize: "0.875rem" }}
-            >
-              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
+            />
           )}
-        </>
+          {field("Exit Date",
+            <DatePicker
+              value={values.exitDate}
+              onChange={(iso) => onChange({ exitDate: iso })}
+            />
+          )}
+        </div>
       )}
 
       {field("Current Mark Price (optional)",

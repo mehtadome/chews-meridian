@@ -8,8 +8,7 @@ import { TradeFormFields } from "./TradeFormFields";
 type PanelMode =
   | { kind: "closed" }
   | { kind: "add" }
-  | { kind: "edit"; trade: Trade }
-  | { kind: "close"; trade: Trade };
+  | { kind: "edit"; trade: Trade };
 
 function todayIn2026(): string {
   const d = new Date();
@@ -33,7 +32,7 @@ interface AddTradePanelProps {
 
 export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   const isOpen = mode.kind !== "closed";
-  const trade = mode.kind === "edit" || mode.kind === "close" ? mode.trade : undefined;
+  const trade = mode.kind === "edit" ? mode.trade : undefined;
 
   const [form, setForm] = useState<Partial<TradeCreate>>(() => defaultForm(trade));
   const [saving, setSaving] = useState(false);
@@ -64,7 +63,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
     setSaving(true);
 
     try {
-      const isEdit = mode.kind === "edit" || mode.kind === "close";
+      const isEdit = mode.kind === "edit";
       const url = isEdit ? `/api/trades/${trade!.id}` : "/api/trades";
       const method = isEdit ? "PATCH" : "POST";
 
@@ -89,10 +88,8 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
     }
   }
 
-  const title = mode.kind === "add" ? "Add Trade"
-    : mode.kind === "edit" ? "Edit Trade"
-    : mode.kind === "close" ? "Close Trade"
-    : "";
+  const isClosing = mode.kind === "edit" && form.exitPrice != null && !!form.exitDate;
+  const title = mode.kind === "add" ? "Add Trade" : mode.kind === "edit" ? "Edit Trade" : "";
 
   return (
     <AnimatePresence>
@@ -123,7 +120,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
                 key={resetKey}
                 values={form}
                 onChange={patch}
-                showExitFields={mode.kind === "close" || mode.kind === "edit"}
+                showExitFields={mode.kind === "edit"}
               />
               {error && (
                 <p style={{
@@ -143,7 +140,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
             <div className="pl-panel__footer">
               <button className="pl-btn" onClick={onClose} disabled={saving}>Cancel</button>
               <button className="pl-btn pl-btn--primary" onClick={handleSubmit} disabled={saving}>
-                {saving ? "Saving…" : "Save"}
+                {saving ? "Saving…" : isClosing ? "Close" : "Save"}
               </button>
             </div>
           </motion.div>
