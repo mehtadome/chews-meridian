@@ -172,18 +172,20 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 
 ## Resume here (next session)
 
-**Branch:** `pl-summary-cache` — PR #16 open against `main`. User is testing tomorrow before merging.
+**Current branch: `critique-3`** — working through `docs/critique.md` issue by issue.
 
-**What's in the PR:**
-- PL Tracker Haiku summary now caches in Redis (`pl:summary:cache`) keyed by `trades:v` + current month — skips model call on cache hit
-- `trades:v` increments in Redis on every `saveTrade`/`updateTrade`
-- `lib/usage.ts` extended with optional `product` param on `recordUsage` and new `getProductCost(product)`
-- `/api/usage?product=pl|ma` returns per-product cost `{ total }`
-- PL Tracker header shows running cost left of Owner/Guest badge
-- Market Analyzer cost display switched from global counter to `?product=ma`
+**Workflow:** describe fix → discuss → write → discuss → user says commit → mark done in critique.md → next issue.
 
-**After PR merges:** update CLAUDE.md key files table and bump version to v1.4 in README/changelog.
+**Completed on critique-3:**
+- #1 — Open redirect sanitized in `app/login/page.tsx`
+- #2 — Guest use count: atomic Lua decrement at request start (`lib/auth.ts`, `app/api/agent/route.ts`)
+- #3 — OWNER_TOKEN replaced with opaque session ID (`lib/auth.ts` `createOwnerSession`, `app/api/auth/route.ts`). Existing owner session cookie invalidated on next deploy — re-login required.
+
+**Also fixed in PR #17 (hotfix, merged to main):**
+- React crash on trade save failure (Zod object rendered as JSX)
+- Calendar date picker replacing MM/DD text input (`components/pl/DatePicker.tsx`)
+- Per-field validation highlighting, quantity default, entryPrice zero bug, date UTC shift
+
+**Next: issue #4** — `listTrades` crashes on malformed trade JSON (`lib/trades.ts:24`)
 
 **Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session.
-
-**Known data issue:** An AMZN trade may be stored in Redis with `exitDate: null` (open) when it should be closed. User needs to use "Close Trade" on the row to set the exit date. Not a code bug.
