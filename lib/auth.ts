@@ -1,4 +1,7 @@
 import { redis } from "@/lib/redis";
+import { randomBytes } from "crypto";
+
+const SESSION_TTL = 60 * 60 * 24 * 365; // 1 year
 
 export type Session = "owner" | "guest";
 
@@ -10,7 +13,8 @@ interface GuestCode {
 export async function getSession(cookieValue: string | undefined): Promise<Session | null> {
   if (!cookieValue) return null;
 
-  if (cookieValue === process.env.OWNER_TOKEN) return "owner";
+  const sessionType = await redis.get(`session:${cookieValue}`);
+  if (sessionType === "owner") return "owner";
 
   const raw = await redis.get(`guest:${cookieValue}`);
   if (!raw) return null;
@@ -19,6 +23,13 @@ export async function getSession(cookieValue: string | undefined): Promise<Sessi
   if (new Date(data.expiresAt) < new Date()) return null;
   if (data.usesLeft <= 0) return null;
   return "guest";
+}
+
+// Generates an opaque session ID, stores it in Redis, and returns it for use as the cookie value.
+export async function createOwnerSession(): Promise<string> {
+  const id = randomBytes(32).toString("hex");
+  await redis.set(`session:${id}`, "owner", "EX", SESSION_TTL);
+  return id;
 }
 
 const DECREMENT_SCRIPT = `
