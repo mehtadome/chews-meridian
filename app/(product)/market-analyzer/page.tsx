@@ -162,7 +162,7 @@ export default function Home() {
     }
     void fetch("/api/usage?product=ma").then((r) => r.json()).then((d) => setTotalCost(d.total)).catch(console.error);
     void fetch("/api/tickers").then((r) => r.json()).then((d) => { if (Array.isArray(d)) setTickers(d); }).catch(console.error);
-  }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [status, agentText, messages.length]);
 
   return (
     <div
