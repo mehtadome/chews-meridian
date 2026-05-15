@@ -31,6 +31,12 @@ await redis.eval(script, 1, "guest:ab12cd34");
 
 ---
 
+## Symbol cap in `/api/trades/prices`
+
+`?symbols=` is capped at 25 in `app/api/trades/prices/route.ts`. This is fine for a personal trade log, but if the number of open positions ever exceeds 25 (e.g. multi-user, strategy portfolios), the cap will silently drop symbols and prices will return incomplete. Make the cap dynamic — read from a config value or paginate — before expanding to larger portfolios.
+
+---
+
 ## Redis GET/SET vs HTTP GET/POST
 
 Unrelated — Redis just uses common English words.
