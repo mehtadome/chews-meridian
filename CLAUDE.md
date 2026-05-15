@@ -99,7 +99,7 @@ Two separate stylesheets — do not mix them:
 | `lib/auth.ts` | `getSession`, `withAuth` — owner token + guest code validation |
 | `lib/trade-types.ts` | Trade interface, Zod schemas (TradeCreateSchema, TradeUpdateSchema) |
 | `lib/trades.ts` | Redis CRUD: getTrade, listTrades, saveTrade (nanoid), updateTrade |
-| `lib/market-data.ts` | `fetchCurrentPrices` via Yahoo Finance v7 batch endpoint |
+| `lib/market-data.ts` | `fetchCurrentPrices` — stub returning `{}`; wires to Schwab in Phase 2 |
 | `lib/systemPrompt.ts` | Market Analyzer agent instructions + component schema |
 | `lib/watchlist.ts` | Tickers the Market Analyzer agent prioritizes |
 | `lib/digest.ts` | Read/write digest records in Redis (L2 cache) |
@@ -158,7 +158,7 @@ Always use date-only strings: `` `${year}-${mm}-01` `` — never `.toISOString()
 ### API routes
 - `GET/POST /api/trades` — list all / create new (TradeCreateSchema)
 - `GET/PATCH /api/trades/[id]` — single trade / update (TradeUpdateSchema). No DELETE — trades are permanent.
-- `GET /api/trades/prices?symbols=X,Y` — Yahoo Finance v7 batch, `revalidate: 300`
+- `GET /api/trades/prices?symbols=X,Y` — price lookup stub, `revalidate: 300`; wires to Schwab in Phase 2
 - `GET /api/pl/agent` — Haiku summary: monthly realized gains + open position P&L with live prices
 - `POST /api/auth/generate` — owner-only, creates guest code in Redis
 

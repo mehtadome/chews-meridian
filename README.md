@@ -84,7 +84,7 @@ Multiple briefings on the same day accumulate ticker mentions — `saveDigest` m
 ```
 User adds/edits trade → Redis (permanent, no TTL)
     ↓
-GET /api/trades/prices  (Yahoo Finance v7 batch, revalidate: 300s)
+GET /api/trades/prices  (price source pending Schwab integration, revalidate: 300s)
     ↓
 P&L = (exitPrice ?? markPrice ?? livePrice − entryPrice) × qty × multiplier × direction
     ↓
@@ -107,7 +107,7 @@ SummaryBar renders monthly P&L, per-position live P&L, AI briefing
 | AI SDK | Vercel AI SDK (`ai`, `@ai-sdk/anthropic`) |
 | Model | `claude-haiku-4-5-20251001` |
 | Email | Gmail OAuth2 via `googleapis` |
-| Prices | Yahoo Finance v7 batch endpoint |
+| Prices | Schwab API (Phase 2 — pending integration) |
 | Storage | Upstash Redis (digests, trades, auth) |
 | Styling | CSS custom properties design system (no Tailwind utilities in product pages) |
 | Validation | Zod |
@@ -162,7 +162,7 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 ### [v1.3](https://github.com/mehtadome/chews-meridian/pull/15)
 - **PL Tracker** — second product at `/pl-tracker` for trade journaling and portfolio performance
 - Redis-backed trade CRUD — permanent log of stock/option/future trades with no DELETE by design
-- Live P&L — Yahoo Finance v7 batch endpoint prices open positions; computed with quantity × multiplier × direction multiplier
+- Live P&L — computed with quantity × multiplier × direction multiplier; live price source pending Schwab integration (Phase 2)
 - Haiku trading summary — AI-generated briefing of monthly realized gains and open position performance on every open
 - Add/Edit/Close Trade panel — Framer Motion slide-in with MM/DD date inputs, per-field year toggle, and exit price reveal
 - Auth extended to PL Tracker — shared `/login` page and `cm_session` cookie cover both products; guest codes give read-only access

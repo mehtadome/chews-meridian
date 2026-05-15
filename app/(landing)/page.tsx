@@ -37,7 +37,7 @@ const PRODUCTS = [
     desc: "Log trades. Track P&L. Know where you stand.",
     steps: [
       { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity.", detail: "Supports stocks, options, and futures. Options include a configurable multiplier (default 100). Trades are permanent — no deletes, only closes." },
-      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position.", detail: "Prices are pulled from Yahoo Finance's v7 batch endpoint and cached for 5 minutes. Open P&L updates automatically each time you load the tracker." },
+      { number: "02", title: "Live prices fetched", description: "Pulls current market prices for every open position.", detail: "Live prices are fetched for open positions and cached for 5 minutes. Open P&L updates automatically each time you load the tracker." },
       { number: "03", title: "AI performance summary", description: "Synthesizes your monthly realized gains and open P&L into a concise briefing every time you open the tracker.", detail: "Dynamic charting powered by the Vercel AI SDK is planned — on-demand charts for cumulative P&L, win rate by asset type, and monthly gains." },
     ],
   },
