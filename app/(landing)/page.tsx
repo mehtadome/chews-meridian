@@ -16,7 +16,7 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
-const TECH = ["Next.js 15", "Claude", "Composer", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
+const TECH = ["Next.js 16", "Claude", "Composer", "Gmail OAuth", "Redis", "Vercel", "TypeScript"];
 
 const PRODUCTS = [
   {
@@ -33,7 +33,7 @@ const PRODUCTS = [
     href: "/pl-tracker",
     label: "PL Tracker",
     howItWorksTitle: "Profit & Loss Tracker",
-    techStack: ["Next.js 15", "Claude", "Composer", "Redis", "Vercel", "TypeScript"],
+    techStack: ["Next.js 16", "Claude", "Composer", "Redis", "Vercel", "TypeScript"],
     desc: "Log trades. Track P&L. Know where you stand.",
     steps: [
       { number: "01", title: "Log a trade", description: "Enter symbol, asset type, direction, entry price, and quantity.", detail: "Supports stocks, options, and futures. Options include a configurable multiplier (default 100). Trades are permanent — no deletes, only closes." },
