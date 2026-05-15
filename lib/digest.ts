@@ -54,6 +54,8 @@ export async function saveDigest(record: Omit<DigestRecord, "date" | "timestamp"
   const full: DigestRecord = { date, timestamp, ...record, components };
   // 30-day TTL — keeps a full month of digests, then expires automatically
   await redis.set(digestKey(date), JSON.stringify(full), "EX", 60 * 60 * 24 * 30);
+  // pointer key so getLatestDigest can do O(1) GET instead of KEYS scan
+  await redis.set("digest:latest", date);
   return full;
 }
 
@@ -70,9 +72,9 @@ export async function getDigest(date: string): Promise<DigestRecord | null> {
 
 // Returns the most recently saved digest, or null if none exist.
 export async function getLatestDigest(): Promise<DigestRecord | null> {
-  const dates = await listDigests();
-  if (dates.length === 0) return null;
-  return getDigest(dates[0]);
+  const date = await redis.get("digest:latest");
+  if (!date) return null;
+  return getDigest(date);
 }
 
 // Returns all digest dates as YYYY-MM-DD strings, sorted newest-first.
