@@ -19,10 +19,11 @@ No test suite exists. Type-check before declaring work done.
 
 ## Route structure
 
-Routes are split into two Next.js route groups with separate layouts and stylesheets:
+Routes are split into three Next.js route groups with separate layouts and stylesheets:
 
 - `app/(landing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
-- `app/(product)/` → `/market-analyzer` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
+- `app/(product)/` → `/market-analyzer` and `/settings` — uses `app/market-analyzer.css`, auth-gated
+- `app/(pl)/` → `/pl-tracker` — uses `app/pl.css`, auth-gated, fully isolated from Market Analyzer styles
 - `app/api/` → all API routes, untouched
 
 The project is named **Chew's Meridian**. The product inside it is **Market Analyzer** (shown at `/market-analyzer`).
@@ -88,6 +89,7 @@ Two separate stylesheets — do not mix them:
 | `app/(landing)/about/page.tsx` | About page (`/about`) — placeholder, needs writing |
 | `app/(product)/market-analyzer/page.tsx` | Market Analyzer digest UI |
 | `app/(product)/settings/page.tsx` | Settings page |
+| `app/(pl)/layout.tsx` | PL Tracker layout — auth gate + `pl.css` import |
 | `app/(pl)/pl-tracker/page.tsx` | PL Tracker server page — fetches trades + prices |
 | `app/landing.css` | Marketing stylesheet — Framer Motion, dark palette |
 | `app/pl.css` | PL Tracker design system — standalone dark theme |
@@ -123,7 +125,7 @@ Required in `.env.local`:
 PL Tracker is a second product at `/pl-tracker`, isolated from Market Analyzer. It has its own route group, stylesheet, and auth scope.
 
 ### Route group: `app/(pl)/`
-- Layout: `app/(pl)/layout.tsx` — auth gate (redirects to `/login?from=/pl-tracker`), imports `app/pl.css`, wraps in `<div className="pl-shell">`. No ThemeProvider.
+- Layout: `app/(pl)/layout.tsx` — auth gate (redirects to `/login?from=/pl-tracker`), imports `app/pl.css`, wraps in `<div className="pl-shell">`. Fully isolated from `(product)` layout and `market-analyzer.css`. No ThemeProvider.
 - Page: `app/(pl)/pl-tracker/page.tsx` — server component, fetches trades + live prices + passes `isOwner` to `PlTrackerClient`.
 
 ### Stylesheet: `app/pl.css`
