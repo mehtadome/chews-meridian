@@ -1,12 +1,6 @@
 import type { Trade } from "@/lib/trade-types";
 import { PnlBadge } from "./PnlBadge";
-
-function computePnl(trade: Trade, currentPrice?: number): number | null {
-  const exitPrice = trade.exitPrice ?? currentPrice ?? trade.markPrice;
-  if (exitPrice == null) return null;
-  const dir = trade.direction === "long" ? 1 : -1;
-  return (exitPrice - trade.entryPrice) * trade.quantity * trade.multiplier * dir;
-}
+import { computePnl } from "@/lib/pnl";
 
 interface SummaryBarProps {
   trades: Trade[];

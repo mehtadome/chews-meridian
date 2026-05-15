@@ -5,12 +5,13 @@ import { TradeRow } from "./TradeRow";
 
 interface TradeTableProps {
   trades: Trade[];
+  prices: Record<string, number>;
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
   isOwner: boolean;
 }
 
-export function TradeTable({ trades, tab, onEdit, isOwner }: TradeTableProps) {
+export function TradeTable({ trades, prices, tab, onEdit, isOwner }: TradeTableProps) {
   if (trades.length === 0) {
     return (
       <p style={{ color: "var(--pl-text-muted)", fontSize: "0.9375rem", padding: "2rem 0" }}>
@@ -40,6 +41,7 @@ export function TradeTable({ trades, tab, onEdit, isOwner }: TradeTableProps) {
             <TradeRow
               key={trade.id}
               trade={trade}
+              currentPrice={prices[trade.symbol]}
               tab={tab}
               onEdit={onEdit}
               isOwner={isOwner}

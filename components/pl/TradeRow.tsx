@@ -2,13 +2,7 @@
 
 import type { Trade } from "@/lib/trade-types";
 import { PnlBadge } from "./PnlBadge";
-
-function computePnl(trade: Trade): number | null {
-  const exitPrice = trade.exitPrice ?? trade.markPrice;
-  if (exitPrice === null) return null;
-  const direction = trade.direction === "long" ? 1 : -1;
-  return (exitPrice - trade.entryPrice) * trade.quantity * trade.multiplier * direction;
-}
+import { computePnl } from "@/lib/pnl";
 
 function fmt(iso: string) {
   const [y, m, d] = iso.split("-").map(Number);
@@ -23,13 +17,14 @@ const Dim = () => <span style={{ color: "var(--pl-text-dim)" }}>—</span>;
 
 interface TradeRowProps {
   trade: Trade;
+  currentPrice?: number;
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
   isOwner: boolean;
 }
 
-export function TradeRow({ trade, tab, onEdit, isOwner }: TradeRowProps) {
-  const pnl = computePnl(trade);
+export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner }: TradeRowProps) {
+  const pnl = computePnl(trade, currentPrice);
   const isProfit = pnl !== null && pnl > 0;
   const isLoss = pnl !== null && pnl < 0;
   const rowClass = `pl-row${isProfit ? " pl-row--profit" : isLoss ? " pl-row--loss" : ""}`;
