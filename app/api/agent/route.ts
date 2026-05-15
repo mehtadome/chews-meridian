@@ -33,7 +33,17 @@ export async function POST(req: Request) {
     });
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  // release mutex before returning — req.json() can throw if body is malformed or client disconnected
+  let messages: UIMessage[];
+  try {
+    ({ messages } = await req.json());
+  } catch {
+    await redis.del(MUTEX_KEY);
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   // Anchor the Gmail search to the last digest's exact timestamp so the model reads everything
   // since the prior briefing with no rounding. Falls back to start of calendar month on first run.
