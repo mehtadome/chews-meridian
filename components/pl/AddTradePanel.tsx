@@ -10,16 +10,16 @@ type PanelMode =
   | { kind: "add" }
   | { kind: "edit"; trade: Trade };
 
-function todayIn2026(): string {
+function todayDate(): string {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `2026-${mm}-${dd}`;
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function defaultForm(trade?: Trade): Partial<TradeCreate> {
   if (!trade) {
-    return { assetType: "stock", direction: "long", quantity: 5, multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null, entryDate: todayIn2026() };
+    return { assetType: "stock", direction: "long", quantity: 5, multiplier: 1, notes: "", markPrice: null, exitPrice: null, exitDate: null, entryDate: todayDate() };
   }
   return { ...trade };
 }
