@@ -6,8 +6,7 @@ import { computePnl } from "@/lib/pnl";
 import { USER_TIMEZONE } from "@/lib/config";
 
 function fmt(iso: string) {
-  const [y, m, d] = iso.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("en-US", { timeZone: USER_TIMEZONE, month: "short", day: "numeric", year: "2-digit" });
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { timeZone: USER_TIMEZONE, month: "short", day: "numeric", year: "2-digit" });
 }
 
 function daysBetween(a: string, b: Date | string) {
