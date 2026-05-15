@@ -27,7 +27,12 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   const existingTickers = (existing.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
   const incomingTickers = (incoming.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
 
-  const merged = new Map<string, TickerSpec>(existingTickers.map((t) => [t.symbol, t]));
+  // sum counts on duplicate symbols — model can produce the same symbol twice in one digest
+  const merged = new Map<string, TickerSpec>();
+  for (const t of existingTickers) {
+    const prev = merged.get(t.symbol);
+    merged.set(t.symbol, { ...t, count: (prev?.count ?? 0) + (t.count ?? 1) });
+  }
   for (const t of incomingTickers) {
     const prev = merged.get(t.symbol);
     merged.set(t.symbol, { ...t, count: (prev?.count ?? 1) + (t.count ?? 1) });
