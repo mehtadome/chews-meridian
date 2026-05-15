@@ -20,9 +20,10 @@ export async function listTrades(): Promise<Trade[]> {
   const ids = await redis.lrange("trades:index", 0, -1);
   if (ids.length === 0) return [];
   const raws = await redis.mget(...ids.map(tradeKey));
+  // skip corrupt entries rather than crashing the whole list
   return raws
     .filter((r): r is string => r !== null)
-    .map((r) => JSON.parse(r) as Trade);
+    .flatMap((r) => { try { return [JSON.parse(r) as Trade]; } catch { return []; } });
 }
 
 export async function saveTrade(data: TradeCreate): Promise<Trade> {
