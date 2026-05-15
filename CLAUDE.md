@@ -70,7 +70,7 @@ Edit `lib/watchlist.ts` to change the watchlist. It's injected directly into the
 
 Two separate stylesheets — do not mix them:
 
-**Product** (`app/globals.css`) — imported via root layout, applies everywhere as the base:
+**Product** (`app/market-analyzer.css`) — imported in `app/(product)/layout.tsx`:
 - Use CSS custom properties (`--text`, `--text-heading`, `--text-muted`, `--btn-bg`, `--btn-bg-hover`, `--border`)
 - Use semantic classes: `.card`, `.card__header`, `.card__body`, `.card__footer`, `.btn`, `.tab`, `.tab--active`, `.shell__header`, `.shell__main`, `.ds-title`, `.ds-prose`, `.ds-meta`
 - **Do not use Tailwind color/spacing utilities** in product pages
@@ -129,7 +129,7 @@ PL Tracker is a second product at `/pl-tracker`, isolated from Market Analyzer. 
 - Page: `app/(pl)/pl-tracker/page.tsx` — server component, fetches trades + live prices + passes `isOwner` to `PlTrackerClient`.
 
 ### Stylesheet: `app/pl.css`
-Self-contained dark design system. **Never import globals.css here.** Key tokens: `--pl-bg:#0d0d0d`, `--pl-green:#22c55e`, `--pl-red:#ef4444`. Key classes: `.pl-shell`, `.pl-shell__header`, `.pl-table`, `.pl-row--profit/loss`, `.pl-badge--profit/loss`, `.pl-panel`, `.pl-btn--primary`, `.pl-field`, `.pl-field-row`, `.pl-input`, `.pl-select`.
+Self-contained dark design system. **Never import market-analyzer.css or globals.css here.** Key tokens: `--pl-bg:#0d0d0d`, `--pl-green:#22c55e`, `--pl-red:#ef4444`. Key classes: `.pl-shell`, `.pl-shell__header`, `.pl-table`, `.pl-row--profit/loss`, `.pl-badge--profit/loss`, `.pl-panel`, `.pl-btn--primary`, `.pl-field`, `.pl-field-row`, `.pl-input`, `.pl-select`.
 
 ### Data model (`lib/trade-types.ts`)
 `Trade`: id, symbol, assetType (stock/option/future), direction (long/short), entryPrice, entryDate (YYYY-MM-DD), exitPrice (null if open), exitDate (null if open), quantity, multiplier, notes, markPrice. A null `exitDate` means the trade is open/unrealized.
