@@ -174,20 +174,8 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 
 ## Resume here (next session)
 
-**Current branch: `critique-3`** — working through `docs/critique.md` issue by issue.
+**critique-3 (PR #18) — complete.** All 30 issues from `docs/critiques/critique-3.md` resolved (fixed, N/A, or deferred). PR open, not yet merged.
 
-**Workflow:** describe fix → discuss → write → discuss → user says commit → mark done in critique.md → next issue.
-
-**Completed on critique-3:**
-- #1 — Open redirect sanitized in `app/login/page.tsx`
-- #2 — Guest use count: atomic Lua decrement at request start (`lib/auth.ts`, `app/api/agent/route.ts`)
-- #3 — OWNER_TOKEN replaced with opaque session ID (`lib/auth.ts` `createOwnerSession`, `app/api/auth/route.ts`). Existing owner session cookie invalidated on next deploy — re-login required.
-
-**Also fixed in PR #17 (hotfix, merged to main):**
-- React crash on trade save failure (Zod object rendered as JSX)
-- Calendar date picker replacing MM/DD text input (`components/pl/DatePicker.tsx`)
-- Per-field validation highlighting, quantity default, entryPrice zero bug, date UTC shift
-
-**Next: issue #4** — `listTrades` crashes on malformed trade JSON (`lib/trades.ts:24`)
+**Critique files live in `docs/critiques/` — gitignored, local only.**
 
 **Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session.
