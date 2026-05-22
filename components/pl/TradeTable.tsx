@@ -1,17 +1,19 @@
 "use client";
 
 import type { Trade } from "@/lib/trade-types";
-import { TradeRow } from "./TradeRow";
+import { groupTrades, type PositionGroup } from "@/lib/position-utils";
+import { AccumulatedRow } from "./AccumulatedRow";
 
 interface TradeTableProps {
   trades: Trade[];
   prices: Record<string, number>;
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
+  onClose: (group: PositionGroup) => void;
   isOwner: boolean;
 }
 
-export function TradeTable({ trades, prices, tab, onEdit, isOwner }: TradeTableProps) {
+export function TradeTable({ trades, prices, tab, onEdit, onClose, isOwner }: TradeTableProps) {
   if (trades.length === 0) {
     return (
       <p style={{ color: "var(--pl-text-muted)", fontSize: "0.9375rem", padding: "2rem 0" }}>
@@ -19,6 +21,8 @@ export function TradeTable({ trades, prices, tab, onEdit, isOwner }: TradeTableP
       </p>
     );
   }
+
+  const groups = groupTrades(trades);
 
   return (
     <div className="pl-table-wrap">
@@ -37,14 +41,15 @@ export function TradeTable({ trades, prices, tab, onEdit, isOwner }: TradeTableP
           </tr>
         </thead>
         <tbody>
-          {trades.map((trade) => (
-            <TradeRow
-              key={trade.id}
-              trade={trade}
-              currentPrice={prices[trade.symbol]}
+          {groups.map(group => (
+            <AccumulatedRow
+              key={`${group.symbol}|${group.direction}|${group.assetType}`}
+              group={group}
               tab={tab}
               onEdit={onEdit}
+              onClose={onClose}
               isOwner={isOwner}
+              prices={prices}
             />
           ))}
         </tbody>

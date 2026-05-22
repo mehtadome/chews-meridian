@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Trade, TradeCreate } from "@/lib/trade-types";
+import type { PositionGroup } from "@/lib/position-utils";
 import { TradeFormFields } from "./TradeFormFields";
 
 type PanelMode =
   | { kind: "closed" }
   | { kind: "add" }
-  | { kind: "edit"; trade: Trade };
+  | { kind: "edit"; trade: Trade }
+  | { kind: "close"; group: PositionGroup };
 
 function todayDate(): string {
   const d = new Date();

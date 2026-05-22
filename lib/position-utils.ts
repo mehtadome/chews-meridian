@@ -46,8 +46,10 @@ export function groupTrades(trades: Trade[]): PositionGroup[] {
 }
 
 // Applies FIFO: consumes oldest lots first.
-// If a lot is partially consumed it is split — the existing record shrinks,
-// a new closed record is created for the exited portion.
+// We sort by entryDate and iterate front-to-back, treating the array as a
+// queue of lots. Each lot is either fully consumed (exit fields stamped) or
+// partially consumed (split into a shrunk open record + a new closed record).
+// This matches standard tax lot accounting — oldest cost basis exits first.
 export function fifoClose(
   openTrades: Trade[],
   qty: number,
