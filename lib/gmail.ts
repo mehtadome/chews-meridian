@@ -12,12 +12,8 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
   throw new Error("Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
 }
 
-// Cached after first resolution — cleared on process restart (dev server restart / Lambda cold start).
-let gmail: ReturnType<typeof google.gmail> | null = null;
-
+// no singleton — re-reads token from Redis on every call so rotations take effect immediately
 async function getGmail() {
-  if (gmail) return gmail;
-
   let refreshToken: string | null = null;
   try {
     refreshToken = await redis.get(REDIS_TOKEN_KEY);
@@ -32,8 +28,7 @@ async function getGmail() {
 
   const oauth2Client = new google.auth.OAuth2(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET);
   oauth2Client.setCredentials({ refresh_token: refreshToken });
-  gmail = google.gmail({ version: "v1", auth: oauth2Client });
-  return gmail;
+  return google.gmail({ version: "v1", auth: oauth2Client });
 }
 
 export interface EmailSummary {

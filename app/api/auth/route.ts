@@ -1,4 +1,4 @@
-import { getSession } from "@/lib/auth";
+import { getSession, createOwnerSession } from "@/lib/auth";
 
 const ONE_YEAR = 60 * 60 * 24 * 365;
 const ONE_HOUR = 60 * 60;
@@ -9,14 +9,22 @@ export async function POST(req: Request) {
     return new Response("Bad request", { status: 400 });
   }
 
-  const session = await getSession(credential.trim());
-  if (!session) {
-    return new Response("Unauthorized", { status: 401 });
+  const trimmed = credential.trim();
+  let cookieValue: string;
+  let maxAge: number;
+
+  if (trimmed === process.env.OWNER_TOKEN) {
+    cookieValue = await createOwnerSession();
+    maxAge = ONE_YEAR;
+  } else {
+    const session = await getSession(trimmed);
+    if (!session) return new Response("Unauthorized", { status: 401 });
+    cookieValue = trimmed;
+    maxAge = ONE_HOUR;
   }
 
-  const maxAge = session === "owner" ? ONE_YEAR : ONE_HOUR;
   const cookie = [
-    `cm_session=${credential.trim()}`,
+    `cm_session=${cookieValue}`,
     `Max-Age=${maxAge}`,
     "Path=/",
     "HttpOnly",

@@ -27,7 +27,12 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   const existingTickers = (existing.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
   const incomingTickers = (incoming.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
 
-  const merged = new Map<string, TickerSpec>(existingTickers.map((t) => [t.symbol, t]));
+  // sum counts on duplicate symbols — model can produce the same symbol twice in one digest
+  const merged = new Map<string, TickerSpec>();
+  for (const t of existingTickers) {
+    const prev = merged.get(t.symbol);
+    merged.set(t.symbol, { ...t, count: (prev?.count ?? 0) + (t.count ?? 1) });
+  }
   for (const t of incomingTickers) {
     const prev = merged.get(t.symbol);
     merged.set(t.symbol, { ...t, count: (prev?.count ?? 1) + (t.count ?? 1) });
@@ -54,6 +59,8 @@ export async function saveDigest(record: Omit<DigestRecord, "date" | "timestamp"
   const full: DigestRecord = { date, timestamp, ...record, components };
   // 30-day TTL — keeps a full month of digests, then expires automatically
   await redis.set(digestKey(date), JSON.stringify(full), "EX", 60 * 60 * 24 * 30);
+  // pointer key so getLatestDigest can do O(1) GET instead of KEYS scan
+  await redis.set("digest:latest", date);
   return full;
 }
 
@@ -70,9 +77,9 @@ export async function getDigest(date: string): Promise<DigestRecord | null> {
 
 // Returns the most recently saved digest, or null if none exist.
 export async function getLatestDigest(): Promise<DigestRecord | null> {
-  const dates = await listDigests();
-  if (dates.length === 0) return null;
-  return getDigest(dates[0]);
+  const date = await redis.get("digest:latest");
+  if (!date) return null;
+  return getDigest(date);
 }
 
 // Returns all digest dates as YYYY-MM-DD strings, sorted newest-first.

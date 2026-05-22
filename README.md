@@ -1,4 +1,4 @@
-# Chew's Meridian · v1.3
+# Chew's Meridian · v1.4
 
 A Next.js application with two products: **Market Analyzer** reads market-focused newsletter emails via Gmail, interprets them with Claude, and renders a dynamically assembled digest. **PL Tracker** is a trade journal that fetches live prices, computes realized and unrealized P&L, and generates an AI performance summary on every open.
 
@@ -84,7 +84,7 @@ Multiple briefings on the same day accumulate ticker mentions — `saveDigest` m
 ```
 User adds/edits trade → Redis (permanent, no TTL)
     ↓
-GET /api/trades/prices  (Yahoo Finance v7 batch, revalidate: 300s)
+GET /api/trades/prices  (price source pending Schwab integration, revalidate: 300s)
     ↓
 P&L = (exitPrice ?? markPrice ?? livePrice − entryPrice) × qty × multiplier × direction
     ↓
@@ -107,7 +107,7 @@ SummaryBar renders monthly P&L, per-position live P&L, AI briefing
 | AI SDK | Vercel AI SDK (`ai`, `@ai-sdk/anthropic`) |
 | Model | `claude-haiku-4-5-20251001` |
 | Email | Gmail OAuth2 via `googleapis` |
-| Prices | Yahoo Finance v7 batch endpoint |
+| Prices | Schwab API (Phase 2 — pending integration) |
 | Storage | Upstash Redis (digests, trades, auth) |
 | Styling | CSS custom properties design system (no Tailwind utilities in product pages) |
 | Validation | Zod |
@@ -151,10 +151,18 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 
 ## Changelog
 
+### v1.4
+- **PL summary caching** — Haiku summary cached in Redis keyed by `trades:v` + month; any trade write auto-invalidates, skipping the model on repeated opens
+- **Per-product API cost tracking** — `recordUsage` accepts optional `product` param; `GET /api/usage?product=ma|pl` returns per-product spend; both product headers show running cost
+- **Post-login redirect** — edge middleware captures the entry URL as `?from=` so logging in from `/pl-tracker` lands on PL Tracker, not Market Analyzer
+- **Landing page step popovers** — clicking the step number (01/02/03) in the how-it-works section opens a detail popover with expanded copy
+- **Landing page hero alignment** — product title uses `min-height: 2lh` and subtitle uses `flex: 1` so both product panels keep their "Enter App" buttons at a consistent baseline
+- **Font consistency** — Geist wired correctly in `globals.css` and `market-analyzer.css`; eliminated circular CSS variable reference that caused serif fallback after client-side navigation
+
 ### [v1.3](https://github.com/mehtadome/chews-meridian/pull/15)
 - **PL Tracker** — second product at `/pl-tracker` for trade journaling and portfolio performance
 - Redis-backed trade CRUD — permanent log of stock/option/future trades with no DELETE by design
-- Live P&L — Yahoo Finance v7 batch endpoint prices open positions; computed with quantity × multiplier × direction multiplier
+- Live P&L — computed with quantity × multiplier × direction multiplier; live price source pending Schwab integration (Phase 2)
 - Haiku trading summary — AI-generated briefing of monthly realized gains and open position performance on every open
 - Add/Edit/Close Trade panel — Framer Motion slide-in with MM/DD date inputs, per-field year toggle, and exit price reveal
 - Auth extended to PL Tracker — shared `/login` page and `cm_session` cookie cover both products; guest codes give read-only access

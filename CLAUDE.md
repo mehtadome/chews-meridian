@@ -19,10 +19,11 @@ No test suite exists. Type-check before declaring work done.
 
 ## Route structure
 
-Routes are split into two Next.js route groups with separate layouts and stylesheets:
+Routes are split into three Next.js route groups with separate layouts and stylesheets:
 
 - `app/(landing)/` → `/` (landing) and `/about` — uses `app/landing.css`, no ThemeProvider
-- `app/(product)/` → `/market-analyzer` (product) and `/settings` — uses `app/globals.css`, wrapped in ThemeProvider
+- `app/(product)/` → `/market-analyzer` and `/settings` — uses `app/market-analyzer.css`, auth-gated
+- `app/(pl)/` → `/pl-tracker` — uses `app/pl.css`, auth-gated, fully isolated from Market Analyzer styles
 - `app/api/` → all API routes, untouched
 
 The project is named **Chew's Meridian**. The product inside it is **Market Analyzer** (shown at `/market-analyzer`).
@@ -69,7 +70,7 @@ Edit `lib/watchlist.ts` to change the watchlist. It's injected directly into the
 
 Two separate stylesheets — do not mix them:
 
-**Product** (`app/globals.css`) — imported via root layout, applies everywhere as the base:
+**Product** (`app/market-analyzer.css`) — imported in `app/(product)/layout.tsx`:
 - Use CSS custom properties (`--text`, `--text-heading`, `--text-muted`, `--btn-bg`, `--btn-bg-hover`, `--border`)
 - Use semantic classes: `.card`, `.card__header`, `.card__body`, `.card__footer`, `.btn`, `.tab`, `.tab--active`, `.shell__header`, `.shell__main`, `.ds-title`, `.ds-prose`, `.ds-meta`
 - **Do not use Tailwind color/spacing utilities** in product pages
@@ -88,6 +89,7 @@ Two separate stylesheets — do not mix them:
 | `app/(landing)/about/page.tsx` | About page (`/about`) — placeholder, needs writing |
 | `app/(product)/market-analyzer/page.tsx` | Market Analyzer digest UI |
 | `app/(product)/settings/page.tsx` | Settings page |
+| `app/(pl)/layout.tsx` | PL Tracker layout — auth gate + `pl.css` import |
 | `app/(pl)/pl-tracker/page.tsx` | PL Tracker server page — fetches trades + prices |
 | `app/landing.css` | Marketing stylesheet — Framer Motion, dark palette |
 | `app/pl.css` | PL Tracker design system — standalone dark theme |
@@ -97,7 +99,7 @@ Two separate stylesheets — do not mix them:
 | `lib/auth.ts` | `getSession`, `withAuth` — owner token + guest code validation |
 | `lib/trade-types.ts` | Trade interface, Zod schemas (TradeCreateSchema, TradeUpdateSchema) |
 | `lib/trades.ts` | Redis CRUD: getTrade, listTrades, saveTrade (nanoid), updateTrade |
-| `lib/market-data.ts` | `fetchCurrentPrices` via Yahoo Finance v7 batch endpoint |
+| `lib/market-data.ts` | `fetchCurrentPrices` — stub returning `{}`; wires to Schwab in Phase 2 |
 | `lib/systemPrompt.ts` | Market Analyzer agent instructions + component schema |
 | `lib/watchlist.ts` | Tickers the Market Analyzer agent prioritizes |
 | `lib/digest.ts` | Read/write digest records in Redis (L2 cache) |
@@ -123,11 +125,11 @@ Required in `.env.local`:
 PL Tracker is a second product at `/pl-tracker`, isolated from Market Analyzer. It has its own route group, stylesheet, and auth scope.
 
 ### Route group: `app/(pl)/`
-- Layout: `app/(pl)/layout.tsx` — auth gate (redirects to `/login?from=/pl-tracker`), imports `app/pl.css`, wraps in `<div className="pl-shell">`. No ThemeProvider.
+- Layout: `app/(pl)/layout.tsx` — auth gate (redirects to `/login?from=/pl-tracker`), imports `app/pl.css`, wraps in `<div className="pl-shell">`. Fully isolated from `(product)` layout and `market-analyzer.css`. No ThemeProvider.
 - Page: `app/(pl)/pl-tracker/page.tsx` — server component, fetches trades + live prices + passes `isOwner` to `PlTrackerClient`.
 
 ### Stylesheet: `app/pl.css`
-Self-contained dark design system. **Never import globals.css here.** Key tokens: `--pl-bg:#0d0d0d`, `--pl-green:#22c55e`, `--pl-red:#ef4444`. Key classes: `.pl-shell`, `.pl-shell__header`, `.pl-table`, `.pl-row--profit/loss`, `.pl-badge--profit/loss`, `.pl-panel`, `.pl-btn--primary`, `.pl-field`, `.pl-field-row`, `.pl-input`, `.pl-select`.
+Self-contained dark design system. **Never import market-analyzer.css or globals.css here.** Key tokens: `--pl-bg:#0d0d0d`, `--pl-green:#22c55e`, `--pl-red:#ef4444`. Key classes: `.pl-shell`, `.pl-shell__header`, `.pl-table`, `.pl-row--profit/loss`, `.pl-badge--profit/loss`, `.pl-panel`, `.pl-btn--primary`, `.pl-field`, `.pl-field-row`, `.pl-input`, `.pl-select`.
 
 ### Data model (`lib/trade-types.ts`)
 `Trade`: id, symbol, assetType (stock/option/future), direction (long/short), entryPrice, entryDate (YYYY-MM-DD), exitPrice (null if open), exitDate (null if open), quantity, multiplier, notes, markPrice. A null `exitDate` means the trade is open/unrealized.
@@ -156,7 +158,7 @@ Always use date-only strings: `` `${year}-${mm}-01` `` — never `.toISOString()
 ### API routes
 - `GET/POST /api/trades` — list all / create new (TradeCreateSchema)
 - `GET/PATCH /api/trades/[id]` — single trade / update (TradeUpdateSchema). No DELETE — trades are permanent.
-- `GET /api/trades/prices?symbols=X,Y` — Yahoo Finance v7 batch, `revalidate: 300`
+- `GET /api/trades/prices?symbols=X,Y` — price lookup stub, `revalidate: 300`; wires to Schwab in Phase 2
 - `GET /api/pl/agent` — Haiku summary: monthly realized gains + open position P&L with live prices
 - `POST /api/auth/generate` — owner-only, creates guest code in Redis
 
@@ -172,18 +174,8 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 
 ## Resume here (next session)
 
-**Branch:** `pl-summary-cache` — PR #16 open against `main`. User is testing tomorrow before merging.
+**critique-3 (PR #18) — complete.** All 30 issues from `docs/critiques/critique-3.md` resolved (fixed, N/A, or deferred). PR open, not yet merged.
 
-**What's in the PR:**
-- PL Tracker Haiku summary now caches in Redis (`pl:summary:cache`) keyed by `trades:v` + current month — skips model call on cache hit
-- `trades:v` increments in Redis on every `saveTrade`/`updateTrade`
-- `lib/usage.ts` extended with optional `product` param on `recordUsage` and new `getProductCost(product)`
-- `/api/usage?product=pl|ma` returns per-product cost `{ total }`
-- PL Tracker header shows running cost left of Owner/Guest badge
-- Market Analyzer cost display switched from global counter to `?product=ma`
-
-**After PR merges:** update CLAUDE.md key files table and bump version to v1.4 in README/changelog.
+**Critique files live in `docs/critiques/` — gitignored, local only.**
 
 **Phase 2 (not started):** Schwab API integration. User has Client ID + Secret at developer.schwab.com. Old TD Ameritrade API is dead — Schwab migrated in 2024. Wire OAuth in a dedicated session.
-
-**Known data issue:** An AMZN trade may be stored in Redis with `exitDate: null` (open) when it should be closed. User needs to use "Close Trade" on the row to set the exit date. Not a code bug.

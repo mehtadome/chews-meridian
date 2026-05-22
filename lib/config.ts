@@ -1,3 +1,8 @@
+// ── Timezone ──────────────────────────────────────────────────────────────────
+// Single source of truth for display timezone. Replace with a Redis user preference when
+// multi-user or dynamic timezone support is needed (see docs/pl-tracker/todo.md).
+export const USER_TIMEZONE = "America/Los_Angeles";
+
 // ── Model ─────────────────────────────────────────────────────────────────────
 export const MODEL_ID = "claude-haiku-4-5-20251001";
 

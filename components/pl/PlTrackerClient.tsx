@@ -104,6 +104,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
 
         <TradeTable
           trades={visible}
+          prices={prices}
           tab={tab}
           isOwner={isOwner}
           onEdit={(trade) => setPanel({ kind: "edit", trade })}

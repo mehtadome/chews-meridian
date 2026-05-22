@@ -10,7 +10,8 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const params = useSearchParams();
-  const from = params.get("from") ?? "/market-analyzer";
+  const raw = params.get("from") ?? "";
+  const from = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/market-analyzer";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -8,14 +8,22 @@ import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
 import { buildSystemPrompt } from "@/lib/systemPrompt";
 import { redis } from "@/lib/redis";
-import { withAuth } from "@/lib/auth";
+import { withAuth, decrementGuestUse } from "@/lib/auth";
 
 const MUTEX_KEY = "briefing:running";
 const MUTEX_TTL_SECONDS = 120; // safety net if onFinish/onError never fires
 
 export async function POST(req: Request) {
-  const { session, error } = await withAuth(req);
+  const { session, guestCode, error } = await withAuth(req);
   if (error) return error;
+
+  if (session === "guest" && guestCode) {
+    const ok = await decrementGuestUse(guestCode);
+    if (!ok) return new Response(JSON.stringify({ error: "Guest uses exhausted" }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const acquired = await redis.set(MUTEX_KEY, "1", "EX", MUTEX_TTL_SECONDS, "NX");
   if (acquired === null) {
@@ -25,7 +33,17 @@ export async function POST(req: Request) {
     });
   }
 
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  // release mutex before returning — req.json() can throw if body is malformed or client disconnected
+  let messages: UIMessage[];
+  try {
+    ({ messages } = await req.json());
+  } catch {
+    await redis.del(MUTEX_KEY);
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   // Anchor the Gmail search to the last digest's exact timestamp so the model reads everything
   // since the prior briefing with no rounding. Falls back to start of calendar month on first run.
@@ -48,23 +66,6 @@ export async function POST(req: Request) {
     stopWhen: stepCountIs(10),
     onFinish: async ({ text, usage }) => {
       await redis.del(MUTEX_KEY);
-      if (session === "guest") {
-        const cookieHeader = req.headers.get("cookie") ?? "";
-        const match = cookieHeader.match(/(?:^|;\s*)cm_session=([^;]+)/);
-        const code = match?.[1]?.slice(6); // strip "guest:" prefix
-        if (code) {
-          const raw = await redis.get(`guest:${code}`);
-          if (raw) {
-            const data = JSON.parse(raw);
-            const ttl = await redis.ttl(`guest:${code}`);
-            await redis.set(
-              `guest:${code}`,
-              JSON.stringify({ ...data, usesLeft: Math.max(0, data.usesLeft - 1) }),
-              "EX", ttl > 0 ? ttl : 1,
-            );
-          }
-        }
-      }
       try {
         const inputTokens = usage.inputTokens ?? 0;
         const outputTokens = usage.outputTokens ?? 0;

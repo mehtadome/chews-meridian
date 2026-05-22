@@ -1,12 +1,7 @@
 import type { Trade } from "@/lib/trade-types";
 import { PnlBadge } from "./PnlBadge";
-
-function computePnl(trade: Trade, currentPrice?: number): number | null {
-  const exitPrice = trade.exitPrice ?? currentPrice ?? trade.markPrice;
-  if (exitPrice == null) return null;
-  const dir = trade.direction === "long" ? 1 : -1;
-  return (exitPrice - trade.entryPrice) * trade.quantity * trade.multiplier * dir;
-}
+import { computePnl } from "@/lib/pnl";
+import { USER_TIMEZONE } from "@/lib/config";
 
 interface SummaryBarProps {
   trades: Trade[];
@@ -19,8 +14,9 @@ const Dim = ({ children }: { children: React.ReactNode }) => (
 
 export function SummaryBar({ trades, prices }: SummaryBarProps) {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: USER_TIMEZONE, year: "numeric", month: "2-digit" }).formatToParts(now);
+  const y = parts.find(p => p.type === "year")!.value;
+  const m = parts.find(p => p.type === "month")!.value;
   const monthStart = `${y}-${m}-01`;
 
   const monthlyGains = trades
