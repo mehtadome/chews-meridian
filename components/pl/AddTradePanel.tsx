@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Trade, TradeCreate } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
 import { TradeFormFields } from "./TradeFormFields";
+import { DatePicker } from "./DatePicker";
 
 type PanelMode =
   | { kind: "closed" }
@@ -37,20 +38,26 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   const trade = mode.kind === "edit" ? mode.trade : undefined;
 
   const [form, setForm] = useState<Partial<TradeCreate>>(() => defaultForm(trade));
+  const [closeForm, setCloseForm] = useState({ qty: 0, exitPrice: "" as number | "", exitDate: todayIn2026() });
   const [saving, setSaving] = useState(false);
   const [errorFields, setErrorFields] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
 
   const tradeId = trade?.id ?? null;
+  const groupKey = mode.kind === "close" ? `${mode.group.symbol}|${mode.group.totalQty}` : null;
   useEffect(() => {
     if (mode.kind === "closed") return;
-    setForm(defaultForm(trade));
     setError(null);
     setErrorFields([]);
+    if (mode.kind === "close") {
+      setCloseForm({ qty: mode.group.totalQty, exitPrice: "", exitDate: todayIn2026() });
+      return;
+    }
+    setForm(defaultForm(trade));
     setResetKey((k) => k + 1);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode.kind, tradeId]);
+  }, [mode.kind, tradeId, groupKey]);
 
   function patch(update: Partial<TradeCreate>) {
     setErrorFields((prev) => prev.filter((f) => !(f in update)));
@@ -69,15 +76,43 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
 
   async function handleSubmit() {
     setError(null);
-    const missing = validate();
-    if (missing.length > 0) {
-      setErrorFields(missing);
-      return;
-    }
-    setErrorFields([]);
     setSaving(true);
 
     try {
+      if (mode.kind === "close") {
+        if (!closeForm.exitPrice || !closeForm.exitDate) {
+          setError("Exit price and date are required.");
+          return;
+        }
+        const res = await fetch("/api/trades/close-position", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            symbol: mode.group.symbol,
+            direction: mode.group.direction,
+            assetType: mode.group.assetType,
+            qty: closeForm.qty,
+            exitPrice: Number(closeForm.exitPrice),
+            exitDate: closeForm.exitDate,
+          }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          setError(body.error ?? "Something went wrong.");
+          return;
+        }
+        onSaved();
+        onClose();
+        return;
+      }
+
+      const missing = validate();
+      if (missing.length > 0) {
+        setErrorFields(missing);
+        return;
+      }
+      setErrorFields([]);
+
       const isEdit = mode.kind === "edit";
       const url = isEdit ? `/api/trades/${trade!.id}` : "/api/trades";
       const method = isEdit ? "PATCH" : "POST";
@@ -105,7 +140,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
   }
 
   const isClosing = mode.kind === "edit" && form.exitPrice != null && !!form.exitDate;
-  const title = mode.kind === "add" ? "Add Trade" : mode.kind === "edit" ? "Edit Trade" : "";
+  const title = mode.kind === "add" ? "Add Trade" : mode.kind === "edit" ? "Edit Trade" : mode.kind === "close" ? "Close Position" : "";
 
   return (
     <AnimatePresence>
@@ -132,13 +167,53 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
             </div>
 
             <div className="pl-panel__body">
-              <TradeFormFields
-                key={resetKey}
-                values={form}
-                onChange={patch}
-                showExitFields={mode.kind === "edit"}
-                errorFields={errorFields}
-              />
+              {mode.kind === "close" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--pl-text-dim)" }}>
+                    Closing <strong style={{ color: "var(--pl-text)" }}>{mode.group.symbol}</strong>{" "}
+                    {mode.group.direction} {mode.group.assetType} — {mode.group.totalQty} units total
+                  </p>
+                  <label className="pl-field">
+                    <span>Qty to Close</span>
+                    <input
+                      className="pl-input"
+                      type="number"
+                      min={0.01}
+                      max={mode.group.totalQty}
+                      step="any"
+                      value={closeForm.qty}
+                      onChange={e => setCloseForm(f => ({ ...f, qty: Number(e.target.value) }))}
+                    />
+                  </label>
+                  <label className="pl-field">
+                    <span>Exit Price</span>
+                    <input
+                      className="pl-input"
+                      type="number"
+                      min={0.01}
+                      step="any"
+                      placeholder="0.00"
+                      value={closeForm.exitPrice}
+                      onChange={e => setCloseForm(f => ({ ...f, exitPrice: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    />
+                  </label>
+                  <label className="pl-field">
+                    <span>Exit Date</span>
+                    <DatePicker
+                      value={closeForm.exitDate}
+                      onChange={iso => setCloseForm(f => ({ ...f, exitDate: iso }))}
+                    />
+                  </label>
+                </div>
+              ) : (
+                <TradeFormFields
+                  key={resetKey}
+                  values={form}
+                  onChange={patch}
+                  showExitFields={mode.kind === "edit"}
+                  errorFields={errorFields}
+                />
+              )}
               {error && (
                 <p style={{
                   fontSize: "0.8125rem",
@@ -157,7 +232,7 @@ export function AddTradePanel({ mode, onClose, onSaved }: AddTradePanelProps) {
             <div className="pl-panel__footer">
               <button className="pl-btn" onClick={onClose} disabled={saving}>Cancel</button>
               <button className="pl-btn pl-btn--primary" onClick={handleSubmit} disabled={saving}>
-                {saving ? "Saving…" : isClosing ? "Close" : "Save"}
+                {saving ? "Saving…" : mode.kind === "close" || isClosing ? "Close Position" : "Save"}
               </button>
             </div>
           </motion.div>
