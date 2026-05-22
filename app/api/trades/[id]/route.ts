@@ -23,8 +23,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return Response.json({ error: result.error.flatten() }, { status: 400 });
   }
 
-  const { id: _, ...patch } = result.data;
-  const trade = await updateTrade(id, patch);
+  const trade = await updateTrade(result.data);
   if (!trade) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(trade);
 }
