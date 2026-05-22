@@ -19,8 +19,17 @@ export function SummaryBar({ trades, prices }: SummaryBarProps) {
   const m = parts.find(p => p.type === "month")!.value;
   const monthStart = `${y}-${m}-01`;
 
+  const yearStart = `${y}-01-01`;
+
   const monthlyGains = trades
     .filter((t) => t.exitDate && t.exitDate >= monthStart)
+    .reduce((sum, t) => {
+      const pnl = computePnl(t);
+      return pnl !== null ? sum + pnl : sum;
+    }, 0);
+
+  const yearlyGains = trades
+    .filter((t) => t.exitDate && t.exitDate >= yearStart)
     .reduce((sum, t) => {
       const pnl = computePnl(t);
       return pnl !== null ? sum + pnl : sum;
@@ -57,6 +66,13 @@ export function SummaryBar({ trades, prices }: SummaryBarProps) {
           </div>
         ))
       )}
+
+      <div className="pl-summary__stat" style={{ marginLeft: "auto" }}>
+        <span className="pl-summary__label">This Year</span>
+        <span className="pl-summary__value">
+          <PnlBadge value={yearlyGains} />
+        </span>
+      </div>
     </div>
   );
 }

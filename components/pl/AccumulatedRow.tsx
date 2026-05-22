@@ -55,15 +55,9 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
 
   return (
     <>
-      <tr className={rowClass}>
+      <tr className={rowClass} onClick={() => setExpanded(e => !e)} style={{ cursor: "pointer" }}>
         <td>
-          <button
-            onClick={() => setExpanded(e => !e)}
-            style={{
-              background: "none", border: "none", cursor: "pointer", color: "inherit",
-              padding: 0, display: "flex", alignItems: "center", gap: "0.4rem", font: "inherit",
-            }}
-          >
+          <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
             <span style={{ display: "inline-block", transition: "transform 0.15s", transform: expanded ? "rotate(90deg)" : "none" }}>
               ›
             </span>
@@ -71,7 +65,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
             {group.trades.length > 1 && (
               <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)" }}>×{group.trades.length}</span>
             )}
-          </button>
+          </span>
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
@@ -86,7 +80,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
               <button
                 className="pl-btn"
                 style={{ fontSize: "0.75rem", padding: "0.25rem 0.6rem" }}
-                onClick={() => onClose(group)}
+                onClick={e => { e.stopPropagation(); onClose(group); }}
               >
                 Close
               </button>
