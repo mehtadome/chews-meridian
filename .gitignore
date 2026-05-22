@@ -40,6 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# local-only directories
+/private/
+/docs/critiques/
+
 # personal notes
 interview.md
 trading.md
