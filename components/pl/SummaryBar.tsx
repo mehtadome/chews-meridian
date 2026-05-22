@@ -26,7 +26,12 @@ export function SummaryBar({ trades, prices }: SummaryBarProps) {
       return pnl !== null ? sum + pnl : sum;
     }, 0);
 
-  const open = trades.filter((t) => !t.exitDate);
+  const top3 = trades
+    .filter(t => t.exitDate !== null)
+    .map(t => ({ trade: t, pnl: computePnl(t) }))
+    .filter((x): x is { trade: Trade; pnl: number } => x.pnl !== null && x.pnl > 0)
+    .sort((a, b) => b.pnl - a.pnl)
+    .slice(0, 3);
 
   return (
     <div className="pl-summary" style={{ marginBottom: "1.25rem" }}>
@@ -37,27 +42,20 @@ export function SummaryBar({ trades, prices }: SummaryBarProps) {
         </span>
       </div>
 
-      {open.length === 0 ? (
+      {top3.length === 0 ? (
         <div className="pl-summary__stat">
-          <span className="pl-summary__label">Open</span>
+          <span className="pl-summary__label">Best Trades</span>
           <span className="pl-summary__value"><Dim>None</Dim></span>
         </div>
       ) : (
-        open.map((trade) => {
-          const currentPrice = prices[trade.symbol];
-          const pnl = computePnl(trade, currentPrice);
-          return (
-            <div key={trade.id} className="pl-summary__stat">
-              <span className="pl-summary__label">{trade.symbol}</span>
-              <span className="pl-summary__value" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                {pnl !== null ? <PnlBadge value={pnl} /> : <Dim>—</Dim>}
-                {currentPrice != null && (
-                  <span className="pl-meta">${currentPrice.toFixed(2)}</span>
-                )}
-              </span>
-            </div>
-          );
-        })
+        top3.map(({ trade, pnl }) => (
+          <div key={trade.id} className="pl-summary__stat">
+            <span className="pl-summary__label">{trade.symbol}</span>
+            <span className="pl-summary__value">
+              <PnlBadge value={pnl} />
+            </span>
+          </div>
+        ))
       )}
     </div>
   );
