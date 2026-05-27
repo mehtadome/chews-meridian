@@ -21,9 +21,10 @@ interface TradeRowProps {
   tab: "open" | "closed";
   onEdit: (trade: Trade) => void;
   isOwner: boolean;
+  isSubRow?: boolean;
 }
 
-export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner }: TradeRowProps) {
+export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner, isSubRow }: TradeRowProps) {
   const pnl = computePnl(trade, currentPrice);
   const isProfit = pnl !== null && pnl > 0;
   const isLoss = pnl !== null && pnl < 0;
@@ -35,7 +36,7 @@ export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner }: TradeRow
 
   return (
     <tr className={rowClass}>
-      <td><strong>{trade.symbol}</strong></td>
+      <td style={isSubRow ? { paddingLeft: "1.75rem" } : undefined}><strong>{trade.symbol}</strong></td>
       <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
       <td>{trade.quantity}</td>
       <td>${trade.entryPrice.toFixed(2)}</td>

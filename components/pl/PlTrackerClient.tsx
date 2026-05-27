@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { Settings, ChartCandlestick } from "lucide-react";
 import type { Trade } from "@/lib/trade-types";
+import type { PositionGroup } from "@/lib/position-utils";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
 import { AddTradePanel } from "./AddTradePanel";
@@ -15,7 +16,8 @@ type Tab = "open" | "closed";
 type PanelMode =
   | { kind: "closed" }
   | { kind: "add" }
-  | { kind: "edit"; trade: Trade };
+  | { kind: "edit"; trade: Trade }
+  | { kind: "close"; group: PositionGroup };
 
 interface PlTrackerClientProps {
   initialTrades: Trade[];
@@ -108,6 +110,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           tab={tab}
           isOwner={isOwner}
           onEdit={(trade) => setPanel({ kind: "edit", trade })}
+          onClose={(group) => setPanel({ kind: "close", group })}
         />
       </main>
 

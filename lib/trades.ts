@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { redis } from "@/lib/redis";
-import type { Trade, TradeCreate } from "@/lib/trade-types";
+import type { Trade, TradeCreate, TradeUpdate } from "@/lib/trade-types";
 
 function tradeKey(id: string) {
   return `trade:${id}`;
@@ -36,7 +36,7 @@ export async function saveTrade(data: TradeCreate): Promise<Trade> {
   return trade;
 }
 
-export async function updateTrade(id: string, patch: Partial<Omit<Trade, "id">>): Promise<Trade | null> {
+export async function updateTrade({ id, ...patch }: TradeUpdate): Promise<Trade | null> {
   const existing = await getTrade(id);
   if (!existing) return null;
   const updated: Trade = { ...existing, ...patch };
