@@ -109,7 +109,6 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
           prices={prices}
           tab={tab}
           isOwner={isOwner}
-          prices={prices}
           onEdit={(trade) => setPanel({ kind: "edit", trade })}
           onClose={(group) => setPanel({ kind: "close", group })}
         />
