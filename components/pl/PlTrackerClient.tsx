@@ -87,7 +87,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   const open = trades.filter((t) => !t.exitDate);
   const closed = trades
     .filter((t) => t.exitDate && t.exitDate >= monthStart && t.exitDate < monthEnd)
-    .sort((a, b) => (b.exitDate! > a.exitDate! ? 1 : -1));
+    .sort((a, b) => (b.exitDate! > a.exitDate! ? 1 : b.exitDate! < a.exitDate! ? -1 : 0));
   const visible = tab === "open" ? open : closed;
 
   return (
