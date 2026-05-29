@@ -2,6 +2,17 @@
 
 ---
 
+## Data Decisions
+
+### NVDA pre-2025 lot (intentional)
+Two NVDA lots share entry date `2025-04-10` in the database. This is deliberate:
+- `3x @ $106` — actual 4/10/25 purchase
+- `15x @ $132` — original purchase date was **6/17/24**, faked to 4/10/25 so it falls within the app's tracking window (resurgence started ~April 2025). Note is preserved on the trade record: *"Original purchase date 6/17/24 — carried over from prior period"*.
+
+Both lots closed 2/9/26 @ $187.81 as part of a 34-share FIFO exit.
+
+---
+
 ## In Progress — Accumulated Positions (`pl-accumulated-stocks`)
 
 Grouping: `symbol + direction + assetType`. Applies to both open and closed tabs.

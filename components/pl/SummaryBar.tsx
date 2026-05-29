@@ -23,8 +23,10 @@ export function SummaryBar({ trades, prices, monthLabel, monthStart, monthEnd, y
       return pnl !== null ? sum + pnl : sum;
     }, 0);
 
+  const yearEnd = `${Number(yearStart.slice(0, 4)) + 1}-01-01`;
+
   const yearlyGains = trades
-    .filter((t) => t.exitDate && t.exitDate >= yearStart)
+    .filter((t) => t.exitDate && t.exitDate >= yearStart && t.exitDate < yearEnd)
     .reduce((sum, t) => {
       const pnl = computePnl(t);
       return pnl !== null ? sum + pnl : sum;
@@ -63,7 +65,7 @@ export function SummaryBar({ trades, prices, monthLabel, monthStart, monthEnd, y
       )}
 
       <div className="pl-summary__stat" style={{ marginLeft: "auto" }}>
-        <span className="pl-summary__label">This Year</span>
+        <span className="pl-summary__label">{yearStart.slice(0, 4)}</span>
         <span className="pl-summary__value">
           <PnlBadge value={yearlyGains} />
         </span>
