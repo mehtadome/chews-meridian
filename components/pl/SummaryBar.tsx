@@ -4,7 +4,6 @@ import { computePnl } from "@/lib/pnl";
 
 interface SummaryBarProps {
   trades: Trade[];
-  prices: Record<string, number>;
   monthLabel: string;
   monthStart: string;
   monthEnd: string;
@@ -15,7 +14,7 @@ const Dim = ({ children }: { children: React.ReactNode }) => (
   <span style={{ color: "var(--pl-text-dim)" }}>{children}</span>
 );
 
-export function SummaryBar({ trades, prices, monthLabel, monthStart, monthEnd, yearStart }: SummaryBarProps) {
+export function SummaryBar({ trades, monthLabel, monthStart, monthEnd, yearStart }: SummaryBarProps) {
   const monthlyGains = trades
     .filter((t) => t.exitDate && t.exitDate >= monthStart && t.exitDate < monthEnd)
     .reduce((sum, t) => {

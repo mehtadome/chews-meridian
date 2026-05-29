@@ -128,7 +128,7 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </header>
 
       <main className="pl-shell__main">
-        <SummaryBar trades={trades} prices={prices} monthLabel={monthLabel} monthStart={monthStart} monthEnd={monthEnd} yearStart={`${selYear}-01-01`} />
+        <SummaryBar trades={trades} monthLabel={monthLabel} monthStart={monthStart} monthEnd={monthEnd} yearStart={`${selYear}-01-01`} />
 
         <MonthNav
           year={selYear}
