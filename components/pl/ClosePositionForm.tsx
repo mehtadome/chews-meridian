@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import type { PositionGroup } from "@/lib/position-utils";
 import { DatePicker } from "./DatePicker";
 
-function todayIn2026(): string {
+function todayIso(): string {
   const d = new Date();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `2026-${mm}-${dd}`;
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 interface ClosePositionFormProps {
@@ -20,14 +20,14 @@ interface ClosePositionFormProps {
 export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionFormProps) {
   const [qty, setQty] = useState<number | "">(group.totalQty);
   const [exitPrice, setExitPrice] = useState<number | "">("");
-  const [exitDate, setExitDate] = useState(todayIn2026());
+  const [exitDate, setExitDate] = useState(todayIso());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setQty(group.totalQty as number | "");
     setExitPrice("");
-    setExitDate(todayIn2026());
+    setExitDate(todayIso());
     setError(null);
   }, [group.symbol, group.totalQty]);
 
