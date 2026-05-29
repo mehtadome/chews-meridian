@@ -62,6 +62,8 @@ export function DatePicker({ value, onChange, error }: DatePickerProps) {
   }
 
   function nextMonth() {
+    const maxYear = YEARS[YEARS.length - 1];
+    if (viewYear === maxYear && viewMonth === 12) return;
     if (viewMonth === 12) { setViewMonth(1); setViewYear(y => y + 1); }
     else setViewMonth(m => m + 1);
   }
