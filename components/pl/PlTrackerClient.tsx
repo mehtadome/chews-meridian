@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Settings, ChartCandlestick } from "lucide-react";
 import type { Trade } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
+import { USER_TIMEZONE } from "@/lib/config";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";
+import { MonthNav } from "./MonthNav";
 import { AddTradePanel } from "./AddTradePanel";
 import { PlSettingsPanel } from "./PlSettingsPanel";
 import { SessionBadge } from "@/components/ui/SessionBadge";
@@ -25,12 +27,49 @@ interface PlTrackerClientProps {
   isOwner: boolean;
 }
 
+function getCurrentMonthParts() {
+  const now = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: USER_TIMEZONE, year: "numeric", month: "2-digit",
+  }).formatToParts(now);
+  return {
+    year: Number(parts.find(p => p.type === "year")!.value),
+    month: Number(parts.find(p => p.type === "month")!.value),
+  };
+}
+
 export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTrackerClientProps) {
   const [trades, setTrades] = useState<Trade[]>(initialTrades);
   const [prices, setPrices] = useState<Record<string, number>>(initialPrices);
   const [tab, setTab] = useState<Tab>("closed");
   const [panel, setPanel] = useState<PanelMode>({ kind: "closed" });
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const { year: maxYear, month: maxMonth } = useMemo(() => getCurrentMonthParts(), []);
+  const [selYear, setSelYear] = useState(maxYear);
+  const [selMonth, setSelMonth] = useState(maxMonth);
+
+  const { monthStart, monthEnd, monthLabel } = useMemo(() => {
+    const mm = String(selMonth).padStart(2, "0");
+    const start = `${selYear}-${mm}-01`;
+    const nextMonth = selMonth === 12 ? 1 : selMonth + 1;
+    const nextYear = selMonth === 12 ? selYear + 1 : selYear;
+    const end = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
+    const label = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" })
+      .format(new Date(selYear, selMonth - 1, 1));
+    return { monthStart: start, monthEnd: end, monthLabel: label };
+  }, [selYear, selMonth]);
+
+  function prevMonth() {
+    if (selMonth === 1) { setSelMonth(12); setSelYear(y => y - 1); }
+    else setSelMonth(m => m - 1);
+  }
+
+  function nextMonth() {
+    if (selYear === maxYear && selMonth === maxMonth) return;
+    if (selMonth === 12) { setSelMonth(1); setSelYear(y => y + 1); }
+    else setSelMonth(m => m + 1);
+  }
 
   const refresh = useCallback(async () => {
     const res = await fetch("/api/trades");
@@ -46,7 +85,9 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
   }, []);
 
   const open = trades.filter((t) => !t.exitDate);
-  const closed = trades.filter((t) => !!t.exitDate);
+  const closed = trades.filter(
+    (t) => t.exitDate && t.exitDate >= monthStart && t.exitDate < monthEnd,
+  );
   const visible = tab === "open" ? open : closed;
 
   return (
@@ -87,7 +128,18 @@ export function PlTrackerClient({ initialTrades, initialPrices, isOwner }: PlTra
       </header>
 
       <main className="pl-shell__main">
-        <SummaryBar trades={trades} prices={prices} />
+        <SummaryBar trades={trades} prices={prices} monthLabel={monthLabel} monthStart={monthStart} monthEnd={monthEnd} yearStart={`${selYear}-01-01`} />
+
+        <MonthNav
+          year={selYear}
+          month={selMonth}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onSelect={(y, m) => { setSelYear(y); setSelMonth(m); }}
+          nextDisabled={selYear === maxYear && selMonth === maxMonth}
+          maxYear={maxYear}
+          maxMonth={maxMonth}
+        />
 
         <div className="pl-tabs">
           <button

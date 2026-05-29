@@ -569,3 +569,54 @@
   background: var(--pl-green);
   opacity: 0.9;
 }
+
+/* ─── Month Navigator ────────────────────────────────────────────────── */
+
+.pl-month-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.pl-month-nav__label {
+  min-width: 9rem;
+  justify-content: center;
+}
+
+.pl-month-nav__popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  width: 220px;
+}
+
+.pl-month-nav__month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  margin-top: 0.5rem;
+}
+
+.pl-month-nav__month-btn {
+  padding: 0.4rem 0;
+  border-radius: var(--pl-radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--pl-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.pl-month-nav__month-btn:hover:not(:disabled) {
+  background: var(--pl-surface-raised);
+}
+
+.pl-month-nav__month-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
