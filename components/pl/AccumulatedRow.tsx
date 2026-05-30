@@ -76,7 +76,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
-        <td>${avgEntry.toFixed(2)}</td>
+        <td>{tab === "closed" && singleton ? `$${group.trades[0].entryPrice.toFixed(2)}` : <Dim />}</td>
         <td>{tab === "open"
           ? (mark != null ? `$${mark.toFixed(2)}` : <Dim />)
           : (singleton && group.trades[0].exitPrice != null ? `$${group.trades[0].exitPrice.toFixed(2)}` : <Dim />)
