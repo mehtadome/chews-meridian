@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Trade } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
 import { PnlBadge } from "./PnlBadge";
@@ -91,18 +92,25 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
       </tr>
       <tr className="pl-row-expand">
         <td colSpan={isOwner ? 9 : 8}>
-          <div className="pl-subrow-wrap" style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}>
-            <div>
-              <table className="pl-subrow-table">
-                <ColGroup isOwner={isOwner} />
-                <tbody>
-                  {sorted.map(trade => (
-                    <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
+                <table className="pl-subrow-table">
+                  <ColGroup isOwner={isOwner} />
+                  <tbody>
+                    {sorted.map(trade => (
+                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </td>
       </tr>
     </>

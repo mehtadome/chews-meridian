@@ -15,12 +15,8 @@
   cursor: default;
 }
 
-/* grid-template-rows 0fr→1fr animates height without JS */
+/* sub-row content wrapper — animation via Framer Motion (opacity + translateY) in AccumulatedRow */
 .pl-subrow-wrap {
-  display: grid;
-  transition: grid-template-rows 0.2s ease;
-}
-.pl-subrow-wrap > div {
   overflow: hidden;
 }
 
@@ -39,19 +35,7 @@
   border-left: none;
 }
 
-/* green/red connector line aligned under parent symbol text */
-/* NOTE: ::before approach caused layout recalc during grid-template-rows animation (choppy).
-   Swapped to background-image gradient — same visual, no position:relative, no layout hit. */
-/* .pl-subrow-table .pl-row td:first-child { position: relative; }
-.pl-subrow-table .pl-row--profit td:first-child::before {
-  content: ''; position: absolute; left: 1.5rem; top: 0; bottom: 0;
-  width: 2px; background: var(--pl-green);
-}
-.pl-subrow-table .pl-row--loss td:first-child::before {
-  content: ''; position: absolute; left: 1.5rem; top: 0; bottom: 0;
-  width: 2px; background: var(--pl-red);
-} */
-
+/* green/red connector line — background-image gradient avoids position:relative on td */
 .pl-subrow-table .pl-row--profit td:first-child {
   background-image: linear-gradient(var(--pl-green), var(--pl-green));
   background-size: 2px 100%;
