@@ -1,7 +1,10 @@
 import { redis } from "@/lib/redis";
-import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY } from "./config";
+import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY, SCHWAB_REDIS_ACCESS_KEY, SCHWAB_ACCESS_TOKEN_TTL } from "./config";
 
 async function getAccessToken(): Promise<string> {
+  const cached = await redis.get(SCHWAB_REDIS_ACCESS_KEY);
+  if (cached) return cached;
+
   const storedRefresh = await redis.get(SCHWAB_REDIS_TOKEN_KEY);
   const refreshToken = storedRefresh ?? process.env.SCHWAB_REFRESH_TOKEN;
 
@@ -27,7 +30,10 @@ async function getAccessToken(): Promise<string> {
 
   const { access_token, refresh_token: newRefresh } = await res.json();
 
-  await redis.set(SCHWAB_REDIS_TOKEN_KEY, newRefresh);
+  await Promise.all([
+    redis.set(SCHWAB_REDIS_TOKEN_KEY, newRefresh),
+    redis.set(SCHWAB_REDIS_ACCESS_KEY, access_token, "EX", SCHWAB_ACCESS_TOKEN_TTL),
+  ]);
 
   return access_token;
 }
