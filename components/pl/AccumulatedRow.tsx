@@ -37,7 +37,6 @@ interface AccumulatedRowProps {
 
 export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }: AccumulatedRowProps) {
   const [expanded, setExpanded] = useState(false);
-  const multi = group.trades.length > 1;
   const singleton = group.trades.length === 1;
 
   const pnl = sumPnl(group.trades, prices);
