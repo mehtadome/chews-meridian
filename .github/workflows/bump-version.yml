@@ -1,14 +1,14 @@
 name: Bump version on PR merge
 
 on:
-  push:
+  pull_request:
     branches:
       - main
+    types: [closed]
 
 jobs:
   bump-version:
-    # Only run on PR merges, not direct commits or the bot's own version bump push
-    if: startsWith(github.event.head_commit.message, 'Merge pull request')
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
