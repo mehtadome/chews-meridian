@@ -31,7 +31,7 @@ async function getAccessToken(): Promise<string> {
   const { access_token, refresh_token: newRefresh } = await res.json();
 
   await Promise.all([
-    redis.set(SCHWAB_REDIS_TOKEN_KEY, newRefresh),
+    newRefresh ? redis.set(SCHWAB_REDIS_TOKEN_KEY, newRefresh) : Promise.resolve(),
     redis.set(SCHWAB_REDIS_ACCESS_KEY, access_token, "EX", SCHWAB_ACCESS_TOKEN_TTL),
   ]);
 
