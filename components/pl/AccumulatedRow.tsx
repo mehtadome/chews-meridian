@@ -70,7 +70,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
-        <td>${group.avgEntryPrice.toFixed(2)}</td>
+        <td><Dim /></td>
         <td><Dim /></td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.direction}</td>
         <td className="pl-meta">{dateCell}</td>
