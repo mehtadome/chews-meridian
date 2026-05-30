@@ -50,7 +50,6 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
     return tab === "closed" ? -cmp : cmp;
   });
 
-  const avgEntry = group.avgEntryPrice;
   const mark = prices[group.symbol] ?? null;
 
   const entryDates = group.trades.map(t => t.entryDate).sort();
