@@ -10,6 +10,7 @@ const ClosePositionSchema = z.object({
   qty: z.number().positive(),
   exitPrice: z.number().positive(),
   exitDate: z.string().min(1),
+  notes: z.string().nullable().optional(),
 });
 
 export async function POST(req: Request) {
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
     return Response.json({ error: result.error.issues.map(i => i.message).join(", ") }, { status: 400 });
   }
 
-  const { symbol, direction, assetType, qty, exitPrice, exitDate } = result.data;
+  const { symbol, direction, assetType, qty, exitPrice, exitDate, notes } = result.data;
 
   const all = await listTrades();
   const openGroup = all.filter(
@@ -42,8 +43,8 @@ export async function POST(req: Request) {
   const { toUpdate, toCreate } = fifoClose(openGroup, qty, exitPrice, exitDate);
 
   await Promise.all([
-    ...toUpdate.map(u => updateTrade(u)),
-    ...toCreate.map(t => saveTrade(t)),
+    ...toUpdate.map(u => updateTrade(notes != null ? { ...u, notes } : u)),
+    ...toCreate.map(t => saveTrade(notes != null ? { ...t, notes } : t)),
   ]);
 
   return Response.json({ updated: toUpdate.length, created: toCreate.length });

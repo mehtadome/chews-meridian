@@ -152,21 +152,6 @@ export function TradeFormFields({ values, onChange, showExitFields, errorFields 
         </div>
       )}
 
-      {field("Current Mark Price (optional)",
-        <input
-          className="pl-input"
-          type="number"
-          min="0"
-          step="any"
-          placeholder="0.00"
-          value={values.markPrice ?? ""}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value);
-            onChange({ markPrice: isNaN(v) ? null : v });
-          }}
-        />
-      )}
-
       {field("Notes (optional)",
         <textarea
           className="pl-textarea"
