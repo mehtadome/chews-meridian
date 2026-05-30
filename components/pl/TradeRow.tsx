@@ -36,7 +36,7 @@ export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner, isSubRow }
 
   return (
     <tr className={rowClass}>
-      <td style={isSubRow ? { paddingLeft: "1.75rem" } : undefined}><strong>{trade.symbol}</strong></td>
+      <td style={isSubRow ? { paddingLeft: "2.5rem" } : undefined}><strong>{trade.symbol}</strong></td>
       <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
       <td>{trade.quantity}</td>
       <td>${trade.entryPrice.toFixed(2)}</td>
