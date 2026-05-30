@@ -37,6 +37,7 @@ interface AccumulatedRowProps {
 
 export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }: AccumulatedRowProps) {
   const [expanded, setExpanded] = useState(false);
+  const multi = group.trades.length > 1;
 
   const pnl = sumPnl(group.trades, prices);
   const isProfit = pnl !== null && pnl > 0;
@@ -53,21 +54,26 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
   const mark = prices[group.symbol] ?? null;
 
   const entryDates = group.trades.map(t => t.entryDate).sort();
-  const dateCell =
-    tab === "closed"
-      ? `${fmt(entryDates[0])} → ${fmt(group.trades.map(t => t.exitDate!).sort().at(-1)!)}`
-      : `${fmt(entryDates[0])} → now`;
+  const lastExit = tab === "closed" ? group.trades.map(t => t.exitDate!).sort().at(-1)! : null;
+  const days = !multi
+    ? Math.round((new Date(lastExit ?? new Date()).getTime() - new Date(entryDates[0]).getTime()) / 86400000)
+    : null;
+  const dateCell = tab === "closed"
+    ? `${fmt(entryDates[0])} → ${fmt(lastExit!)}`
+    : `${fmt(entryDates[0])} → now`;
 
   return (
     <>
-      <tr className={rowClass} onClick={() => setExpanded(e => !e)} style={{ cursor: "pointer" }}>
+      <tr className={rowClass} onClick={multi ? () => setExpanded(e => !e) : undefined} style={multi ? { cursor: "pointer" } : undefined}>
         <td>
           <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <span style={{ display: "inline-block", transition: "transform 0.15s", transform: expanded ? "rotate(90deg)" : "none" }}>
-              ›
-            </span>
+            {multi && (
+              <span style={{ display: "inline-block", transition: "transform 0.15s", transform: expanded ? "rotate(90deg)" : "none" }}>
+                ›
+              </span>
+            )}
             <strong>{group.symbol}</strong>
-            {group.trades.length > 1 && (
+            {multi && (
               <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)" }}>×{group.trades.length}</span>
             )}
           </span>
@@ -75,9 +81,12 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
         <td>${avgEntry.toFixed(2)}</td>
-        <td>{tab === "open" ? (mark != null ? `$${mark.toFixed(2)}` : <Dim />) : <Dim />}</td>
+        <td>{tab === "open"
+          ? (mark != null ? `$${mark.toFixed(2)}` : <Dim />)
+          : (!multi && group.trades[0].exitPrice != null ? `$${group.trades[0].exitPrice.toFixed(2)}` : <Dim />)
+        }</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.direction}</td>
-        <td className="pl-meta">{dateCell}</td>
+        <td className={`pl-meta${days != null ? " pl-tooltip" : ""}`} data-tip={days != null ? `${days}d` : undefined}>{dateCell}</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.assetType}</td>
         {isOwner && (
           <td>
@@ -93,7 +102,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
           </td>
         )}
       </tr>
-      <tr className="pl-row-expand">
+      {multi && <tr className="pl-row-expand">
         <td colSpan={isOwner ? 9 : 8}>
           <AnimatePresence initial={false}>
             {expanded && (
@@ -116,7 +125,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
             )}
           </AnimatePresence>
         </td>
-      </tr>
+      </tr>}
     </>
   );
 }

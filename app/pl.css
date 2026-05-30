@@ -622,6 +622,37 @@
   cursor: not-allowed;
 }
 
+/* ─── Tooltip ────────────────────────────────────────────────────────── */
+
+.pl-tooltip {
+  position: relative;
+}
+
+.pl-tooltip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--pl-surface-raised);
+  border: 1px solid var(--pl-border-subtle);
+  border-radius: var(--pl-radius-sm);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--pl-text);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pl-tooltip:hover::after {
+  opacity: 1;
+}
+
 /* ─── Table Expand ───────────────────────────────────────────────────── */
 
 .pl-row-expand > td {
