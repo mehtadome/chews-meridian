@@ -1,8 +1,8 @@
 "use client";
 
-import type { Trade } from "@/lib/trade-types";
+import type { Trade } from "@/lib/pl/trade-types";
 import { PnlBadge } from "./PnlBadge";
-import { computePnl } from "@/lib/pnl";
+import { computePnl } from "@/lib/pl/pnl";
 import { USER_TIMEZONE } from "@/lib/config";
 
 function fmt(iso: string) {

@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { redis } from "@/lib/redis";
-import type { Trade, TradeCreate, TradeUpdate } from "@/lib/trade-types";
+import type { Trade, TradeCreate, TradeUpdate } from "@/lib/pl/trade-types";
 
 function tradeKey(id: string) {
   return `trade:${id}`;

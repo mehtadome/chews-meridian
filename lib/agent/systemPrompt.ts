@@ -1,4 +1,4 @@
-import { WATCHLIST } from "@/lib/watchlist";
+import { WATCHLIST } from "./watchlist";
 import { NEWSLETTER_SENDERS } from "@/lib/config";
 
 function buildSendersQuery(sinceMs: number) {

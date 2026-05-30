@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Trade, TradeCreate } from "@/lib/trade-types";
+import type { Trade, TradeCreate } from "@/lib/pl/trade-types";
 import { TradeFormFields } from "./TradeFormFields";
 import { todayIso } from "@/lib/date-utils";
 

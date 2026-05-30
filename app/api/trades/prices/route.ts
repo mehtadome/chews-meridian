@@ -1,5 +1,5 @@
 import { withAuth } from "@/lib/auth";
-import { fetchCurrentPrices } from "@/lib/market-data";
+import { fetchCurrentPrices } from "@/lib/schwab/market-data";
 
 export async function GET(req: Request) {
   const { error } = await withAuth(req);

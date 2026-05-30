@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { searchEmails, getEmail } from "@/lib/gmail";
+import { searchEmails, getEmail } from "./gmail";
 
 export const tools = {
   searchEmails: tool({
@@ -14,7 +14,7 @@ export const tools = {
         ),
       maxResults: z
         .number()
-        .default(3)
+        .default(10)
         .describe("Maximum number of emails to return"),
     }),
     execute: async ({ query, maxResults }: { query: string; maxResults: number }) => {

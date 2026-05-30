@@ -1,7 +1,7 @@
 "use client";
 
-import type { Trade } from "@/lib/trade-types";
-import type { PositionGroup } from "@/lib/position-utils";
+import type { Trade } from "@/lib/pl/trade-types";
+import type { PositionGroup } from "@/lib/pl/position-utils";
 import { PanelShell } from "./PanelShell";
 import { AddEditForm } from "./AddEditForm";
 import { ClosePositionForm } from "./ClosePositionForm";

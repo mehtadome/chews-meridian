@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { withAuth } from "@/lib/auth";
-import { listTrades, updateTrade, saveTrade } from "@/lib/trades";
-import { fifoClose } from "@/lib/position-utils";
+import { listTrades, updateTrade, saveTrade } from "@/lib/pl/trades";
+import { fifoClose } from "@/lib/pl/position-utils";
 
 const ClosePositionSchema = z.object({
   symbol: z.string().min(1),

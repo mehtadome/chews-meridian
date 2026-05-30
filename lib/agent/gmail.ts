@@ -1,7 +1,7 @@
 import { google } from "googleapis";
 import { gmail_v1 } from "googleapis";
-import { redis } from "./redis";
-import { withRetry } from "./utils";
+import { redis } from "@/lib/redis";
+import { withRetry } from "@/lib/utils";
 
 const BODY_CHAR_LIMIT = 8000;
 const REDIS_TOKEN_KEY = "google:refresh_token";

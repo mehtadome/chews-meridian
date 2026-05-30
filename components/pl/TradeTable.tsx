@@ -1,7 +1,7 @@
 "use client";
 
-import type { Trade } from "@/lib/trade-types";
-import { groupTrades, type PositionGroup } from "@/lib/position-utils";
+import type { Trade } from "@/lib/pl/trade-types";
+import { groupTrades, type PositionGroup } from "@/lib/pl/position-utils";
 import { AccumulatedRow } from "./AccumulatedRow";
 import { ColGroup } from "./ColGroup";
 

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { getSession } from "@/lib/auth";
-import { listTrades } from "@/lib/trades";
-import { fetchCurrentPrices } from "@/lib/market-data";
+import { listTrades } from "@/lib/pl/trades";
+import { fetchCurrentPrices } from "@/lib/schwab/market-data";
 import { PlTrackerClient } from "@/components/pl/PlTrackerClient";
 
 export default async function PlTrackerPage() {

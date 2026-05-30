@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Trade } from "@/lib/trade-types";
-import type { PositionGroup } from "@/lib/position-utils";
+import type { Trade } from "@/lib/pl/trade-types";
+import type { PositionGroup } from "@/lib/pl/position-utils";
 import { PnlBadge } from "./PnlBadge";
 import { TradeRow } from "./TradeRow";
 import { ColGroup } from "./ColGroup";

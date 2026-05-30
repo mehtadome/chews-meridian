@@ -1,4 +1,4 @@
-import { getUsage, getProductCost } from "@/lib/usage";
+import { getUsage, getProductCost } from "@/lib/agent/usage";
 import { withAuth } from "@/lib/auth";
 
 export async function GET(req: Request) {

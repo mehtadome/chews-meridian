@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { TradeCreate } from "@/lib/trade-types";
+import type { TradeCreate } from "@/lib/pl/trade-types";
 import { NumberStepper } from "./NumberStepper";
 import { DatePicker } from "./DatePicker";
 

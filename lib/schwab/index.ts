@@ -1,5 +1,5 @@
 import { redis } from "@/lib/redis";
-import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY } from "@/lib/schwab-config";
+import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY } from "./config";
 
 async function getAccessToken(): Promise<string> {
   const storedRefresh = await redis.get(SCHWAB_REDIS_TOKEN_KEY);

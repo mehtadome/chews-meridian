@@ -1,6 +1,6 @@
 import { withAuth } from "@/lib/auth";
-import { listTrades, saveTrade } from "@/lib/trades";
-import { TradeCreateSchema } from "@/lib/trade-types";
+import { listTrades, saveTrade } from "@/lib/pl/trades";
+import { TradeCreateSchema } from "@/lib/pl/trade-types";
 
 export async function GET(req: Request) {
   const { error } = await withAuth(req);

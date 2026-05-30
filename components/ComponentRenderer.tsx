@@ -9,7 +9,7 @@ import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
 import { DynamicChart } from "@/components/ui/DynamicChart";
-import { parseComponents, type DigestComponent } from "@/lib/parseResponse";
+import { parseComponents, type DigestComponent } from "@/lib/agent/parseResponse";
 
 // Wraps each card — if the model returns a malformed field that throws during render,
 // only that card shows the fallback instead of the entire digest going blank

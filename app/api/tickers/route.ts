@@ -1,4 +1,4 @@
-import { listDigests, getDigest } from "@/lib/digest";
+import { listDigests, getDigest } from "@/lib/agent/digest";
 import { withAuth } from "@/lib/auth";
 
 export interface TickerSummary {

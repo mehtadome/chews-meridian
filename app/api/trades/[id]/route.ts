@@ -1,6 +1,6 @@
 import { withAuth } from "@/lib/auth";
-import { getTrade, updateTrade } from "@/lib/trades";
-import { TradeUpdateSchema } from "@/lib/trade-types";
+import { getTrade, updateTrade } from "@/lib/pl/trades";
+import { TradeUpdateSchema } from "@/lib/pl/trade-types";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { error } = await withAuth(req);
