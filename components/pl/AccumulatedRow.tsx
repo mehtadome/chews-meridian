@@ -6,7 +6,7 @@ import type { Trade } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
 import { PnlBadge } from "./PnlBadge";
 import { TradeRow } from "./TradeRow";
-import { ColGroup } from "./TradeTable";
+import { ColGroup } from "./ColGroup";
 
 function sumPnl(trades: Trade[], prices: Record<string, number>): number | null {
   let total = 0;
