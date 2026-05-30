@@ -5,6 +5,7 @@ import type { Trade } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
 import { PnlBadge } from "./PnlBadge";
 import { TradeRow } from "./TradeRow";
+import { ColGroup } from "./TradeTable";
 
 function sumPnl(trades: Trade[], prices: Record<string, number>): number | null {
   let total = 0;
@@ -88,9 +89,22 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
           </td>
         )}
       </tr>
-      {expanded && sorted.map(trade => (
-        <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
-      ))}
+      <tr className={`pl-row-expand${isProfit ? " pl-row--profit" : isLoss ? " pl-row--loss" : ""}`}>
+        <td colSpan={isOwner ? 9 : 8}>
+          <div className="pl-subrow-wrap" style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}>
+            <div>
+              <table className="pl-subrow-table">
+                <ColGroup isOwner={isOwner} />
+                <tbody>
+                  {sorted.map(trade => (
+                    <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </td>
+      </tr>
     </>
   );
 }

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import "@/app/pl.css";
+import "@/app/pl-table-animation.css";
 
 export default async function PlLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();

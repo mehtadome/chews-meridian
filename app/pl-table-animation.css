@@ -1,0 +1,42 @@
+/* TEMP — table expand animation experiment. Delete before merging. */
+
+.pl-table {
+  table-layout: fixed;
+}
+
+/* Expand row — no visual presence of its own */
+.pl-row-expand > td {
+  padding: 0;
+  border-bottom: none;
+  line-height: 0; /* prevents tr from having minimum height when collapsed */
+}
+.pl-row-expand:hover > td {
+  background: transparent;
+  cursor: default;
+}
+
+/* grid-template-rows 0fr→1fr animates height without JS */
+.pl-subrow-wrap {
+  display: grid;
+  transition: grid-template-rows 0.2s ease;
+}
+.pl-subrow-wrap > div {
+  overflow: hidden;
+}
+
+/* inner table mirrors outer — ColGroup keeps columns aligned */
+.pl-subrow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  table-layout: fixed;
+  line-height: 1.5; /* reset inherited line-height:0 from expand container */
+}
+
+/* continue green/red thread through the expand row */
+.pl-row-expand.pl-row--profit > td:first-child {
+  border-left: 2px solid var(--pl-green);
+}
+.pl-row-expand.pl-row--loss > td:first-child {
+  border-left: 2px solid var(--pl-red);
+}
