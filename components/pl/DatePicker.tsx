@@ -11,7 +11,7 @@ interface DatePickerProps {
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"];
-const YEARS = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - 2 + i);
+const YEARS = Array.from({ length: 3 }, (_, i) => new Date().getFullYear() - 2 + i);
 const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 function parseIso(iso: string | undefined | null) {
@@ -62,6 +62,8 @@ export function DatePicker({ value, onChange, error }: DatePickerProps) {
   }
 
   function nextMonth() {
+    const maxYear = YEARS[YEARS.length - 1];
+    if (viewYear === maxYear && viewMonth === 12) return;
     if (viewMonth === 12) { setViewMonth(1); setViewYear(y => y + 1); }
     else setViewMonth(m => m + 1);
   }

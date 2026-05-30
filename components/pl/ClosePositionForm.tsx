@@ -3,13 +3,7 @@
 import { useState, useEffect } from "react";
 import type { PositionGroup } from "@/lib/position-utils";
 import { DatePicker } from "./DatePicker";
-
-function todayIn2026(): string {
-  const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `2026-${mm}-${dd}`;
-}
+import { todayIso } from "@/lib/date-utils";
 
 interface ClosePositionFormProps {
   group: PositionGroup;
@@ -18,22 +12,22 @@ interface ClosePositionFormProps {
 }
 
 export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionFormProps) {
-  const [qty, setQty] = useState(group.totalQty);
+  const [qty, setQty] = useState<number | "">(group.totalQty);
   const [exitPrice, setExitPrice] = useState<number | "">("");
-  const [exitDate, setExitDate] = useState(todayIn2026());
+  const [exitDate, setExitDate] = useState(todayIso());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setQty(group.totalQty);
+    setQty(group.totalQty as number | "");
     setExitPrice("");
-    setExitDate(todayIn2026());
+    setExitDate(todayIso());
     setError(null);
   }, [group.symbol, group.totalQty]);
 
   async function handleSubmit() {
-    if (!exitPrice || !exitDate) {
-      setError("Exit price and date are required.");
+    if (!qty || !exitPrice || !exitDate) {
+      setError("Qty, exit price, and date are required.");
       return;
     }
     setSaving(true);
@@ -85,7 +79,7 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
               max={group.totalQty}
               step="any"
               value={qty}
-              onChange={e => setQty(Number(e.target.value))}
+              onChange={e => setQty(e.target.value === "" ? "" : Number(e.target.value))}
             />
           </label>
           <label className="pl-field">
@@ -117,7 +111,7 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
       </div>
       <div className="pl-panel__footer">
         <button className="pl-btn" onClick={onClose} disabled={saving}>Cancel</button>
-        <button className="pl-btn pl-btn--primary" onClick={handleSubmit} disabled={saving}>
+        <button className="pl-btn pl-btn--primary" onClick={handleSubmit} disabled={saving || !qty}>
           {saving ? "Saving…" : "Close Position"}
         </button>
       </div>

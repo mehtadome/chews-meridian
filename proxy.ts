@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED = ["/market-analyzer", "/pl-tracker", "/settings"];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const isProtected = PROTECTED.some((p) => pathname === p || pathname.startsWith(`${p}/`));
   if (!isProtected) return NextResponse.next();
@@ -15,7 +15,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

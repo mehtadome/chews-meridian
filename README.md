@@ -39,6 +39,8 @@ Gmail OAuth setup: Google Cloud Console → enable Gmail API → create OAuth2 c
 
 The Settings page shows the current expiry date and warns when it's within 2 days.
 
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for a full breakdown of both products, Redis key schema, auth, and known gaps.
+
 ---
 
 ## Architecture

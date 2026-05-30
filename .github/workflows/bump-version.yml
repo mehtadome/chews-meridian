@@ -1,0 +1,49 @@
+name: Bump version on PR merge
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  bump-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version in README.md
+        run: |
+          python3 - <<'EOF'
+          import re, sys
+
+          content = open('README.md').read()
+          m = re.search(r'(· v)(\d+)\.(\d+)', content)
+          if not m:
+              sys.exit("ERROR: version pattern '· vX.X' not found in README.md")
+
+          major, minor = int(m.group(2)), int(m.group(3))
+          new_version = f"v{major}.{minor + 1}"
+          updated = content[:m.start()] + m.group(1) + f"{major}.{minor + 1}" + content[m.end():]
+          open('README.md', 'w').write(updated)
+          print(f"Bumped v{major}.{minor} → {new_version}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          NEW_VER=$(python3 -c "
+          import re
+          m = re.search(r'· v([\d.]+)', open('README.md').read())
+          print(m.group(1))
+          ")
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --staged --quiet && echo "No changes to commit" || \
+            { git commit -m "chore: bump version to v${NEW_VER}" && git push; }

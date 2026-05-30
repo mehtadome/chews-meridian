@@ -42,7 +42,8 @@ next-env.d.ts
 
 # local-only directories
 /private/
-/docs/critiques/
+/backups/
+/docs/
 
 # personal notes
 interview.md

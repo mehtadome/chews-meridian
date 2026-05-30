@@ -241,7 +241,7 @@ export default function Home() {
                   id={`briefing-tab-${tab}`}
                   aria-controls={`briefing-panel-${tab}`}
                   className={`tab${activeTab === tab ? " tab--active" : ""}`}
-                  onClick={() => { console.log("[tab] clicked:", tab); setActiveTab(tab); }}
+                  onClick={() => setActiveTab(tab)}
                   onKeyDown={(e) => e.key === "Enter" && setActiveTab(tab)}
                 >
                   {tab === "digest" ? "Today\u2019s digest" : "Today\u2019s tickers"}
@@ -254,7 +254,7 @@ export default function Home() {
                 showLoading={showDigestLoading}
                 briefingText={briefingText}
                 cacheChecked={cacheChecked}
-                onRequestBriefing={() => { console.log("[briefing] requested — isLoading:", isLoading, "cacheChecked:", cacheChecked); if (!isLoading) sendMessage({ text: BRIEFING_PROMPT }); }}
+                onRequestBriefing={() => { if (!isLoading) sendMessage({ text: BRIEFING_PROMPT }); }}
               />
             </div>
 
