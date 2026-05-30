@@ -3,6 +3,7 @@
 import type { Trade } from "@/lib/trade-types";
 import { groupTrades, type PositionGroup } from "@/lib/position-utils";
 import { AccumulatedRow } from "./AccumulatedRow";
+import { ColGroup } from "./ColGroup";
 
 interface TradeTableProps {
   trades: Trade[];
@@ -27,6 +28,7 @@ export function TradeTable({ trades, prices, tab, onEdit, onClose, isOwner }: Tr
   return (
     <div className="pl-table-wrap">
       <table className="pl-table">
+        <ColGroup isOwner={isOwner} />
         <thead>
           <tr>
             <th>Symbol</th>

@@ -156,6 +156,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: fixed;
 }
 
 .pl-table th {
@@ -178,7 +179,7 @@
   white-space: nowrap;
 }
 
-.pl-row:last-child td {
+.pl-table > tbody > .pl-row:nth-last-child(2) td {
   border-bottom: none;
 }
 
@@ -619,4 +620,49 @@
 .pl-month-nav__month-btn:disabled {
   opacity: 0.25;
   cursor: not-allowed;
+}
+
+/* ─── Table Expand ───────────────────────────────────────────────────── */
+
+.pl-row-expand > td {
+  padding: 0;
+  border-bottom: none;
+  line-height: 0; /* prevents tr from having minimum height when collapsed */
+}
+
+.pl-row-expand:hover > td {
+  background: transparent;
+  cursor: default;
+}
+
+.pl-subrow-wrap {
+  overflow: hidden;
+}
+
+.pl-subrow-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  table-layout: fixed;
+  line-height: 1.5; /* reset inherited line-height:0 from expand row */
+}
+
+.pl-subrow-table .pl-row--profit td:first-child,
+.pl-subrow-table .pl-row--loss td:first-child {
+  border-left: none;
+}
+
+/* connector line via background-image — avoids position:relative which breaks table animation */
+.pl-subrow-table .pl-row--profit td:first-child {
+  background-image: linear-gradient(var(--pl-green), var(--pl-green));
+  background-size: 2px 100%;
+  background-position: 1.5rem 0;
+  background-repeat: no-repeat;
+}
+
+.pl-subrow-table .pl-row--loss td:first-child {
+  background-image: linear-gradient(var(--pl-red), var(--pl-red));
+  background-size: 2px 100%;
+  background-position: 1.5rem 0;
+  background-repeat: no-repeat;
 }

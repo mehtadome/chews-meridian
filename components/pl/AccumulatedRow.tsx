@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import type { Trade } from "@/lib/trade-types";
 import type { PositionGroup } from "@/lib/position-utils";
 import { PnlBadge } from "./PnlBadge";
 import { TradeRow } from "./TradeRow";
+import { ColGroup } from "./ColGroup";
 
 function sumPnl(trades: Trade[], prices: Record<string, number>): number | null {
   let total = 0;
@@ -69,7 +71,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
-        <td>${group.avgEntryPrice.toFixed(2)}</td>
+        <td><Dim /></td>
         <td><Dim /></td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.direction}</td>
         <td className="pl-meta">{dateCell}</td>
@@ -88,9 +90,30 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
           </td>
         )}
       </tr>
-      {expanded && sorted.map(trade => (
-        <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
-      ))}
+      <tr className="pl-row-expand">
+        <td colSpan={isOwner ? 9 : 8}>
+          <AnimatePresence initial={false}>
+            {expanded && (
+              <motion.div
+                className="pl-subrow-wrap"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
+                <table className="pl-subrow-table">
+                  <ColGroup isOwner={isOwner} />
+                  <tbody>
+                    {sorted.map(trade => (
+                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </td>
+      </tr>
     </>
   );
 }

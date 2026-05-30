@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChartCandlestick } from "lucide-react";
 
@@ -9,7 +9,6 @@ function LoginForm() {
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const params = useSearchParams();
   const raw = params.get("from") ?? "";
   const from = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/market-analyzer";
@@ -28,7 +27,7 @@ function LoginForm() {
     setLoading(false);
 
     if (res.ok) {
-      router.push(from);
+      window.location.href = from;
     } else {
       setError(true);
     }
