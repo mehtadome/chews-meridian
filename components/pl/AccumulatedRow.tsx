@@ -95,6 +95,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
           <AnimatePresence initial={false}>
             {expanded && (
               <motion.div
+                className="pl-subrow-wrap"
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -6 }}
