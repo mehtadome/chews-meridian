@@ -1,4 +1,4 @@
-# Chew's Meridian · v1.4
+# Chew's Meridian · v2.0
 
 A Next.js application with two products: **Market Analyzer** reads market-focused newsletter emails via Gmail, interprets them with Claude, and renders a dynamically assembled digest. **PL Tracker** is a trade journal that fetches live prices, computes realized and unrealized P&L, and generates an AI performance summary on every open.
 
@@ -26,6 +26,10 @@ GOOGLE_TOKEN_ISSUED_AT=   # written automatically by scripts/gmail-refresh-token
 OWNER_TOKEN=              # 32-byte hex — node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
+SCHWAB_CLIENT_ID=
+SCHWAB_CLIENT_SECRET=
+SCHWAB_REFRESH_TOKEN=     # run node scripts/schwab-refresh-token.mjs to get initial token
+SCHWAB_REDIRECT_URI=
 ```
 
 **Vercel note:** `REDIS_URL` is only configured for Production in the Vercel dashboard. Preview and Development environments need it added manually via Project Settings → Environment Variables (use the same Upstash URL as Production so the API spend counter stays consistent across environments).
@@ -54,7 +58,7 @@ POST /api/agent  (Next.js route)
     ↓
 Vercel AI SDK — streamText + tool loop
     ↓
-searchEmails → getEmail × N (reads all results, up to 5)
+searchEmails → getEmail × N (reads all results, up to 10)
     ↓
 Claude synthesizes across all emails → emits JSON block
     ↓
@@ -79,16 +83,16 @@ Multiple briefings on the same day accumulate ticker mentions — `saveDigest` m
 }
 ```
 
-`parseComponents` validates with Zod and sorts by risk priority. Adding a new component type: create it in `components/ui/`, register in `ComponentRenderer.tsx`, describe it in `lib/systemPrompt.ts`.
+`parseComponents` validates with Zod and sorts by risk priority. Adding a new component type: create it in `components/ui/`, register in `ComponentRenderer.tsx`, describe it in `lib/agent/systemPrompt.ts`.
 
 ### PL Tracker
 
 ```
 User adds/edits trade → Redis (permanent, no TTL)
     ↓
-GET /api/trades/prices  (price source pending Schwab integration, revalidate: 300s)
+GET /api/trades/prices  (Schwab API, revalidate: 300s)
     ↓
-P&L = (exitPrice ?? markPrice ?? livePrice − entryPrice) × qty × multiplier × direction
+P&L = (exitPrice ?? currentPrice ?? markPrice − entryPrice) × qty × multiplier × direction
     ↓
 GET /api/pl/agent  (Haiku summary of monthly realized + open positions)
     ↓
@@ -109,7 +113,7 @@ SummaryBar renders monthly P&L, per-position live P&L, AI briefing
 | AI SDK | Vercel AI SDK (`ai`, `@ai-sdk/anthropic`) |
 | Model | `claude-haiku-4-5-20251001` |
 | Email | Gmail OAuth2 via `googleapis` |
-| Prices | Schwab API (Phase 2 — pending integration) |
+| Prices | Schwab API |
 | Storage | Upstash Redis (digests, trades, auth) |
 | Styling | CSS custom properties design system (no Tailwind utilities in product pages) |
 | Validation | Zod |
@@ -136,15 +140,14 @@ Components are ordered risk-first by the app regardless of model output order: `
 
 ## Watchlist
 
-Edit `lib/watchlist.ts` to change the tickers the Market Analyzer agent prioritizes. The watchlist is injected into the system prompt at startup.
+Edit `lib/agent/watchlist.ts` to change the tickers the Market Analyzer agent prioritizes. The watchlist is injected into the system prompt at startup.
 
-To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array at the top of `lib/systemPrompt.ts`. Only emails from those addresses are ever fetched.
+To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array at the top of `lib/agent/systemPrompt.ts`. Only emails from those addresses are ever fetched.
 
 ---
 
 ## What's Next
 
-- **Schwab API integration** — wire `SCHWAB_CLIENT_ID` / `SCHWAB_CLIENT_SECRET` / `SCHWAB_REFRESH_TOKEN` to auto-import trades from the brokerage instead of manual entry
 - **Historical digest recall** — surface past digests in a timeline view and feed them into model context for cross-time reasoning
 - **Richer ticker charts** — direction timeline per ticker, watchlist hit rate, signal strength ranking, sentiment heatmap across the 7-day window
 - **Push trigger** — Gmail Pub/Sub webhook instead of manual refresh so the digest updates automatically when a newsletter arrives
@@ -152,6 +155,47 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 ---
 
 ## Changelog
+
+### [v2.0](https://github.com/mehtadome/chews-meridian/pull/22)
+- **Schwab live prices** — `lib/schwab/` wired into `/api/trades/prices`; access token cached in Redis (28-min TTL) with distributed lock preventing concurrent refresh rotation
+- **OAuth bootstrap** — `scripts/schwab-refresh-token.mjs` opens consent flow and writes `SCHWAB_REFRESH_TOKEN` directly to `.env.local`
+- **`lib/` restructured** into `pl/`, `schwab/`, `agent/` subdirs with `index.ts` entry points and no cross-subdir imports
+- **PL Tracker polish** — Mark column replaces Exit on open tab; avg entry on group row; singleton groups skip expand, show exit price, and display a days-held tooltip on hover
+- **Remove mark price field** from add/edit trade form; add notes field to close position form
+- Renamed scripts to `gmail-refresh-token.mjs` / `schwab-refresh-token.mjs` for clarity
+
+### [v1.9](https://github.com/mehtadome/chews-meridian/pull/21)
+- **Animated sub-row expand** — `grid-template-rows` transition with GPU-composited opacity + translateY fade on accumulated position rows
+- Green/red connector line on sub-rows visually linked to the parent symbol column
+- Parent row retains profit/loss border color on expand; sub-rows use indentation-only styling
+- Fixed login router cache bug — `window.location.href` replaces `router.push` to force hard navigation
+
+### [v1.8](https://github.com/mehtadome/chews-meridian/pull/20)
+- **Month navigator** — `← May 2026 →` header control with year+month grid popover for browsing P&L history
+- Yearly P&L in summary bar scoped to the selected year; closed trades sorted newest-first
+- `proxy.ts` — renamed from `middleware.ts` (Next.js deprecation)
+- `ARCHITECTURE.md` promoted to project root with full breakdown of both products, Redis schema, and auth
+- Login page gains Home link and loading feedback during auth
+
+### [v1.7](https://github.com/mehtadome/chews-meridian/pull/19)
+- **FIFO position grouping** — open lots per symbol accumulate into an `AccumulatedRow` with aggregated P&L
+- Sub-rows expand per parent to show individual lots with entry price, quantity, and per-lot P&L
+- Close Position panel — close partial or full quantity with FIFO lot distribution across open lots
+- Top-3 closed profits shown in summary bar; yearly P&L displayed alongside monthly
+
+### [v1.6](https://github.com/mehtadome/chews-meridian/pull/18)
+- **Security hardening** — sanitized `?from=` open redirect, replaced `OWNER_TOKEN` in session cookie with opaque session ID, atomic guest code decrement via Lua script
+- Mutex released if `req.json()` parse fails before stream starts
+- Extracted shared `computePnl` to `lib/pnl.ts`; live price threaded through to `TradeRow`
+- Replaced Redis `KEYS` scan with `digest:latest` pointer; pipelined `saveTrade` SET+LPUSH into one round-trip
+- `console.*` stripped from production builds via Next.js compiler config
+- Date display standardized to `USER_TIMEZONE` constant across all PL Tracker components
+
+### [v1.5](https://github.com/mehtadome/chews-meridian/pull/17)
+- Fixed React crash on trade save failure caused by rendering a Zod error object as JSX
+- Fixed quantity undefined and entry price zeroing bugs on form submit; fixed date UTC display shift
+- Added calendar date picker with dynamic Save/Close label; removed redundant Close button
+- Validation UX — per-field red border highlighting replaces raw error text on submit
 
 ### v1.4
 - **PL summary caching** — Haiku summary cached in Redis keyed by `trades:v` + month; any trade write auto-invalidates, skipping the model on repeated opens

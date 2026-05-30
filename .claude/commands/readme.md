@@ -9,8 +9,8 @@ Read the following:
 - `ARCHITECTURE.md` — for the tech stack table
 
 **Step 2 — Check git log for unreleased work**
-Run: `git log --oneline --merges`
-Find all merged PRs with commit messages not yet in the changelog. For each missing PR, identify what it introduced from the commit message and nearby non-merge commits.
+Run: `git log --oneline --merges -3`
+These are the 3 most recently merged PRs. Check which are already in the changelog and write entries only for the missing ones. For each missing PR, identify what it introduced from the merge commit message and nearby non-merge commits.
 
 **Step 3 — Draft new changelog entries**
 For each unreleased PR (oldest first), write a `### vX.X` entry with:
