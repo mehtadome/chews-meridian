@@ -16,6 +16,7 @@ async function getAccessToken(): Promise<string> {
 
   const res = await fetch(SCHWAB_TOKEN_URL, {
     method: "POST",
+    cache: "no-store",
     headers: {
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/x-www-form-urlencoded",
@@ -48,6 +49,7 @@ export async function fetchSchwabPrices(
   const url = `${SCHWAB_QUOTES_URL}?symbols=${unique.join(",")}&fields=quote`;
 
   const res = await fetch(url, {
+    cache: "no-store",
     headers: { Authorization: `Bearer ${token}` },
   });
 
