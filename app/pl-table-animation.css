@@ -33,10 +33,8 @@
   line-height: 1.5; /* reset inherited line-height:0 from expand container */
 }
 
-/* continue green/red thread through the expand row */
-.pl-row-expand.pl-row--profit > td:first-child {
-  border-left: 2px solid var(--pl-green);
-}
-.pl-row-expand.pl-row--loss > td:first-child {
-  border-left: 2px solid var(--pl-red);
+/* sub-rows use indentation as the visual indicator — no left border */
+.pl-subrow-table .pl-row--profit td:first-child,
+.pl-subrow-table .pl-row--loss td:first-child {
+  border-left: none;
 }

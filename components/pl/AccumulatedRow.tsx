@@ -89,7 +89,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
           </td>
         )}
       </tr>
-      <tr className={`pl-row-expand${isProfit ? " pl-row--profit" : isLoss ? " pl-row--loss" : ""}`}>
+      <tr className="pl-row-expand">
         <td colSpan={isOwner ? 9 : 8}>
           <div className="pl-subrow-wrap" style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}>
             <div>
