@@ -1,10 +1,7 @@
 import { redis } from "@/lib/redis";
-import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY, SCHWAB_REDIS_ACCESS_KEY, SCHWAB_ACCESS_TOKEN_TTL } from "./config";
+import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY, SCHWAB_REDIS_ACCESS_KEY, SCHWAB_ACCESS_TOKEN_TTL, SCHWAB_REDIS_LOCK_KEY, SCHWAB_LOCK_TTL } from "./config";
 
-async function getAccessToken(): Promise<string> {
-  const cached = await redis.get(SCHWAB_REDIS_ACCESS_KEY);
-  if (cached) return cached;
-
+async function refreshAccessToken(): Promise<string> {
   const storedRefresh = await redis.get(SCHWAB_REDIS_TOKEN_KEY);
   const refreshToken = storedRefresh ?? process.env.SCHWAB_REFRESH_TOKEN;
 
@@ -37,6 +34,30 @@ async function getAccessToken(): Promise<string> {
   ]);
 
   return access_token;
+}
+
+async function getAccessToken(): Promise<string> {
+  const cached = await redis.get(SCHWAB_REDIS_ACCESS_KEY);
+  if (cached) return cached;
+
+  // Acquire a distributed lock so only one instance refreshes the rotating token at a time.
+  const acquired = await redis.set(SCHWAB_REDIS_LOCK_KEY, "1", "EX", SCHWAB_LOCK_TTL, "NX");
+
+  if (!acquired) {
+    // Another instance holds the lock — poll cache until it writes the new token.
+    for (let i = 0; i < 10; i++) {
+      await new Promise(r => setTimeout(r, 300));
+      const token = await redis.get(SCHWAB_REDIS_ACCESS_KEY);
+      if (token) return token;
+    }
+    throw new Error("Timed out waiting for Schwab token refresh");
+  }
+
+  try {
+    return await refreshAccessToken();
+  } finally {
+    await redis.del(SCHWAB_REDIS_LOCK_KEY);
+  }
 }
 
 export async function fetchSchwabPrices(
