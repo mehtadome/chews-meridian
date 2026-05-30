@@ -22,7 +22,7 @@ ANTHROPIC_API_KEY=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REFRESH_TOKEN=
-GOOGLE_TOKEN_ISSUED_AT=   # written automatically by scripts/refresh-token.mjs
+GOOGLE_TOKEN_ISSUED_AT=   # written automatically by scripts/gmail-refresh-token.mjs
 OWNER_TOKEN=              # 32-byte hex — node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
@@ -34,7 +34,7 @@ Gmail OAuth setup: Google Cloud Console → enable Gmail API → create OAuth2 c
 
 **Token expiry:** while the app is in Google Cloud *Testing* mode, refresh tokens expire after 7 days. To renew:
 
-1. Run `node scripts/refresh-token.mjs` — opens a browser consent flow and writes the new token directly into `.env.local`.
+1. Run `node scripts/gmail-refresh-token.mjs` — opens a browser consent flow and writes the new token directly into `.env.local`.
 2. Restart the dev server.
 
 The Settings page shows the current expiry date and warns when it's within 2 days.
@@ -191,7 +191,7 @@ To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array
 - CSS typo fixed: `justifyContent: "center,"` in settings radio button
 
 ### [v1.0](https://github.com/mehtadome/chews-meridian/pull/11)
-- OAuth refresh script (`scripts/refresh-token.mjs`) — browser consent flow writes token to `.env.local` and Redis
+- OAuth refresh script (`scripts/gmail-refresh-token.mjs`) — browser consent flow writes token to `.env.local` and Redis
 - Redis-backed token storage — re-authorizing on Vercel requires no redeploy
 - Settings page shows OAuth token expiry with warning colors
 - Gmail lookback anchored to exact last-digest timestamp (`after:{unixSeconds}`) instead of rounded hours

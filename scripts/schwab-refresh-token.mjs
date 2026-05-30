@@ -1,5 +1,5 @@
 import { createInterface } from "readline";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 const env = Object.fromEntries(
   readFileSync(".env.local", "utf8")
@@ -51,7 +51,14 @@ rl.question("Paste the redirect URL: ", async (redirected) => {
   if (!res.ok) { console.error("Token exchange failed:", res.status, await res.text()); process.exit(1); }
 
   const { refresh_token } = await res.json();
-  console.log("\nAdd this to your .env.local:\n");
-  console.log(`SCHWAB_REFRESH_TOKEN=${refresh_token}`);
-  console.log("\nRefresh token rotates on every use — 7-day expiry resets each time.");
+
+  const envPath = ".env.local";
+  const raw = readFileSync(envPath, "utf8");
+  const updated = raw.includes("SCHWAB_REFRESH_TOKEN=")
+    ? raw.replace(/^SCHWAB_REFRESH_TOKEN=.*/m, `SCHWAB_REFRESH_TOKEN=${refresh_token}`)
+    : raw.trimEnd() + `\nSCHWAB_REFRESH_TOKEN=${refresh_token}\n`;
+  writeFileSync(envPath, updated);
+
+  console.log("\n✓ SCHWAB_REFRESH_TOKEN written to .env.local");
+  console.log("Refresh token rotates on every use — 7-day expiry resets each time.");
 });

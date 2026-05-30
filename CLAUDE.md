@@ -142,7 +142,7 @@ Required in `.env.local`:
 - `ANTHROPIC_API_KEY`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REFRESH_TOKEN` (Gmail OAuth)
 - `OWNER_TOKEN` (auth — 32-byte hex, generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
-- `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN`, `SCHWAB_REDIRECT_URI` (Schwab OAuth — run `node scripts/schwab-auth.mjs` to get initial refresh token)
+- `SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN`, `SCHWAB_REDIRECT_URI` (Schwab OAuth — run `node scripts/schwab-refresh-token.mjs` to get initial refresh token)
 
 ## PL Tracker — architecture
 
@@ -201,8 +201,8 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 **Schwab integration (PR open, branch `schwab-integration`) — in progress.**
 - `lib/` restructured into subdirs: `lib/pl/`, `lib/schwab/`, `lib/agent/`; `renderBold.tsx` moved to `components/ui/`
 - Code structure standards added to this file
-- Schwab OAuth bootstrap script at `scripts/schwab-auth.mjs` — run once to get refresh token
+- Schwab OAuth bootstrap script at `scripts/schwab-refresh-token.mjs` — run once to get refresh token
 - `lib/schwab/` wired into `lib/schwab/market-data.ts` → `fetchCurrentPrices`
-- **Next step:** run `node scripts/schwab-auth.mjs` to get `SCHWAB_REFRESH_TOKEN`, add to `.env.local` + Vercel
+- **Next step:** run `node scripts/schwab-refresh-token.mjs` to get `SCHWAB_REFRESH_TOKEN`, add to `.env.local` + Vercel
 
 **Critique files live in `docs/critiques/` — gitignored, local only.**
