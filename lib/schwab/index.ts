@@ -37,19 +37,23 @@ export async function fetchSchwabPrices(
 ): Promise<Record<string, number>> {
   if (!symbols.length) return {};
 
+  const unique = [...new Set(symbols)];
   const token = await getAccessToken();
-  const url = `${SCHWAB_QUOTES_URL}?symbols=${symbols.join(",")}&fields=quote`;
+  const url = `${SCHWAB_QUOTES_URL}?symbols=${unique.join(",")}&fields=quote`;
 
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (!res.ok) throw new Error(`Schwab quotes failed: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Schwab quotes failed: ${res.status} — ${body}`);
+  }
 
   const data = await res.json();
 
   return Object.fromEntries(
-    symbols.flatMap(sym => {
+    unique.flatMap(sym => {
       const price = (data[sym] as any)?.quote?.lastPrice;
       return price != null ? [[sym, price]] : [];
     })

@@ -9,7 +9,7 @@ export default async function PlTrackerPage() {
   const session = await getSession(cookieStore.get("cm_session")?.value);
 
   const trades = await listTrades();
-  const openSymbols = trades.filter((t) => !t.exitDate).map((t) => t.symbol);
+  const openSymbols = [...new Set(trades.filter((t) => !t.exitDate).map((t) => t.symbol))];
   const prices = await fetchCurrentPrices(openSymbols);
 
   return (
