@@ -179,7 +179,7 @@
   white-space: nowrap;
 }
 
-.pl-row:last-child td {
+.pl-row:nth-last-child(2) td {
   border-bottom: none;
 }
 
