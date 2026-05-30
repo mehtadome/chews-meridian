@@ -1,0 +1,3 @@
+export const SCHWAB_TOKEN_URL = "https://api.schwabapi.com/v1/oauth/token";
+export const SCHWAB_QUOTES_URL = "https://api.schwabapi.com/marketdata/v1/quotes";
+export const SCHWAB_REDIS_TOKEN_KEY = "schwab:refresh_token";

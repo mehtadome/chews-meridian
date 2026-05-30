@@ -1,5 +1,12 @@
-// Price fetching stub — Yahoo Finance v7 endpoint is no longer accessible.
-// Replace with Schwab API in Phase 2 (see docs/pl-tracker/todo.md).
-export async function fetchCurrentPrices(_symbols: string[]): Promise<Record<string, number>> {
-  return {};
+import { fetchSchwabPrices } from "@/lib/schwab";
+
+export async function fetchCurrentPrices(
+  symbols: string[]
+): Promise<Record<string, number>> {
+  try {
+    return await fetchSchwabPrices(symbols);
+  } catch (err) {
+    console.error("[market-data] Schwab fetch failed:", err);
+    return {};
+  }
 }
