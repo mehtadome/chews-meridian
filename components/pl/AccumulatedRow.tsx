@@ -49,6 +49,9 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
     return tab === "closed" ? -cmp : cmp;
   });
 
+  const avgEntry = group.trades.reduce((sum, t) => sum + t.entryPrice * t.quantity, 0) / group.totalQty;
+  const mark = prices[group.symbol] ?? null;
+
   const entryDates = group.trades.map(t => t.entryDate).sort();
   const dateCell =
     tab === "closed"
@@ -71,8 +74,8 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
-        <td><Dim /></td>
-        <td><Dim /></td>
+        <td>${avgEntry.toFixed(2)}</td>
+        <td>{tab === "open" ? (mark != null ? `$${mark.toFixed(2)}` : <Dim />) : <Dim />}</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.direction}</td>
         <td className="pl-meta">{dateCell}</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.assetType}</td>
@@ -105,7 +108,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
                   <ColGroup isOwner={isOwner} />
                   <tbody>
                     {sorted.map(trade => (
-                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
+                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow currentPrice={prices[trade.symbol]} />
                     ))}
                   </tbody>
                 </table>

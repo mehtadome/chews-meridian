@@ -35,7 +35,7 @@ export function TradeTable({ trades, prices, tab, onEdit, onClose, isOwner }: Tr
             <th>P&amp;L</th>
             <th>Qty</th>
             <th>Entry</th>
-            <th>Exit</th>
+            <th>{tab === "open" ? "Mark" : "Exit"}</th>
             <th>Direction</th>
             <th>Date</th>
             <th>Type</th>

@@ -40,7 +40,10 @@ export function TradeRow({ trade, currentPrice, tab, onEdit, isOwner, isSubRow }
       <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
       <td>{trade.quantity}</td>
       <td>${trade.entryPrice.toFixed(2)}</td>
-      <td>{trade.exitPrice !== null ? `$${trade.exitPrice.toFixed(2)}` : <Dim />}</td>
+      <td>{tab === "open"
+        ? (currentPrice ?? trade.markPrice) != null ? `$${(currentPrice ?? trade.markPrice!).toFixed(2)}` : <Dim />
+        : trade.exitPrice !== null ? `$${trade.exitPrice.toFixed(2)}` : <Dim />
+      }</td>
       <td className="pl-meta" style={{ textTransform: "capitalize" }}>{trade.direction}</td>
       <td className="pl-meta">{dateCell}</td>
       <td className="pl-meta" style={{ textTransform: "capitalize" }}>{trade.assetType}</td>

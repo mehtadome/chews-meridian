@@ -59,6 +59,17 @@ rl.question("Paste the redirect URL: ", async (redirected) => {
     : raw.trimEnd() + `\nSCHWAB_REFRESH_TOKEN=${refresh_token}\n`;
   writeFileSync(envPath, updated);
 
-  console.log("\n✓ SCHWAB_REFRESH_TOKEN written to .env.local");
-  console.log("Refresh token rotates on every use — 7-day expiry resets each time.");
+  console.log("✓ .env.local updated");
+
+  if (env.REDIS_URL) {
+    const Redis = (await import("ioredis")).default;
+    const redis = new Redis(env.REDIS_URL);
+    await redis.set("schwab:refresh_token", refresh_token);
+    await redis.quit();
+    console.log("✓ Redis updated");
+  } else {
+    console.log("  (REDIS_URL not set — skipped Redis write)");
+  }
+
+  console.log("\nRefresh token rotates on every use — 7-day expiry resets each time.");
 });
