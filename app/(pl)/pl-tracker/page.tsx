@@ -10,7 +10,9 @@ export default async function PlTrackerPage() {
 
   const trades = await listTrades();
   const openSymbols = [...new Set(trades.filter((t) => !t.exitDate).map((t) => t.symbol))];
+  console.log("[pl-tracker] openSymbols:", openSymbols);
   const prices = await fetchCurrentPrices(openSymbols);
+  console.log("[pl-tracker] prices:", prices);
 
   return (
     <PlTrackerClient
