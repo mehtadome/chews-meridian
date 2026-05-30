@@ -38,3 +38,26 @@
 .pl-subrow-table .pl-row--loss td:first-child {
   border-left: none;
 }
+
+/* green/red connector line aligned under parent symbol text */
+.pl-subrow-table .pl-row td:first-child {
+  position: relative;
+}
+.pl-subrow-table .pl-row--profit td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--pl-green);
+}
+.pl-subrow-table .pl-row--loss td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--pl-red);
+}
