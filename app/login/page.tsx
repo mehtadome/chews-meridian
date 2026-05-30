@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { ChartCandlestick } from "lucide-react";
 
 function LoginForm() {
@@ -102,7 +103,27 @@ function LoginForm() {
           >
             {loading ? "Verifying…" : "Access"}
           </button>
+
+          {loading && (
+            <p style={{ fontSize: "0.8125rem", color: "rgba(255,255,255,0.4)", margin: 0, textAlign: "center" }}>
+              Checking credentials…
+            </p>
+          )}
         </form>
+
+        <Link
+          href="/"
+          style={{
+            display: "block",
+            marginTop: "1.25rem",
+            textAlign: "center",
+            fontSize: "0.8125rem",
+            color: "rgba(255,255,255,0.35)",
+            textDecoration: "none",
+          }}
+        >
+          ← Home
+        </Link>
       </div>
     </main>
   );
