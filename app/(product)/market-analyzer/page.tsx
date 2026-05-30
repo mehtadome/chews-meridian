@@ -9,9 +9,9 @@ import { RefreshCw, Settings, X, ChartCandlestick, ArrowLeft } from "lucide-reac
 import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { SessionBadge } from "@/components/ui/SessionBadge";
-import { parseMood } from "@/lib/parseResponse";
-import type { Mood } from "@/lib/parseResponse";
-import { getMessageText } from "@/lib/getMessageText";
+import { parseMood } from "@/lib/agent/parseResponse";
+import type { Mood } from "@/lib/agent/parseResponse";
+import { getMessageText } from "@/lib/agent/getMessageText";
 import type { TickerSummary } from "@/app/api/tickers/route";
 
 const BRIEFING_PROMPT = "What's in today's newsletter?";

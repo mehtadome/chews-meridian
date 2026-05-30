@@ -1,5 +1,5 @@
 import { getCached, setCached } from "@/lib/cache";
-import { getDigest } from "@/lib/digest";
+import { getDigest } from "@/lib/agent/digest";
 import { REFRESH_WINDOWS } from "@/lib/config";
 import { ptHour } from "@/lib/utils";
 import { withAuth } from "@/lib/auth";

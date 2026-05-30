@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, ChartCandlestick, Check, Copy } from "lucide-react";
 import { REFRESH_WINDOWS, NEWSLETTER_SENDERS, CONTEXT_WINDOW_DAYS } from "@/lib/config";
 import { PT_TIMEZONE } from "@/lib/utils";
-import { WATCHLIST } from "@/lib/watchlist";
+import { WATCHLIST } from "@/lib/agent/watchlist";
 import { useEffect, useState } from "react";
 import { SessionBadge } from "@/components/ui/SessionBadge";
 

@@ -1,4 +1,4 @@
-import type { Trade } from "@/lib/trade-types";
+import type { Trade } from "@/lib/pl/trade-types";
 
 // Priority: exitPrice (closed) → currentPrice (live) → markPrice (manual)
 export function computePnl(trade: Trade, currentPrice?: number): number | null {

@@ -3,7 +3,7 @@
 import { type UIMessage } from "ai";
 import { MessageCircle, X } from "lucide-react";
 import { ComponentRenderer } from "@/components/ComponentRenderer";
-import { getMessageText } from "@/lib/getMessageText";
+import { getMessageText } from "@/lib/agent/getMessageText";
 import { directionStyle } from "@/components/ui/DigestTickerBadge";
 import type { TickerSummary } from "@/app/api/tickers/route";
 

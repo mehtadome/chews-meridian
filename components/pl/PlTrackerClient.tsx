@@ -3,8 +3,8 @@
 import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { Settings, ChartCandlestick } from "lucide-react";
-import type { Trade } from "@/lib/trade-types";
-import type { PositionGroup } from "@/lib/position-utils";
+import type { Trade } from "@/lib/pl/trade-types";
+import type { PositionGroup } from "@/lib/pl/position-utils";
 import { USER_TIMEZONE } from "@/lib/config";
 import { TradeTable } from "./TradeTable";
 import { SummaryBar } from "./SummaryBar";

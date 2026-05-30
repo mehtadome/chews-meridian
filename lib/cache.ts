@@ -1,4 +1,4 @@
-import type { DigestRecord } from "./digest";
+import type { DigestRecord } from "@/lib/agent/digest";
 
 /**
  * Module-level L1 cache. Survives for the lifetime of the Node process.

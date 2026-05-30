@@ -1,12 +1,12 @@
 import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { tools } from "@/lib/tools";
-import { recordUsage } from "@/lib/usage";
-import { saveDigest, getLatestDigest } from "@/lib/digest";
+import { tools } from "@/lib/agent/tools";
+import { recordUsage } from "@/lib/agent/usage";
+import { saveDigest, getLatestDigest } from "@/lib/agent/digest";
 import { setCached } from "@/lib/cache";
-import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
+import { parseMood, parseComponents, parseProse } from "@/lib/agent/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
-import { buildSystemPrompt } from "@/lib/systemPrompt";
+import { buildSystemPrompt } from "@/lib/agent/systemPrompt";
 import { redis } from "@/lib/redis";
 import { withAuth, decrementGuestUse } from "@/lib/auth";
 

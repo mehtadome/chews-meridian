@@ -1,4 +1,4 @@
-import { renderBold } from "@/lib/renderBold";
+import { renderBold } from "@/components/ui/renderBold";
 
 interface RiskFlagProps {
   headline: string;

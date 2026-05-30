@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { PositionGroup } from "@/lib/position-utils";
+import type { PositionGroup } from "@/lib/pl/position-utils";
 import { DatePicker } from "./DatePicker";
 import { todayIso } from "@/lib/date-utils";
 
@@ -15,6 +15,7 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
   const [qty, setQty] = useState<number | "">(group.totalQty);
   const [exitPrice, setExitPrice] = useState<number | "">("");
   const [exitDate, setExitDate] = useState(todayIso());
+  const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,6 +23,7 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
     setQty(group.totalQty as number | "");
     setExitPrice("");
     setExitDate(todayIso());
+    setNotes("");
     setError(null);
   }, [group.symbol, group.totalQty]);
 
@@ -44,6 +46,7 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
           qty,
           exitPrice: Number(exitPrice),
           exitDate,
+          notes: notes.trim() || null,
         }),
       });
 
@@ -97,6 +100,15 @@ export function ClosePositionForm({ group, onClose, onSaved }: ClosePositionForm
           <label className="pl-field">
             <span>Exit Date</span>
             <DatePicker value={exitDate} onChange={iso => setExitDate(iso)} />
+          </label>
+          <label className="pl-field">
+            <span>Notes (optional)</span>
+            <textarea
+              className="pl-textarea"
+              placeholder="Reason for closing, thesis change..."
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+            />
           </label>
           {error && (
             <p style={{

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Trade } from "@/lib/trade-types";
-import type { PositionGroup } from "@/lib/position-utils";
+import type { Trade } from "@/lib/pl/trade-types";
+import type { PositionGroup } from "@/lib/pl/position-utils";
 import { PnlBadge } from "./PnlBadge";
 import { TradeRow } from "./TradeRow";
 import { ColGroup } from "./ColGroup";
@@ -37,6 +37,7 @@ interface AccumulatedRowProps {
 
 export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }: AccumulatedRowProps) {
   const [expanded, setExpanded] = useState(false);
+  const singleton = group.trades.length === 1;
 
   const pnl = sumPnl(group.trades, prices);
   const isProfit = pnl !== null && pnl > 0;
@@ -49,11 +50,16 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
     return tab === "closed" ? -cmp : cmp;
   });
 
+  const mark = prices[group.symbol] ?? null;
+
   const entryDates = group.trades.map(t => t.entryDate).sort();
-  const dateCell =
-    tab === "closed"
-      ? `${fmt(entryDates[0])} → ${fmt(group.trades.map(t => t.exitDate!).sort().at(-1)!)}`
-      : `${fmt(entryDates[0])} → now`;
+  const lastExit = tab === "closed" ? group.trades.map(t => t.exitDate!).sort().at(-1)! : null;
+  const days = singleton
+    ? Math.round((new Date(lastExit ?? new Date()).getTime() - new Date(entryDates[0]).getTime()) / 86400000)
+    : null;
+  const dateCell = tab === "closed"
+    ? `${fmt(entryDates[0])} → ${fmt(lastExit!)}`
+    : `${fmt(entryDates[0])} → now`;
 
   return (
     <>
@@ -64,17 +70,18 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
               ›
             </span>
             <strong>{group.symbol}</strong>
-            {group.trades.length > 1 && (
-              <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)" }}>×{group.trades.length}</span>
-            )}
+            <span style={{ fontSize: "0.75rem", color: "var(--pl-text-dim)" }}>×{group.trades.length}</span>
           </span>
         </td>
         <td>{pnl !== null ? <PnlBadge value={pnl} /> : <Dim />}</td>
         <td>{group.totalQty}</td>
-        <td><Dim /></td>
-        <td><Dim /></td>
+        <td>{singleton ? `$${group.trades[0].entryPrice.toFixed(2)}` : <Dim />}</td>
+        <td>{tab === "open"
+          ? (mark != null ? `$${mark.toFixed(2)}` : <Dim />)
+          : (singleton && group.trades[0].exitPrice != null ? `$${group.trades[0].exitPrice.toFixed(2)}` : <Dim />)
+        }</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.direction}</td>
-        <td className="pl-meta">{dateCell}</td>
+        <td className={`pl-meta${days != null ? " pl-tooltip" : ""}`} data-tip={days != null ? `${days}d` : undefined}>{dateCell}</td>
         <td className="pl-meta" style={{ textTransform: "capitalize" }}>{group.assetType}</td>
         {isOwner && (
           <td>
@@ -105,7 +112,7 @@ export function AccumulatedRow({ group, tab, onEdit, onClose, isOwner, prices }:
                   <ColGroup isOwner={isOwner} />
                   <tbody>
                     {sorted.map(trade => (
-                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow />
+                      <TradeRow key={trade.id} trade={trade} tab={tab} onEdit={onEdit} isOwner={isOwner} isSubRow currentPrice={prices[trade.symbol]} />
                     ))}
                   </tbody>
                 </table>
