@@ -10,5 +10,6 @@ Then:
    - Preserve any items already struck through in the existing "This Session" section.
 4. Replace the existing "This Session" section in `docs/session-todo.md` (or insert it after the `# Chew's Meridian TODO` header if the section doesn't exist yet) with the updated version.
 5. Leave all other sections in `docs/session-todo.md` untouched.
+6. If every item in "This Session" is struck through (all shipped), delete the entire "This Session" section from the file instead of leaving it.
 
 Keep item descriptions concise (one line each). Do not add commentary or explanations — just the updated file.

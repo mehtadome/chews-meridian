@@ -1,0 +1,146 @@
+[
+  {
+    "_comment": "OPENING — long stock entry (buy 10 AMD @ 142.50)",
+    "activityId": 1001,
+    "time": "2026-05-01T14:32:00.000Z",
+    "description": "Buy Trade",
+    "accountNumber": "ENCRYPTED_ACCT_ID",
+    "type": "TRADE",
+    "status": "VALID",
+    "subAccount": "CASH",
+    "tradeDate": "2026-05-01T14:32:00.000Z",
+    "settlementDate": "2026-05-03T14:32:00.000Z",
+    "positionId": 5001,
+    "orderId": 9001,
+    "netAmount": -1425.0,
+    "activityType": "ACTIVITY_CORRECTION",
+    "transferItems": [
+      {
+        "instrument": {
+          "cusip": "007903107",
+          "symbol": "AMD",
+          "description": "ADVANCED MICRO DEVICES INC",
+          "instrumentId": 101,
+          "netChange": 1.25,
+          "type": "EQUITY"
+        },
+        "amount": 10,
+        "cost": -1425.0,
+        "price": 142.5,
+        "feeType": "COMMISSION",
+        "positionEffect": "OPENING"
+      },
+      {
+        "instrument": {
+          "cusip": "",
+          "symbol": "USD",
+          "description": "Cash",
+          "instrumentId": 0,
+          "netChange": 0,
+          "type": "SWEEP_VEHICLE"
+        },
+        "amount": -1425.0,
+        "cost": 0,
+        "price": 1.0,
+        "feeType": "NONE",
+        "positionEffect": "OPENING"
+      }
+    ]
+  },
+  {
+    "_comment": "CLOSING — long stock exit (sell 10 AMD @ 158.00), same positionId 5001",
+    "activityId": 1002,
+    "time": "2026-05-15T15:10:00.000Z",
+    "description": "Sell Trade",
+    "accountNumber": "ENCRYPTED_ACCT_ID",
+    "type": "TRADE",
+    "status": "VALID",
+    "subAccount": "CASH",
+    "tradeDate": "2026-05-15T15:10:00.000Z",
+    "settlementDate": "2026-05-17T15:10:00.000Z",
+    "positionId": 5001,
+    "orderId": 9002,
+    "netAmount": 1580.0,
+    "activityType": "ACTIVITY_CORRECTION",
+    "transferItems": [
+      {
+        "instrument": {
+          "cusip": "007903107",
+          "symbol": "AMD",
+          "description": "ADVANCED MICRO DEVICES INC",
+          "instrumentId": 101,
+          "netChange": -1.25,
+          "type": "EQUITY"
+        },
+        "amount": -10,
+        "cost": 1580.0,
+        "price": 158.0,
+        "feeType": "COMMISSION",
+        "positionEffect": "CLOSING"
+      },
+      {
+        "instrument": {
+          "cusip": "",
+          "symbol": "USD",
+          "description": "Cash",
+          "instrumentId": 0,
+          "netChange": 0,
+          "type": "SWEEP_VEHICLE"
+        },
+        "amount": 1580.0,
+        "cost": 0,
+        "price": 1.0,
+        "feeType": "NONE",
+        "positionEffect": "CLOSING"
+      }
+    ]
+  },
+  {
+    "_comment": "OPENING — open position, no closing tx yet (buy 5 NVDA @ 890.00)",
+    "activityId": 1003,
+    "time": "2026-05-20T13:45:00.000Z",
+    "description": "Buy Trade",
+    "accountNumber": "ENCRYPTED_ACCT_ID",
+    "type": "TRADE",
+    "status": "VALID",
+    "subAccount": "CASH",
+    "tradeDate": "2026-05-20T13:45:00.000Z",
+    "settlementDate": "2026-05-22T13:45:00.000Z",
+    "positionId": 5002,
+    "orderId": 9003,
+    "netAmount": -4450.0,
+    "activityType": "ACTIVITY_CORRECTION",
+    "transferItems": [
+      {
+        "instrument": {
+          "cusip": "67066G104",
+          "symbol": "NVDA",
+          "description": "NVIDIA CORP",
+          "instrumentId": 102,
+          "netChange": 2.10,
+          "type": "EQUITY"
+        },
+        "amount": 5,
+        "cost": -4450.0,
+        "price": 890.0,
+        "feeType": "COMMISSION",
+        "positionEffect": "OPENING"
+      },
+      {
+        "instrument": {
+          "cusip": "",
+          "symbol": "USD",
+          "description": "Cash",
+          "instrumentId": 0,
+          "netChange": 0,
+          "type": "SWEEP_VEHICLE"
+        },
+        "amount": -4450.0,
+        "cost": 0,
+        "price": 1.0,
+        "feeType": "NONE",
+        "positionEffect": "OPENING"
+      }
+    ]
+  }
+]

@@ -1,5 +1,40 @@
+// ─── Read-only contract ──────────────────────────────────────────────────────
+// This module is strictly read-only. The Schwab app credential (Market Data
+// Production) has no trading permissions at the platform level. schwabFetch()
+// enforces the same constraint in code: only GET requests to allowlisted paths.
+// Order placement would require lib/schwab/trading.ts — a file that does not
+// exist and must never be created without explicit architectural review.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { redis } from "@/lib/redis";
-import { SCHWAB_TOKEN_URL, SCHWAB_QUOTES_URL, SCHWAB_REDIS_TOKEN_KEY, SCHWAB_REDIS_ACCESS_KEY, SCHWAB_ACCESS_TOKEN_TTL, SCHWAB_REDIS_LOCK_KEY, SCHWAB_LOCK_TTL } from "./config";
+import {
+  SCHWAB_TOKEN_URL,
+  SCHWAB_QUOTES_URL,
+  SCHWAB_REDIS_TOKEN_KEY,
+  SCHWAB_REDIS_ACCESS_KEY,
+  SCHWAB_ACCESS_TOKEN_TTL,
+  SCHWAB_REDIS_LOCK_KEY,
+  SCHWAB_LOCK_TTL,
+  SCHWAB_ALLOWED_PATHS,
+} from "./config";
+
+function schwabFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const isTokenEndpoint = url === SCHWAB_TOKEN_URL;
+
+  if (!isTokenEndpoint) {
+    const method = (init.method ?? "GET").toUpperCase();
+    if (method !== "GET") {
+      throw new Error(`[schwab] Blocked non-GET request: ${method} ${url}`);
+    }
+    const { pathname } = new URL(url);
+    const allowed = SCHWAB_ALLOWED_PATHS.some(p => pathname.startsWith(p));
+    if (!allowed) {
+      throw new Error(`[schwab] Blocked request to non-allowlisted path: ${pathname}`);
+    }
+  }
+
+  return fetch(url, { ...init, cache: "no-store" });
+}
 
 async function refreshAccessToken(): Promise<string> {
   const storedRefresh = await redis.get(SCHWAB_REDIS_TOKEN_KEY);
@@ -11,9 +46,8 @@ async function refreshAccessToken(): Promise<string> {
     `${process.env.SCHWAB_CLIENT_ID}:${process.env.SCHWAB_CLIENT_SECRET}`
   ).toString("base64");
 
-  const res = await fetch(SCHWAB_TOKEN_URL, {
+  const res = await schwabFetch(SCHWAB_TOKEN_URL, {
     method: "POST",
-    cache: "no-store",
     headers: {
       Authorization: `Basic ${credentials}`,
       "Content-Type": "application/x-www-form-urlencoded",
@@ -69,8 +103,7 @@ export async function fetchSchwabPrices(
   const token = await getAccessToken();
   const url = `${SCHWAB_QUOTES_URL}?symbols=${unique.join(",")}&fields=quote`;
 
-  const res = await fetch(url, {
-    cache: "no-store",
+  const res = await schwabFetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });
 

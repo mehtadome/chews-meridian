@@ -198,11 +198,12 @@ Guests get read-only access to the owner's trades. No multi-user support planned
 
 ## Resume here (next session)
 
-**Schwab integration (PR open, branch `schwab-integration`) — in progress.**
-- `lib/` restructured into subdirs: `lib/pl/`, `lib/schwab/`, `lib/agent/`; `renderBold.tsx` moved to `components/ui/`
-- Code structure standards added to this file
-- Schwab OAuth bootstrap script at `scripts/schwab-refresh-token.mjs` — run once to get refresh token
-- `lib/schwab/` wired into `lib/schwab/market-data.ts` → `fetchCurrentPrices`
-- **Next step:** run `node scripts/schwab-refresh-token.mjs` to get `SCHWAB_REFRESH_TOKEN`, add to `.env.local` + Vercel
+**Schwab integration — merged (PR #22, v1.9).**
+- `lib/` restructured into subdirs: `lib/pl/`, `lib/schwab/`, `lib/agent/`
+- Live Schwab prices working on both local and Vercel; distributed Redis lock guards rotating refresh token
+- Bootstrap script: `scripts/schwab-refresh-token.mjs` — run once to get initial `SCHWAB_REFRESH_TOKEN`; subsequent rotations stored in Redis under `schwab:refresh_token`
+- All Schwab env vars (`SCHWAB_CLIENT_ID`, `SCHWAB_CLIENT_SECRET`, `SCHWAB_REFRESH_TOKEN`) set on Vercel for Preview + Production
+
+**No active branch. On main. Next: new feature work or critique cycle.**
 
 **Critique files live in `docs/critiques/` — gitignored, local only.**

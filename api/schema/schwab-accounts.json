@@ -1,0 +1,109 @@
+[
+  {
+    "_comment": "GET /accounts?fields=positions — used to (1) resolve accountNumber for other calls, (2) detect open positions via positions[], (3) cross-check avg entry price and open P&L against our computed values.",
+    "securitiesAccount": {
+      "accountNumber": "ENCRYPTED_ACCT_ID",
+      "roundTrips": 0,
+      "isDayTrader": false,
+      "isClosingOnlyRestricted": false,
+      "pfcbFlag": false,
+      "positions": [
+        {
+          "_comment": "Long NVDA position — longQuantity > 0, shortQuantity = 0. averageLongPrice matches our entryPrice.",
+          "shortQuantity": 0,
+          "averagePrice": 890.0,
+          "currentDayProfitLoss": 45.0,
+          "currentDayProfitLossPercentage": 1.01,
+          "longQuantity": 5,
+          "settledLongQuantity": 5,
+          "settledShortQuantity": 0,
+          "agedQuantity": 0,
+          "instrument": {
+            "cusip": "67066G104",
+            "symbol": "NVDA",
+            "description": "NVIDIA CORP",
+            "instrumentId": 102,
+            "netChange": 2.10,
+            "type": "EQUITY"
+          },
+          "marketValue": 4495.0,
+          "maintenanceRequirement": 2247.5,
+          "averageLongPrice": 890.0,
+          "averageShortPrice": 0,
+          "taxLotAverageLongPrice": 890.0,
+          "taxLotAverageShortPrice": 0,
+          "longOpenProfitLoss": 45.0,
+          "shortOpenProfitLoss": 0,
+          "previousSessionLongQuantity": 5,
+          "previousSessionShortQuantity": 0,
+          "currentDayCost": 4450.0
+        },
+        {
+          "_comment": "Short NVDA position example — shortQuantity > 0, longQuantity = 0. averageShortPrice = our entryPrice for a short.",
+          "shortQuantity": 3,
+          "averagePrice": 920.0,
+          "currentDayProfitLoss": -15.0,
+          "currentDayProfitLossPercentage": -0.54,
+          "longQuantity": 0,
+          "settledLongQuantity": 0,
+          "settledShortQuantity": 3,
+          "agedQuantity": 0,
+          "instrument": {
+            "cusip": "67066G104",
+            "symbol": "NVDA",
+            "description": "NVIDIA CORP",
+            "instrumentId": 102,
+            "netChange": 2.10,
+            "type": "EQUITY"
+          },
+          "marketValue": -2775.0,
+          "maintenanceRequirement": 1387.5,
+          "averageLongPrice": 0,
+          "averageShortPrice": 920.0,
+          "taxLotAverageLongPrice": 0,
+          "taxLotAverageShortPrice": 920.0,
+          "longOpenProfitLoss": 0,
+          "shortOpenProfitLoss": -15.0,
+          "previousSessionLongQuantity": 0,
+          "previousSessionShortQuantity": 3,
+          "currentDayCost": 2760.0
+        }
+      ],
+      "initialBalances": {
+        "buyingPower": 20000.0,
+        "cashBalance": 10000.0,
+        "cashAvailableForTrading": 10000.0,
+        "equity": 25000.0,
+        "liquidationValue": 24500.0,
+        "longStockValue": 4495.0,
+        "shortStockValue": -2775.0,
+        "totalCash": 10000.0,
+        "accountValue": 25000.0
+      },
+      "currentBalances": {
+        "availableFunds": 9500.0,
+        "buyingPower": 19000.0,
+        "equity": 25000.0,
+        "equityPercentage": 100.0,
+        "longMarginValue": 4495.0,
+        "marginBalance": 0,
+        "shortBalance": 2775.0,
+        "shortMarginValue": 2775.0,
+        "stockBuyingPower": 19000.0,
+        "optionBuyingPower": 9500.0
+      },
+      "projectedBalances": {
+        "availableFunds": 9500.0,
+        "buyingPower": 19000.0,
+        "equity": 25000.0,
+        "equityPercentage": 100.0,
+        "longMarginValue": 4495.0,
+        "marginBalance": 0,
+        "shortBalance": 2775.0,
+        "shortMarginValue": 2775.0,
+        "stockBuyingPower": 19000.0,
+        "optionBuyingPower": 9500.0
+      }
+    }
+  }
+]

@@ -1,0 +1,170 @@
+[
+  {
+    "_comment": "FILLED buy order — long AMD entry. instruction=BUY clarifies direction better than amount sign on transactions.",
+    "session": "NORMAL",
+    "duration": "DAY",
+    "orderType": "LIMIT",
+    "complexOrderStrategyType": "NONE",
+    "quantity": 10,
+    "filledQuantity": 10,
+    "remainingQuantity": 0,
+    "price": 142.5,
+    "taxLotMethod": "FIFO",
+    "orderLegCollection": [
+      {
+        "orderLegType": "EQUITY",
+        "legId": 1,
+        "instrument": {
+          "cusip": "007903107",
+          "symbol": "AMD",
+          "description": "ADVANCED MICRO DEVICES INC",
+          "instrumentId": 101,
+          "netChange": 1.25,
+          "type": "EQUITY"
+        },
+        "instruction": "BUY",
+        "positionEffect": "OPENING",
+        "quantity": 10,
+        "quantityType": "ALL_SHARES"
+      }
+    ],
+    "orderStrategyType": "SINGLE",
+    "orderId": 9001,
+    "cancelable": false,
+    "editable": false,
+    "status": "FILLED",
+    "enteredTime": "2026-05-01T14:31:50.000Z",
+    "closeTime": "2026-05-01T14:32:00.000Z",
+    "accountNumber": 12345678,
+    "orderActivityCollection": [
+      {
+        "activityType": "EXECUTION",
+        "executionType": "FILL",
+        "quantity": 10,
+        "orderRemainingQuantity": 0,
+        "executionLegs": [
+          {
+            "legId": 1,
+            "price": 142.5,
+            "quantity": 10,
+            "mismarkedQuantity": 0,
+            "instrumentId": 101,
+            "time": "2026-05-01T14:32:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_comment": "FILLED sell order — closes the AMD long. instruction=SELL confirms this closes a long (vs SELL_SHORT which opens a short).",
+    "session": "NORMAL",
+    "duration": "DAY",
+    "orderType": "LIMIT",
+    "complexOrderStrategyType": "NONE",
+    "quantity": 10,
+    "filledQuantity": 10,
+    "remainingQuantity": 0,
+    "price": 158.0,
+    "taxLotMethod": "FIFO",
+    "orderLegCollection": [
+      {
+        "orderLegType": "EQUITY",
+        "legId": 1,
+        "instrument": {
+          "cusip": "007903107",
+          "symbol": "AMD",
+          "description": "ADVANCED MICRO DEVICES INC",
+          "instrumentId": 101,
+          "netChange": -1.25,
+          "type": "EQUITY"
+        },
+        "instruction": "SELL",
+        "positionEffect": "CLOSING",
+        "quantity": 10,
+        "quantityType": "ALL_SHARES"
+      }
+    ],
+    "orderStrategyType": "SINGLE",
+    "orderId": 9002,
+    "cancelable": false,
+    "editable": false,
+    "status": "FILLED",
+    "enteredTime": "2026-05-15T15:09:45.000Z",
+    "closeTime": "2026-05-15T15:10:00.000Z",
+    "accountNumber": 12345678,
+    "orderActivityCollection": [
+      {
+        "activityType": "EXECUTION",
+        "executionType": "FILL",
+        "quantity": 10,
+        "orderRemainingQuantity": 0,
+        "executionLegs": [
+          {
+            "legId": 1,
+            "price": 158.0,
+            "quantity": 10,
+            "mismarkedQuantity": 0,
+            "instrumentId": 101,
+            "time": "2026-05-15T15:10:00.000Z"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "_comment": "FILLED sell-short order — opens a short position. instruction=SELL_SHORT distinguishes from a long exit.",
+    "session": "NORMAL",
+    "duration": "DAY",
+    "orderType": "MARKET",
+    "complexOrderStrategyType": "NONE",
+    "quantity": 5,
+    "filledQuantity": 5,
+    "remainingQuantity": 0,
+    "price": 0,
+    "taxLotMethod": "FIFO",
+    "orderLegCollection": [
+      {
+        "orderLegType": "EQUITY",
+        "legId": 1,
+        "instrument": {
+          "cusip": "67066G104",
+          "symbol": "NVDA",
+          "description": "NVIDIA CORP",
+          "instrumentId": 102,
+          "netChange": 0,
+          "type": "EQUITY"
+        },
+        "instruction": "SELL_SHORT",
+        "positionEffect": "OPENING",
+        "quantity": 5,
+        "quantityType": "ALL_SHARES"
+      }
+    ],
+    "orderStrategyType": "SINGLE",
+    "orderId": 9003,
+    "cancelable": false,
+    "editable": false,
+    "status": "FILLED",
+    "enteredTime": "2026-05-20T13:44:30.000Z",
+    "closeTime": "2026-05-20T13:45:00.000Z",
+    "accountNumber": 12345678,
+    "orderActivityCollection": [
+      {
+        "activityType": "EXECUTION",
+        "executionType": "FILL",
+        "quantity": 5,
+        "orderRemainingQuantity": 0,
+        "executionLegs": [
+          {
+            "legId": 1,
+            "price": 890.0,
+            "quantity": 5,
+            "mismarkedQuantity": 0,
+            "instrumentId": 102,
+            "time": "2026-05-20T13:45:00.000Z"
+          }
+        ]
+      }
+    ]
+  }
+]
